@@ -28,10 +28,7 @@ command(cmd, callback, silent)
 
 	callback(bytestring)
 		Function to get partial console output as command is executing.
-
-	silent
-		Default False
-		Dont collect command response. Use when expecting a lot to return, use callback instead.
+		if specified, command response is not returned by function itself.
 '''
 
 import telnetlib, socket, threading
@@ -91,7 +88,6 @@ class KiTelnet():
 	def command(self
 		, _command
 		, _cbTCP=None
-		, _noreturn=False
 	):
 		if not self.selfAddr[0]:
 			self.log.err('Network configuration')
@@ -104,7 +100,7 @@ class KiTelnet():
 
 		self.tcpPrepare()
 
-		threading.Timer(0, lambda:self.tcpListen(_cbTCP, _noreturn)).start()
+		threading.Timer(0, lambda:self.tcpListen(_cbTCP)).start()
 
 #  todo 11 (code) +0: call telnet unblocking
 #		threading.Timer(0, lambda:self.tryTelnet(_command)).start()
@@ -159,7 +155,6 @@ class KiTelnet():
 
 	def tcpListen(self
 		, _cbTCP=None
-		, _noreturn=False
 		, _timeoutIn= 5		#not starting within
 #		, _timeoutOut= 60	#transfer longer than
 #  todo 8 (network) +0: check for timeout
@@ -184,10 +179,9 @@ class KiTelnet():
 			if not iIn:
 				break
 
-			if not _noreturn:
+			if not _cbTCP:
 				self.tcpResult+= iIn
-
-			if _cbTCP:
+			else:
 				try:
 					_cbTCP(iIn)
 				except:
