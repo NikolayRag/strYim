@@ -88,7 +88,12 @@ class KiTelnet():
 
 		self.tcpThread= threading.Timer(0, lambda:self.tcpListen(_cbTCP, _noreturn))
 		self.tcpThread.start()
-		self.sendTelnet(self.telnetAddr, self.telnetUser, self.telnetPass, _command, self.selfAddr)
+		try:
+			self.sendTelnet(self.telnetAddr, self.telnetUser, self.telnetPass, _command, self.selfAddr)
+		except:
+			self.log.err('Telnet error')
+			self.tcpEvt.set();
+
 
 		self.tcpEvt.wait();
 
