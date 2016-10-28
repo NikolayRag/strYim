@@ -2,5 +2,17 @@
 !test 2: +0 "src\kiTelnet.py" kii 16/10/28 20:48:47
 	test
 
+ network, unsure 6: +0 "src\kiTelnet.py" user 16/10/28 23:33:51
+	think of telnet over route
 
-Reserved: 4
++network 7: +1 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiTelnet.py" user 16/10/28 23:26:41
+	start sending telnet ONLY after TCP started listening
+
+ network 8: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiTelnet.py" user 16/10/28 22:13:35
+	check for timeout
+
+ code 11: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiTelnet.py" user 16/10/28 23:32:46
+	call telnet unblocking
+
+
+Reserved: 12
