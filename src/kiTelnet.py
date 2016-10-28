@@ -217,8 +217,6 @@ class KiTelnet():
 	):
 		self.log.ok("Telnet running:\n%s" % _command)
 
-		req= {'ip':_addrOut[0], 'port':_addrOut[1]}
-
 		self.telnet= telnetlib.Telnet(_addr)
 		self.telnet.read_until(b'a9s login: ')
 		self.telnet.write( (_log +"\n").encode() )
@@ -228,7 +226,12 @@ class KiTelnet():
 			self.telnet.write( (_pass +"\n").encode() )
 
 		self.telnet.read_until(b' # ')
-		self.telnet.write( (_command +"| nc %(ip)s %(port)s >/dev/null\n" % req).encode() )
+		req= {
+			  'cmd':_command
+			, 'ip':_addrOut[0]
+			, 'port':_addrOut[1]
+		}
+		self.telnet.write( ("(%(cmd)s)| nc %(ip)s %(port)s >/dev/null\n" % req).encode() )
 		self.telnet.read_until(b' # ') #wait for response
 		self.telnet.close();
 
