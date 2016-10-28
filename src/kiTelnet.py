@@ -1,33 +1,37 @@
 '''
 execute command in Yi 4k telnet environment
 
-constructor
-KiYiTelnet(name, pass, address)
+
+class KiTelnet(name, pass, address)
 		Only prepares parameters for connection.
 
-	name
+	address
+		Default ''
+
+	user
 		Defalt 'root'
+
 	pass
 		Default ''
-	address
-		Default '192.168.42.1'
 
-		Params for connecting TO Yi.
+	selfPort
+		Default: 8088
 
-method
-command(cmd, callback, nullreturn)
+		Params for connecting to telnet.
+
+command(cmd, callback, silent)
 	Executes CMD and return its console output.
 
 	cmd
 		Default ''
 		Command to execute.
 
-	callback(inText)
+	callback(bytestring)
 		Function to get partial console output as command is executing.
 
-	noreturn
+	silent
 		Default False
-		Dont collect command response. Use for command that could return a lot, use callback instead.
+		Dont collect command response. Use when expecting a lot to return, use callback instead.
 '''
 
 import telnetlib, socket, threading
