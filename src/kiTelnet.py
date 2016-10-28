@@ -64,15 +64,25 @@ class KiTelnet():
 		self.telnetAddr= _telAddr
 
 		selfIP= self.detectIp(_telAddr)
+		if selfIP:
+			self.log.ok('Self IP used: %s' % selfIP)
 
 		self.selfAddr= (selfIP, _selfPort)
 
 
-	def detectIp(self, _camIP):
-		for cIp in socket.gethostbyname_ex(socket.gethostname())[2]:
-			print(cIp)
 
-		return 
+	'''
+	find local IP in in the same /24 network as given one
+	'''
+	def detectIp(self, _telIP):
+		telIPA= str(_telIP).split('.')[0:3]
+
+		for cIp in socket.gethostbyname_ex(socket.gethostname())[2]:
+			if telIPA== str(cIp).split('.')[0:3]:
+				return cIp
+
+		return
+
 
 
 
@@ -81,6 +91,10 @@ class KiTelnet():
 		, _cbTCP=None
 		, _noreturn=False
 	):
+		if not self.selfAddr[0]:
+			self.log.err('Network configuration')
+			return
+
 		if self.tcpThread:
 			return
 
