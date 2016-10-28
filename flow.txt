@@ -1,0 +1,33 @@
+start:
+	check telnet
+		invite :set telnet access
+			console_enable.script
+go:
+	set shooting params
+	if telnet:
+		set file to actual
+		set start to 0
+		go :telnet loop
+	not telnet:
+		<as html5>
+
+
+telnet:
+	read part
+		>telnet (telnet.py)
+			connect
+			split
+			send to tcp OR file
+	>restore 264
+		send 264 and aac :mux
+		set start to mp4 end
+	
+	loop :telnet
+
+
+mux:
+	>make stream
+	if rtmp push:
+		send rtmp
+	else
+		>make available to server

@@ -1,0 +1,6 @@
+
+!test 2: +0 "src\kiTelnet.py" kii 16/10/28 20:48:47
+	test
+
+
+Reserved: 4
