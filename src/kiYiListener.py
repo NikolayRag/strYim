@@ -11,7 +11,7 @@ reconnect if needed
 '''
 class KiYiListener():
 	camRoot='/tmp/fuse_d'
-	camMask='*/L???????.MP4'
+	camMask='???MEDIA/L???????.MP4'
 
 	detectTimeGap= 4 #maximum number of seconds to consider tested file 'live'
 
@@ -29,6 +29,13 @@ class KiYiListener():
 
 
 
+	def telnet(self, _command, _cb=None, _block=True):
+		yiTelnet= KiTelnet('192.168.42.1', 'root', '', _command, _cb)
+		if _block:
+			return yiTelnet.result()
+
+
+
 	def stop(self):
 		self.flagRun= False
 
@@ -41,17 +48,13 @@ class KiYiListener():
 		if self.flagRun:
 			print('not twice')
 			return
-
 		self.flagRun= True
-
-		self.yiTelnet= KiTelnet('192.168.42.1', 'root')
-		self.yiTelnet.logMode(False)
-# -todo 17 (clean, network) +0: make sure KiTelnet recreated
 
 		if not self.yiCheck():
 			print('No proper Yi found')
 			return
 		print('Listening Yi')
+
 		testFileOld= None
 		while self.flagRun:
 			testFileNew= self.detectActiveFile()
@@ -92,11 +95,8 @@ class KiYiListener():
 	check if specified telnet belongs to Yi
 	'''
 	def yiCheck(self):
-		if not self.yiTelnet:
-			return False
-
 		#list path and listen only for errors
-		if self.yiTelnet.command("(ls %s |head -n 0) 2>&1" % self.camRoot) == "":
+		if self.telnet("(ls %s |head -n 0) 2>&1" % self.camRoot) == "":
 			return True
 
 
@@ -106,7 +106,7 @@ class KiYiListener():
 	called in cycle using self return value, search for currently "actual" file.
 	'''
 	def detectActiveFile(self):
-		telnetResA= self.yiTelnet.command("ls -e -R -t %s/DCIM/%s |head -n 1; date" % (self.camRoot, self.camMask))
+		telnetResA= self.telnet("ls -e -R -t %s/DCIM/%s |head -n 1; date" % (self.camRoot, self.camMask))
 		if not telnetResA:
 			return False
 		telnetResA= telnetResA.split("\n") #'file \n date' retured
@@ -159,8 +159,11 @@ KiYi= [None]
 
 class YiOnCommand(sublime_plugin.TextCommand):
 	def run(self, _edit):
-		if not KiYi[0]:
-			KiYi[0]= KiYiListener()
+		if KiYi[0]:
+			print('Already')
+#			return
+
+		KiYi[0]= KiYiListener()
 
 
 class YiOffCommand(sublime_plugin.TextCommand):
