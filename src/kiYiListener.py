@@ -20,9 +20,6 @@ class KiYiListener():
 	flagRun= False
 
 	def __init__(self, _maxAge=4):
-		self.yiTelnet= KiTelnet('192.168.42.1', 'root')
-		self.yiTelnet.logMode(False)
-
 		self.detectTimeGap= _maxAge
 
 		self.flagRun= False
@@ -47,6 +44,9 @@ class KiYiListener():
 	'''
 	def YiListen(self):
 		print('listen to Yi')
+
+		self.yiTelnet= KiTelnet('192.168.42.1', 'root')
+		self.yiTelnet.logMode(False)
 
 		testFileOld= None
 		while self.flagRun:
