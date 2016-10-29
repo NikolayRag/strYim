@@ -95,8 +95,8 @@ class KiYiListener():
 		if not self.yiTelnet:
 			return False
 
-		yiTest= self.yiTelnet.command("(ls %s |head -n 0) 2>&1" % self.camRoot)
-		if yiTest!=False and yiTest=="":
+		#list path and listen only for errors
+		if self.yiTelnet.command("(ls %s |head -n 0) 2>&1" % self.camRoot) == "":
 			return True
 
 
