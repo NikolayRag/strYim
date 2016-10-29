@@ -5,12 +5,15 @@ import threading
 
 
 
-
+'''
+connect to Yi and get live file
+reconnect if needed
+'''
 class KiYiListener():
-	camRoot='/tmp/fuse_d/DCIM'
-	camMask='*/L???????.MP4'
+	camRoot='/tmp/fuse_d'
+	camMask='???MEDIA/L???????.MP4'
 
-	detectTimeGap= None #maximum number of seconds to consider tested file 'live'
+	detectTimeGap= 4 #maximum number of seconds to consider tested file 'live'
 
 	reLsMask= re.compile('^(?P<rights>[^\s]+)\s+(?P<links>[^\s]+)\s+(?P<owner>[^\s]+)\s+(?P<group>[^\s]+)\s+(?P<size>[^\s]+)\s+(?P<date>[\w]+\s[\w]+\s[\d]+\s\d\d:\d\d:\d\d \d\d\d\d)\s+(?P<fname>.*)\s*$')
 
@@ -19,19 +22,18 @@ class KiYiListener():
 	yiTelnet= None
 	flagRun= False
 
-	def __init__(self, _maxAge=4):
-		self.detectTimeGap= _maxAge
-
+	def __init__(self, _cb=None):
 		self.flagRun= False
 
+		threading.Timer(0, lambda: self.check(_cb)).start()
 
-	def run(self):
-		if self.flagRun:
-			print('not twice')
-			return
 
-		self.flagRun= True
-		threading.Timer(0, self.YiListen).start()
+
+	def telnet(self, _command, _cb=None, _block=True):
+		yiTelnet= KiTelnet('192.168.42.1', 'root', '', _command, _cb)
+		if _block:
+			return yiTelnet.result()
+
 
 
 	def stop(self):
@@ -40,13 +42,18 @@ class KiYiListener():
 
 
 	'''
-	wait for live recording and seamlessly read it chained untill and 
+	(re)connect to Yi
 	'''
-	def YiListen(self):
-		print('listen to Yi')
+	def check(self, _cb):
+		if self.flagRun:
+			print('not twice')
+			return
+		self.flagRun= True
 
-		self.yiTelnet= KiTelnet('192.168.42.1', 'root')
-		self.yiTelnet.logMode(False)
+		if not self.yiCheck():
+			print('No proper Yi found')
+			return
+		print('Listening Yi')
 
 		testFileOld= None
 		while self.flagRun:
@@ -84,6 +91,13 @@ class KiYiListener():
 
 
 
+	'''
+	check if specified telnet belongs to Yi
+	'''
+	def yiCheck(self):
+		#list path and listen only for errors
+		if self.telnet("(ls %s |head -n 0) 2>&1" % self.camRoot) == "":
+			return True
 
 
 
@@ -92,7 +106,7 @@ class KiYiListener():
 	called in cycle using self return value, search for currently "actual" file.
 	'''
 	def detectActiveFile(self):
-		telnetResA= self.yiTelnet.command("ls -e -R -t %(root)s/%(mask)s |head -n 1; date" % {'root':self.camRoot, 'mask':self.camMask})
+		telnetResA= self.telnet("ls -e -R -t %s/DCIM/%s |head -n 1; date" % (self.camRoot, self.camMask))
 		if not telnetResA:
 			return False
 		telnetResA= telnetResA.split("\n") #'file \n date' retured
@@ -145,12 +159,16 @@ KiYi= [None]
 
 class YiOnCommand(sublime_plugin.TextCommand):
 	def run(self, _edit):
-		if not KiYi[0]:
-			KiYi[0]= KiYiListener()
-		KiYi[0].run()
+		if KiYi[0]:
+			print('Already')
+#			return
+
+		KiYi[0]= KiYiListener()
 
 
 class YiOffCommand(sublime_plugin.TextCommand):
 	def run(self, _edit):
 		if KiYi[0]:
 			KiYi[0].stop()
+			KiYi[0]= None
+

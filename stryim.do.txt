@@ -17,5 +17,8 @@
 -clean, network 16: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiYiListener.py" user 16/10/29 06:49:41
 	cleanup unneeded KiTelnet at stop()
 
+-clean, network 17: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiYiListener.py" user 16/10/29 14:12:58
+	make sure KiTelnet recreated
 
-Reserved: 17
+
+Reserved: 18
