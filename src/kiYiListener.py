@@ -19,9 +19,17 @@ class KiYiListener():
 	yiTelnet= None
 	flagRun= False
 
-	def run(self):
+	def __init__(self):
 		self.yiTelnet= KiTelnet('192.168.42.1', 'root')
 		self.yiTelnet.logMode(False)
+
+		self.flagRun= False
+
+
+	def run(self):
+		if self.flagRun:
+			print('not twice')
+			return
 
 		self.flagRun= True
 		threading.Timer(0, self.YiListen).start()
@@ -36,6 +44,8 @@ class KiYiListener():
 	wait for live recording and seamlessly read it chained untill and 
 	'''
 	def YiListen(self):
+		print('listen to Yi')
+
 		detectedFile= None
 		delayCheck= 1
 		while self.flagRun:
@@ -53,7 +63,7 @@ class KiYiListener():
 
 			time.sleep(delayCheck)
 
-		print('enough')
+		print('enough Yi')
 
 
 
