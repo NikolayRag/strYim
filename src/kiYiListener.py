@@ -36,17 +36,9 @@ class KiYiListener():
 	wait for live recording and seamlessly read it chained untill and 
 	'''
 	def YiListen(self):
-		a= 0
-
 		detectedFile= None
 		delayCheck= 1
 		while self.flagRun:
-			print(a)
-			a+=1
-			if a>50 or not self.flagRun:
-				print('enough')
-				break
-
 			testFile= self.detectActiveFile(detectedFile)
 			if getA(testFile,'live') and not getA(detectedFile,'live'):
 				delayCheck= 10 #give more time
@@ -60,6 +52,8 @@ class KiYiListener():
 
 
 			time.sleep(delayCheck)
+
+		print('enough')
 
 
 
