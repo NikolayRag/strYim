@@ -64,6 +64,8 @@ class KiYiListener():
 
 		print('enough Yi')
 
+# -todo 16 (clean, network) +0: cleanup unneeded KiTelnet at stop()
+
 
 
 #		req= {'readPath':readPath, 'readName':readName, 'readStart':readStart+1, 'readLen':readLen}

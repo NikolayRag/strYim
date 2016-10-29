@@ -2,7 +2,7 @@
 !test 2: +0 "src\kiTelnet.py" kii 16/10/28 20:48:47
 	test
 
- network, unsure 6: +0 "src\kiTelnet.py" user 16/10/28 23:33:51
+ network, unsure 6: +0 "src\kiTelnet.py" user 16/10/29 02:12:48
 	think of telnet over route
 
 +network 7: +1 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiTelnet.py" user 16/10/28 23:26:41
@@ -11,8 +11,11 @@
  network 8: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiTelnet.py" user 16/10/28 22:13:35
 	check for timeout
 
- code 11: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiTelnet.py" user 16/10/28 23:32:46
+ code 11: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiTelnet.py" user 16/10/29 02:47:41
 	call telnet unblocking
 
+-clean, network 16: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiYiListener.py" user 16/10/29 06:49:41
+	cleanup unneeded KiTelnet at stop()
 
-Reserved: 12
+
+Reserved: 17
