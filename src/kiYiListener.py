@@ -44,7 +44,7 @@ class KiYiListener():
 	'''
 	def YiListen(self):
 		print('listen to Yi')
-
+# -todo 17 (clean, network) +0: make sure KiTelnet recreated
 		self.yiTelnet= KiTelnet('192.168.42.1', 'root')
 		self.yiTelnet.logMode(False)
 
