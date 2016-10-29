@@ -72,7 +72,7 @@ class KiTelnet():
 	'''
 	switch logging
 	'''
-	def slogMode(self, _ok=True, _err=True):
+	def logMode(self, _ok=True, _err=True):
 		self.log.set(_ok, _err)
 
 
