@@ -49,21 +49,18 @@ class KiYiListener():
 		print('listen to Yi')
 
 		testFileOld= None
-		delayCheck= 1
 		while self.flagRun:
-			testFileNew= self.detectActiveFile(testFileOld)
-			if getA(testFileNew,'live') and not getA(testFileOld,'live'):
-				delayCheck= 5 #give more time
+			testFileNew= self.detectActiveFile()
+			
+			if testFileNew and not testFileOld:
 				print('On air: ', testFileNew)
 
-			if not getA(testFileNew,'live') and getA(testFileOld,'live'):
-				delayCheck= 1
+			if testFileOld and not testFileNew:
 				print('Off air')
 
 			testFileOld= testFileNew
 
-
-			time.sleep(delayCheck)
+			time.sleep(1)
 
 		print('enough Yi')
 
@@ -90,11 +87,12 @@ class KiYiListener():
 
 
 	'''
-	called in cycle using self return value, search for currently "active" file.
-	successfull file is defined by 'live' boolean field
+	called in cycle using self return value, search for currently "actual" file.
 	'''
-	def detectActiveFile(self, _testFile=None):
+	def detectActiveFile(self):
 		telnetResA= self.yiTelnet.command("ls -e -R -t %(root)s/%(mask)s |head -n 1; date" % {'root':self.camRoot, 'mask':self.camMask})
+		if not telnetResA:
+			return False
 		telnetResA= telnetResA.split("\n") #'file \n date' retured
 
 		camFileRe= self.reLsMask.match(telnetResA[0])
@@ -107,21 +105,10 @@ class KiYiListener():
 		camTime= time.mktime( time.strptime(telnetResA[1], '%a %b %d %H:%M:%S UTC %Y') )
 		camFileTime= time.mktime( time.strptime(camFile['date']) )
 		camFile['age']= camTime-camFileTime
-		camFile['live']= False
 
 		
-		if camFile['age']>self.detectTimeGap:
-			return
-
-
-		#compare with probably previous version
-		if (
-				getA(_testFile,'fname')==getA(camFile,'fname')
-			and int(getA(_testFile,'size'))<int(getA(camFile,'size'))
-		):
-			camFile['live']= True
-
-		return camFile
+		if camFile['age']<=self.detectTimeGap:
+			return camFile
 
 
 
