@@ -16,4 +16,4 @@ class YiOnCommand(sublime_plugin.TextCommand):
 class YiOffCommand(sublime_plugin.TextCommand):
 	def run(self, _edit):
 		if KiYi[0]:
-			KiYi.stop()
+			KiYi[0].stop()

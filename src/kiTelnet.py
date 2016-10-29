@@ -33,7 +33,7 @@ command(cmd, callback, silent)
 
 import telnetlib, socket, threading
 
-from .kilog import *
+from .kiSupport import *
 
 
 class KiTelnet():

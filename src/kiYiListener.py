@@ -1,4 +1,5 @@
 from .kiTelnet import *
+from .kiSupport import *
 import time, re
 import threading
 
