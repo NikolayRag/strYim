@@ -19,6 +19,7 @@ class KiYiListener():
 	yiTelnet= None
 	flagRun= False
 
+	def __init__(self, _maxAge=4):
 		self.yiTelnet= KiTelnet('192.168.42.1', 'root')
 		self.yiTelnet.logMode(False)
 
@@ -116,7 +117,7 @@ class KiYiListener():
 		#compare with probably previous version
 		if (
 				getA(_testFile,'fname')==getA(camFile,'fname')
-			and getA(_testFile,'size')<getA(camFile,'size')
+			and int(getA(_testFile,'size'))<int(getA(camFile,'size'))
 		):
 			camFile['live']= True
 
