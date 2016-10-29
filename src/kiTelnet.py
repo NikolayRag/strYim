@@ -70,6 +70,14 @@ class KiTelnet():
 
 
 	'''
+	switch logging
+	'''
+	def slogMode(self, _ok=True, _err=True):
+		self.log.set(_ok, _err)
+
+
+
+	'''
 	find local IP in in the same /24 network as given one
 	'''
 #  todo 6 (network, unsure) +0: think of telnet over route
@@ -116,6 +124,7 @@ class KiTelnet():
 		self.log.ok('Executed with %d bytes' % len(self.tcpResult))
 
 		return self.tcpResult.decode('ascii')
+
 
 
 	'''
