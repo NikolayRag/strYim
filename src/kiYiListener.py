@@ -10,7 +10,7 @@ class KiYiListener():
 	camRoot='/tmp/fuse_d/DCIM'
 	camMask='*/L???????.MP4'
 
-	detectTimeGap= 5 #maximum number of seconds to consider tested file 'live'
+	detectTimeGap= None #maximum number of seconds to consider tested file 'live'
 
 	reLsMask= re.compile('^(?P<rights>[^\s]+)\s+(?P<links>[^\s]+)\s+(?P<owner>[^\s]+)\s+(?P<group>[^\s]+)\s+(?P<size>[^\s]+)\s+(?P<date>[\w]+\s[\w]+\s[\d]+\s\d\d:\d\d:\d\d \d\d\d\d)\s+(?P<fname>.*)\s*$')
 
@@ -19,9 +19,10 @@ class KiYiListener():
 	yiTelnet= None
 	flagRun= False
 
-	def __init__(self):
 		self.yiTelnet= KiTelnet('192.168.42.1', 'root')
 		self.yiTelnet.logMode(False)
+
+		self.detectTimeGap= _maxAge
 
 		self.flagRun= False
 
@@ -46,20 +47,19 @@ class KiYiListener():
 	def YiListen(self):
 		print('listen to Yi')
 
-		detectedFile= None
+		testFileOld= None
 		delayCheck= 1
 		while self.flagRun:
-			print('test')
-			testFile= self.detectActiveFile(detectedFile)
-			if getA(testFile,'live') and not getA(detectedFile,'live'):
-				delayCheck= 10 #give more time
-				print('On air: ', testFile)
+			testFileNew= self.detectActiveFile(testFileOld)
+			if getA(testFileNew,'live') and not getA(testFileOld,'live'):
+				delayCheck= 5 #give more time
+				print('On air: ', testFileNew)
 
-			if not getA(testFile,'live') and getA(detectedFile,'live'):
+			if not getA(testFileNew,'live') and getA(testFileOld,'live'):
 				delayCheck= 1
 				print('Off air')
 
-			detectedFile= testFile
+			testFileOld= testFileNew
 
 
 			time.sleep(delayCheck)
