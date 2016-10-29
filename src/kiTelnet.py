@@ -50,10 +50,12 @@ class KiTelnet():
 	selfAddr= ''
 
 
-	log= KiLog('KiTelnet log:', 'KiTelnet ERROR:')
+	log= None
 
 
 	def __init__(self, _telAddr, _telUser='root', _telPass='', _selfPort=8088):
+		self.log= KiLog('KiTelnet log:', 'KiTelnet ERROR:')
+
 		self.blockedFlag= threading.Event()
 		self.blockedFlag.set();
 
