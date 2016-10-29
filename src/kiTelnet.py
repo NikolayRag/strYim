@@ -164,13 +164,13 @@ class KiTelnet():
 
 	def tcpListen(self
 		, _cbTCP=None
-		, _timeoutIn= 5		#not starting within
-#		, _timeoutOut= 60	#transfer longer than
-#  todo 8 (network) +0: check for timeout
+		, _timeIn= 2	#not starting within
+#		, _timeOut= 5	#no output longer than
+# =todo 8 (network) +0: check for timeout
 	):
 
-		tcpTimeinSteady= threading.Timer(_timeoutIn, self.tcpSock.close)
-		tcpTimeinSteady.start()
+		tcpTimein= threading.Timer(_timeIn, self.tcpSock.close)
+		tcpTimein.start()
 
 		try:
 			c, a= self.tcpSock.accept()
@@ -179,8 +179,9 @@ class KiTelnet():
 			self.reset()
 			return
 
-		tcpTimeinSteady.cancel()
+		tcpTimein.cancel()
 		self.log.ok('Tcp in from ' +a[0])
+
 
 		self.tcpResult= b'';
 		while 1:
