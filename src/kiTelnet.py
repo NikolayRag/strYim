@@ -28,24 +28,21 @@ command(cmd, callback, silent)
 
 	callback(bytestring)
 		Function to get partial console output as command is executing.
-
-	silent
-		Default False
-		Dont collect command response. Use when expecting a lot to return, use callback instead.
+		if specified, command response is not returned by function itself.
 '''
 
 import telnetlib, socket, threading
 
-from .kilog import *
+from .kiSupport import *
 
 
 class KiTelnet():
-	tcpThread= None
 	tcpSock= None
-	tcpEvt= None
-	tcpResult= b''
+	blockedFlag= None
+	tcpResult= False
 
 
+	telnet= None
 	telnetUser= ''
 	telnetPass= ''
 	telnetAddr= ''
@@ -57,7 +54,8 @@ class KiTelnet():
 
 
 	def __init__(self, _telAddr, _telUser='root', _telPass='', _selfPort=8088):
-		self.tcpEvt= threading.Event()
+		self.blockedFlag= threading.Event()
+		self.blockedFlag.set();
 
 		self.telnetUser= _telUser
 		self.telnetPass= _telPass
@@ -72,8 +70,17 @@ class KiTelnet():
 
 
 	'''
+	switch logging
+	'''
+	def logMode(self, _ok=True, _err=True):
+		self.log.set(_ok, _err)
+
+
+
+	'''
 	find local IP in in the same /24 network as given one
 	'''
+#  todo 6 (network, unsure) +0: think of telnet over route
 	def detectIp(self, _telIP):
 		telIPA= str(_telIP).split('.')[0:3]
 
@@ -89,34 +96,30 @@ class KiTelnet():
 	def command(self
 		, _command
 		, _cbTCP=None
-		, _noreturn=False
 	):
 		if not self.selfAddr[0]:
 			self.log.err('Network configuration')
 			return
 
-		if self.tcpThread:
+		if not self.blockedFlag.isSet():
 			return
 
-		self.tcpEvt.clear();
+		self.blockedFlag.clear();
 
-		self.tcpThread= threading.Timer(0, lambda:self.tcpListen(_cbTCP, _noreturn))
-		self.tcpThread.start()
-		try:
-			self.sendTelnet(self.telnetAddr, self.telnetUser, self.telnetPass, _command, self.selfAddr)
-		except:
-			self.log.err('Telnet error')
-			self.tcpEvt.set();
+		self.tcpPrepare()
 
+		threading.Timer(0, lambda:self.tcpListen(_cbTCP)).start()
 
-		self.tcpEvt.wait();
+#  todo 11 (code) +0: call telnet unblocking
+#		threading.Timer(0, lambda:self.tryTelnet(_command)).start()
+		self.tryTelnet(_command)
 
-		self.tcpThread= None #reset
+		self.blockedFlag.wait();
+
 
 		if self.tcpResult==False:
-			self.log.err('Execution')
+			self.log.err('')
 			return False
-
 
 		self.log.ok('Executed with %d bytes' % len(self.tcpResult))
 
@@ -124,42 +127,60 @@ class KiTelnet():
 
 
 
-	def tcpListen(self
-		, _cbTCP=None
-		, _noreturn=False
-		, _timeoutIn= 5		#not starting within
-		, _timeoutOut= 60	#transfer longer than
-	):
+	'''
+	cancel everything and relax
+	'''
+	def reset(self, _soft=False):
+		if self.tcpSock:
+			self.tcpSock.close()
+			self.tcpSock= None
+
+#		if self.telnet:
+#			self.telnet.close()
+
+		if not _soft:
+			self.tcpResult= False
+
+		self.blockedFlag.set()
+
+
+
+
+	def tcpPrepare(self):
 		self.tcpSock= socket.socket()
+
 		try:
 			self.tcpSock.bind(self.selfAddr)
 		except:
 			self.log.err('No camera')
-			self.tcpSock.close()
-			self.tcpEvt.set();
-
-			self.tcpResult= False
+			self.reset()
 			return
 
 		self.tcpSock.listen(1)
 
+		self.log.ok('Tcp listening %s:%s...' % self.selfAddr)
+
+
+
+	def tcpListen(self
+		, _cbTCP=None
+		, _timeoutIn= 5		#not starting within
+#		, _timeoutOut= 60	#transfer longer than
+#  todo 8 (network) +0: check for timeout
+	):
+
 		tcpTimeinSteady= threading.Timer(_timeoutIn, self.tcpSock.close)
 		tcpTimeinSteady.start()
 
-		self.log.ok('Tcp listening %s:%s...' % self.selfAddr)
 		try:
 			c, a= self.tcpSock.accept()
 		except:
 			self.log.err('Tcp timeIn')
-
-			self.tcpThread.cancel()
-			self.tcpEvt.set();
-
-			self.tcpResult= False
+			self.reset()
 			return
 
-		self.log.ok('Tcp in from ' +a[0])
 		tcpTimeinSteady.cancel()
+		self.log.ok('Tcp in from ' +a[0])
 
 		self.tcpResult= b'';
 		while 1:
@@ -167,19 +188,27 @@ class KiTelnet():
 			if not iIn:
 				break
 
-			if not _noreturn:
+			if not _cbTCP:
 				self.tcpResult+= iIn
-
-			if _cbTCP:
+			else:
 				try:
 					_cbTCP(iIn)
 				except:
 					self.log.err('Tcp callback exception')
 
 		c.close()
-		self.tcpSock.close()
-		self.tcpEvt.set();
 
+		self.reset(True)
+
+
+
+	def tryTelnet(self, _command):
+		try:
+			self.sendTelnet(self.telnetAddr, self.telnetUser, self.telnetPass, _command, self.selfAddr)
+		except:
+			if not self.blockedFlag.isSet():
+				self.log.err('Telnet error')
+				self.reset()
 
 
 	def sendTelnet(self
@@ -191,19 +220,22 @@ class KiTelnet():
 	):
 		self.log.ok("Telnet running:\n%s" % _command)
 
-		req= {'ip':_addrOut[0], 'port':_addrOut[1]}
-
-		t= telnetlib.Telnet(_addr)
-		t.read_until(b'a9s login: ')
-		t.write( (_log +"\n").encode() )
+		self.telnet= telnetlib.Telnet(_addr)
+		self.telnet.read_until(b'a9s login: ')
+		self.telnet.write( (_log +"\n").encode() )
 
 		if _pass and _pass!='':
-			t.read_until(b'Password: ')
-			t.write( (_pass +"\n").encode() )
+			self.telnet.read_until(b'Password: ')
+			self.telnet.write( (_pass +"\n").encode() )
 
-		t.read_until(b' # ')
-		t.write( (_command +"| nc %(ip)s %(port)s >/dev/null\n" % req).encode() )
-		t.read_until(b' # ') #wait for response
-		t.close();
+		self.telnet.read_until(b' # ')
+		req= {
+			  'cmd':_command
+			, 'ip':_addrOut[0]
+			, 'port':_addrOut[1]
+		}
+		self.telnet.write( ("(%(cmd)s)| nc %(ip)s %(port)s >/dev/null\n" % req).encode() )
+		self.telnet.read_until(b' # ') #wait for response
+		self.telnet.close();
 
 		self.log.ok("Telnet ok")
