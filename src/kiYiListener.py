@@ -94,10 +94,8 @@ class KiYiListener():
 
 			testFileNew= self.detectActiveFile()
 
-			if testFileNew==False:
-				kiLog.err('Cant watch')
-				testFileOld= '' #reset
-				continue
+			if testFileOld!=False and testFileNew==False:
+				kiLog.err('while listening')
 
 			if testFileNew and not testFileOld:
 				kiLog.ok('On air: %s' % testFileNew)
