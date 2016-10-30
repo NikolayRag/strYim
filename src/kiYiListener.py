@@ -84,9 +84,9 @@ class KiYiListener():
 	'''
 	def check(self):
 		if not self.yiCheck():
-			kiLog.warn('No proper Yi found')
+			kiLog.warn('No proper camera found')
 			return
-		kiLog.ok('Listening Yi')
+		kiLog.ok('Listening')
 
 		testFileOld= ''
 		while self.flagRun:
@@ -95,20 +95,20 @@ class KiYiListener():
 			testFileNew= self.detectActiveFile()
 
 			if testFileNew==False:
-				kiLog.err('Yi Error')
+				kiLog.err('Cant watch')
 				testFileOld= '' #reset
 				continue
 
 			if testFileNew and not testFileOld:
-				kiLog.ok('Yi on air: ', testFileNew)
+				kiLog.ok('On air: %s' % testFileNew)
 
 			if testFileOld and not testFileNew:
-				kiLog.ok('Yi off air')
+				kiLog.ok('Off air')
 
 
 			testFileOld= testFileNew
 
-		kiLog.ok('enough Yi')
+		kiLog.ok('Silencing')
 
 # -todo 16 (clean, network) +0: cleanup unneeded KiTelnet at stop()
 
