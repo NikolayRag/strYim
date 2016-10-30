@@ -109,7 +109,7 @@ class KiYiListener():
 
 			testFileOld= testFileNew
 
-		kiLog.ok('Silencing')
+		kiLog.ok('Unlistening')
 
 # -todo 16 (clean, network) +0: cleanup unneeded KiTelnet at stop()
 
@@ -138,6 +138,7 @@ class KiYiListener():
 		#list path and listen only for errors
 		if self.telnet("(ls %s |head -n 0) 2>&1" % self.camRoot) == "":
 			return True
+
 
 
 
