@@ -8,17 +8,23 @@
 +network 7: +1 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiTelnet.py" user 16/10/28 23:26:41
 	start sending telnet ONLY after TCP started listening
 
- network 8: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiTelnet.py" user 16/10/28 22:13:35
+=network 8: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiTelnet.py" user 16/10/29 17:18:08
 	check for timeout
 
- code 11: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiTelnet.py" user 16/10/29 02:47:41
++code 11: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiTelnet.py" user 16/10/29 20:09:13
 	call telnet unblocking
 
 -clean, network 16: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiYiListener.py" user 16/10/29 06:49:41
 	cleanup unneeded KiTelnet at stop()
 
--clean, network 17: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiYiListener.py" user 16/10/29 14:12:58
++clean, network 17: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiYiListener.py" user 16/10/29 21:29:24
 	make sure KiTelnet recreated
 
+ telnet 19: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiTelnet.py" user 16/10/29 20:04:54
+	get telnet finish elseway
 
-Reserved: 18
+ telnet, log 20: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiTelnet.py" user 16/10/29 19:04:46
+	use log elseway
+
+
+Reserved: 23
