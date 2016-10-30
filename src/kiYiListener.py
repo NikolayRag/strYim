@@ -129,18 +129,6 @@ class KiYiListener():
 
 
 	'''
-	check if specified telnet belongs to Yi
-	'''
-	def yiCheck(self):
-		#list path and listen only for errors
-		if self.telnet("(ls %s |head -n 0) 2>&1" % self.camRoot) == "":
-			return True
-
-
-
-
-
-	'''
 	called in cycle using self return value, search for currently "actual" file.
 	'''
 	def detectActiveFile(self):
