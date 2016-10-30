@@ -35,19 +35,6 @@ class KiYiListener():
 	flagRun= False
 
 
-
-
-	'''
-	support for telnet
-	'''
-	def telnet(self, _command, _cb=None, _block=True):
-		yiTelnet= KiTelnet(self.camIP, self.camUser, self.camPass, _command, _cb)
-		if _block:
-			return yiTelnet.result()
-
-
-
-
 	def __init__(self):
 		kiLog.states(
 		      False
@@ -55,6 +42,8 @@ class KiYiListener():
 		    , False
 		    , 'KiTelnet'
 		)
+
+		KiTelnet.defaults(self.camIP, self.camUser, self.camPass, 8088)
 
 
 		self.flagRun= False
@@ -132,8 +121,9 @@ class KiYiListener():
 	called in cycle using self return value, search for currently "actual" file.
 	'''
 	def detectActiveFile(self):
-		telnetResA= self.telnet("cd %s/DCIM/; ls -e -R -t %s |head -n 1; date" % (self.camRoot, self.camMask))
-		if not telnetResA: #error
+		yiTelnet= KiTelnet("cd %s/DCIM/; ls -e -R -t %s |head -n 1; date" % (self.camRoot, self.camMask))
+		telnetResA= yiTelnet.result()
+		if telnetResA==False: #error
 			return False
 		telnetResA= telnetResA.split("\n") #'file \n date' retured
 
