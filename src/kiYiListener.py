@@ -83,9 +83,6 @@ class KiYiListener():
 	(re)connect to Yi
 	'''
 	def check(self):
-		if not self.yiCheck():
-			kiLog.warn('No proper camera found')
-			return
 		kiLog.ok('Listening')
 
 		testFileOld= ''
@@ -154,7 +151,7 @@ class KiYiListener():
 
 		camFileRe= self.reLsMask.match(telnetResA[0])
 		if not camFileRe: #mismatch result
-			return False
+			return ''
 
 
 		camFile= camFileRe.groupdict()
