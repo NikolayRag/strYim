@@ -145,7 +145,7 @@ class KiYiListener():
 	called in cycle using self return value, search for currently "actual" file.
 	'''
 	def detectActiveFile(self):
-		telnetResA= self.telnet("ls -e -R -t %s/DCIM/%s |head -n 1; date" % (self.camRoot, self.camMask))
+		telnetResA= self.telnet("cd %s/DCIM/; ls -e -R -t %s |head -n 1; date" % (self.camRoot, self.camMask))
 		if not telnetResA: #error
 			return False
 		telnetResA= telnetResA.split("\n") #'file \n date' retured
@@ -163,7 +163,7 @@ class KiYiListener():
 
 		
 		if camFile['age']<=self.detectTimeGap:
-			return camFile
+			return camFile['fname']
 
 
 
