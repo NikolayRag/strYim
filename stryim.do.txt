@@ -14,7 +14,7 @@
 +code 11: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiTelnet.py" user 16/10/29 20:09:13
 	call telnet unblocking
 
--clean, network 16: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiYiListener.py" user 16/10/29 06:49:41
+ clean, network 16: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiYiListener.py" user 16/10/30 23:47:21
 	cleanup unneeded KiTelnet at stop()
 
 +clean, network 17: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiYiListener.py" user 16/10/29 21:29:24
@@ -23,7 +23,7 @@
  telnet 19: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiTelnet.py" user 16/10/29 20:04:54
 	get telnet finish elseway
 
- telnet, log 20: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiTelnet.py" user 16/10/29 19:04:46
++telnet, log 20: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiTelnet.py" kii 16/10/30 15:53:35
 	use log elseway
 
 

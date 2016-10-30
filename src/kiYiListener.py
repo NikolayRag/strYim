@@ -97,7 +97,7 @@ class KiYiListener():
 
 		kiLog.ok('Unlistening')
 
-# -todo 16 (clean, network) +0: cleanup unneeded KiTelnet at stop()
+#  todo 16 (clean, network) +0: cleanup unneeded KiTelnet at stop()
 
 
 
