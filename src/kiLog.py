@@ -1,5 +1,7 @@
 import inspect
 
+from .kiSupport import *
+
 class kiLog():
 	#statical collection
 	contexts= {
