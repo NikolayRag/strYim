@@ -103,6 +103,9 @@ class KiYiListener():
 			if testFileOld and not testFileNew:
 				kiLog.ok('Off air')
 
+			if testFileOld and testFileNew and testFileNew!=testFileOld:
+				kiLog.ok('Fresh air: %s' % testFileNew)
+
 
 			testFileOld= testFileNew
 
