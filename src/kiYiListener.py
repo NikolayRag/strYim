@@ -13,6 +13,12 @@ connect to Yi and get live file
 reconnect if needed
 '''
 class KiYiListener():
+	kiLog.prefixes(
+	      'YiListen log:'
+	    , 'YiListen warning:'
+	    , 'YiListen ERROR:'
+	)
+
 
 
 	reLsMask= re.compile('^(?P<rights>[^\s]+)\s+(?P<links>[^\s]+)\s+(?P<owner>[^\s]+)\s+(?P<group>[^\s]+)\s+(?P<size>[^\s]+)\s+(?P<date>[\w]+\s[\w]+\s[\d]+\s\d\d:\d\d:\d\d \d\d\d\d)\s+(?P<fname>.*)\s*$')
@@ -60,7 +66,7 @@ class KiYiListener():
 
 	def start(self):
 		if self.flagRun:
-			print('not twice')
+			kiLog.warn('not twice')
 			return
 
 		self.flagRun= True
@@ -78,9 +84,9 @@ class KiYiListener():
 	'''
 	def check(self):
 		if not self.yiCheck():
-			print('No proper Yi found')
+			kiLog.warn('No proper Yi found')
 			return
-		print('Listening Yi')
+		kiLog.ok('Listening Yi')
 
 		testFileOld= ''
 		while self.flagRun:
@@ -89,20 +95,20 @@ class KiYiListener():
 			testFileNew= self.detectActiveFile()
 
 			if testFileNew==False:
-				print('Yi Error')
+				kiLog.err('Yi Error')
 				testFileOld= '' #reset
 				continue
 
 			if testFileNew and not testFileOld:
-				print('On air: ', testFileNew)
+				kiLog.ok('Yi on air: ', testFileNew)
 
 			if testFileOld and not testFileNew:
-				print('Off air')
+				kiLog.ok('Yi off air')
 
 
 			testFileOld= testFileNew
 
-		print('enough Yi')
+		kiLog.ok('enough Yi')
 
 # -todo 16 (clean, network) +0: cleanup unneeded KiTelnet at stop()
 
@@ -193,7 +199,7 @@ KiYi= [None]
 class YiOnCommand(sublime_plugin.TextCommand):
 	def run(self, _edit):
 		if KiYi[0]:
-			print('Already')
+			kiLog.warn('Already')
 			return
 
 		KiYi[0]= KiYiListener()
