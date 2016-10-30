@@ -48,9 +48,20 @@ result()
 import telnetlib, socket, threading
 
 from .kiSupport import *
+from .kiLog import *
+
+
 
 
 class KiTelnet():
+	kiLog.prefixes(
+	      'KiTelnet log:'
+	    , 'KiTelnet warning:'
+	    , 'KiTelnet ERROR:'
+	)
+
+
+
 	tcpSock= None
 	blockedFlag= None
 	tcpResult= False
@@ -65,16 +76,6 @@ class KiTelnet():
 	telnetPass= ''
 
 	selfAddr= ''
-
-
-	log= None
-
-
-	'''
-	switch logging
-	'''
-	def logMode(self, _ok=True, _err=True):
-		self.log.set(_ok, _err)
 
 
 
@@ -104,8 +105,6 @@ class KiTelnet():
 		, _selfAddr=None
 	):
 #  todo 20 (telnet, log) +0: use log elseway
-		self.log= KiLog('KiTelnet log:', 'KiTelnet ERROR:')
-		self.logMode(False)
 
 		self.blockedFlag= threading.Event()
 
@@ -119,7 +118,7 @@ class KiTelnet():
 			_selfAddr= self.localIp(_telAddr)
 			
 		if not _selfAddr:
-			self.log.err('No self IP')
+			kiLog.err('No self IP')
 			self.reset()
 			return
 
@@ -169,13 +168,13 @@ class KiTelnet():
 		try:
 			self.tcpSock.bind(self.selfAddr)
 		except:
-			self.log.err('Cannot listen to %s' % str(self.selfAddr))
+			kiLog.err('Cannot listen to %s' % str(self.selfAddr))
 			self.reset()
 			return
 
 		self.tcpSock.listen(1)
 
-		self.log.ok('Tcp listening %s:%s...' % self.selfAddr)
+		kiLog.ok('Tcp listening %s:%s...' % self.selfAddr)
 
 		return True
 
@@ -193,12 +192,12 @@ class KiTelnet():
 		try:
 			c, a= self.tcpSock.accept()
 		except:
-			self.log.err('Tcp timeIn')
+			kiLog.err('Tcp timeIn')
 			self.reset()
 			return
 
 		tcpTimein.cancel()
-		self.log.ok('Tcp in from ' +a[0])
+		kiLog.ok('Tcp in from ' +a[0])
 
 
 		self.tcpResult= b'';
@@ -213,7 +212,7 @@ class KiTelnet():
 				try:
 					_cbRes(iIn)
 				except:
-					self.log.err('Tcp callback exception')
+					kiLog.err('Tcp callback exception')
 
 		c.close()
 
@@ -226,7 +225,7 @@ class KiTelnet():
 			self.sendTelnet(self.telnetAddr, self.telnetUser, self.telnetPass, _command, self.selfAddr)
 		except:
 			if not self.blockedFlag.isSet():
-				self.log.err('Telnet error')
+				kiLog.err('Telnet error')
 				self.reset()
 
 
@@ -238,7 +237,7 @@ class KiTelnet():
 		, _addrOut
 	):
 		self.telnet.open(_addr)
-		self.log.ok("Telnet running:\n%s" % _command)
+		kiLog.ok("Telnet running:\n%s" % _command)
 
 		self.telnet.read_until(self.telnetPromptLog)
 		self.telnet.write( (_log +"\n").encode() )
@@ -257,3 +256,7 @@ class KiTelnet():
 #  todo 19 (telnet) +0: get telnet finish elseway
 		self.telnet.read_until(self.telnetPrompt) #wait for response
 		self.telnet.close();
+
+
+
+

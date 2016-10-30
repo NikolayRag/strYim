@@ -1,7 +1,10 @@
-from .kiTelnet import *
-from .kiSupport import *
 import time, re
 import threading
+
+from .kiTelnet import *
+from .kiSupport import *
+from .kiLog import *
+
 
 
 
@@ -40,6 +43,14 @@ class KiYiListener():
 
 
 	def __init__(self):
+		kiLog.states(
+		      False
+		    , False
+		    , False
+		    , 'KiTelnet'
+		)
+
+
 		self.flagRun= False
 
 		self.start()
