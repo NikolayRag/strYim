@@ -54,14 +54,6 @@ from .kiLog import *
 
 
 class KiTelnet():
-	kiLog.prefixes(
-	      'KiTelnet log:'
-	    , 'KiTelnet warning:'
-	    , 'KiTelnet ERROR:'
-	)
-
-
-
 	tcpSock= None
 	blockedFlag= None
 	tcpResult= False
