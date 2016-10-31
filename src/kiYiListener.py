@@ -29,17 +29,18 @@ class KiYiListener():
 	goAir= True
 
 
+
+	kiLog.states(
+	      False
+	    , False
+	    , False
+	    , 'KiTelnet'
+	)
+
+	KiTelnet.defaults(camIP, camUser, camPass, 8088)
+
+
 	def __init__(self):
-		kiLog.states(
-		      False
-		    , False
-		    , False
-		    , 'KiTelnet'
-		)
-
-		KiTelnet.defaults(self.camIP, self.camUser, self.camPass, 8088)
-
-
 		self.flagRun= False
 
 		self.start()
