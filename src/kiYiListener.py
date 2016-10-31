@@ -115,7 +115,6 @@ class KiYiListener():
 
 		kiLog.ok('stop')
 
-#  todo 16 (clean, network) +0: cleanup unneeded KiTelnet at stop()
 
 
 
@@ -139,8 +138,8 @@ class KiYiListener():
 	called in cycle using self return value, search for currently "actual" file.
 	'''
 	def detectActiveFile(self):
-		yiTelnet= KiTelnet("cd %s/DCIM/; ls -e -R -t %s |head -n 1; date" % (self.camRoot, self.camMask))
-		telnetResA= yiTelnet.result()
+		telCmd= "cd %s/DCIM/; ls -e -R -t %s |head -n 1; date" % (self.camRoot, self.camMask)
+		telnetResA= KiTelnet(telCmd).result()
 		if telnetResA==False: #error
 			return False
 		telnetResA= telnetResA.split("\n") #'file \n date' retured
@@ -160,7 +159,7 @@ class KiYiListener():
 		if camFile['age']>self.detectTimeGap: #too old
 			return
 			
-		return {'fname': camFile['fname'], 'size': camFile['size']}
+		return {'fname': camFile['fname'], 'size': int(camFile['size'])}
 
 
 
