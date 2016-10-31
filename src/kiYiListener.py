@@ -105,9 +105,9 @@ class KiYiListener():
 
 			self.checkTriger(fileOld, fileNew)
 
-			if self.goAir and self.live:
+			if self.goAir and self.camLive:
 				kiLog.warn('ON AIR')
-				self.camRead(fileNew)
+#				self.camRead(fileNew)
 				kiLog.warn('OFF AIR')
 
 			time.sleep(1)
