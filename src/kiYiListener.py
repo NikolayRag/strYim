@@ -147,7 +147,7 @@ class KiYiListener():
 
 		camFileRe= self.reLsMask.match(telnetResA[0])
 		if not camFileRe: #mismatch result
-			return ''
+			return
 
 
 		camFile= camFileRe.groupdict()
@@ -157,10 +157,10 @@ class KiYiListener():
 		camFile['age']= camTime-camFileTime
 
 		
-		if camFile['age']>self.detectTimeGap:
-			return ''
+		if camFile['age']>self.detectTimeGap: #too old
+			return
 			
-		return camFile['fname']
+		return {'fname': camFile['fname'], 'size': camFile['size']}
 
 
 
