@@ -33,6 +33,8 @@ class KiYiListener():
 
 
 	flagRun= False
+	camLive= False
+	goAir= True
 
 
 	def __init__(self):
@@ -68,34 +70,50 @@ class KiYiListener():
 
 
 
+
+
+	def checkTriger(self, _fOld, _fNew):
+		if _fOld==False and _fNew!=False:
+			kiLog.ok('connected')
+
+		if _fNew and not _fOld:
+			self.camLive= True
+			kiLog.ok('found: %s' % _fNew)
+
+		if _fOld and _fNew and _fNew!=_fOld:
+			kiLog.ok('refresh: %s' % _fNew)
+
+		if _fOld and not _fNew:
+			self.camLive= False
+			kiLog.ok('lost')
+
+		if _fOld!=False and _fNew==False:
+			kiLog.err('disconnected')
+
+
 	'''
 	(re)connect to Yi
+	Initial state is error.
 	'''
 	def check(self):
-		kiLog.ok('Listening')
+		kiLog.ok('start')
 
-		testFileOld= ''
+		fileNew= fileOld= False
 		while self.flagRun:
+			fileOld= fileNew
+			fileNew= self.detectActiveFile()
+
+			self.checkTriger(fileOld, fileNew)
+
+			if self.goAir and self.live:
+				kiLog.warn('ON AIR')
+				self.camRead(fileNew)
+				kiLog.warn('OFF AIR')
+
 			time.sleep(1)
 
-			testFileNew= self.detectActiveFile()
 
-			if testFileOld!=False and testFileNew==False:
-				kiLog.err('while listening')
-
-			if testFileNew and not testFileOld:
-				kiLog.ok('On air: %s' % testFileNew)
-
-			if testFileOld and not testFileNew:
-				kiLog.ok('Off air')
-
-			if testFileOld and testFileNew and testFileNew!=testFileOld:
-				kiLog.ok('Fresh air: %s' % testFileNew)
-
-
-			testFileOld= testFileNew
-
-		kiLog.ok('Unlistening')
+		kiLog.ok('stop')
 
 #  todo 16 (clean, network) +0: cleanup unneeded KiTelnet at stop()
 
@@ -139,8 +157,10 @@ class KiYiListener():
 		camFile['age']= camTime-camFileTime
 
 		
-		if camFile['age']<=self.detectTimeGap:
-			return camFile['fname']
+		if camFile['age']>self.detectTimeGap:
+			return ''
+			
+		return camFile['fname']
 
 
 
