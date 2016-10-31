@@ -155,6 +155,15 @@ class KiTelnet():
 
 
 
+
+	'''
+	Constructor.
+	Provided command is started to execute without delay.
+	Result is fetched with .result(), blocking until command is finished.
+
+	If not provided, telnet and network parameters are taken from defaults,
+	 which are set by defaults() static method.
+	'''
 	def __init__(self
 		, _command=''
 		, _cbRes=None
@@ -210,6 +219,12 @@ class KiTelnet():
 
 
 
+
+
+
+
+
+
 	def tcpPrepare(self):
 		self.tcpSock= socket.socket()
 
@@ -231,7 +246,7 @@ class KiTelnet():
 		, _cbRes=None
 		, _timeIn= 2	#not starting within
 		, _timeOut= 5	#no output longer than
-# =todo 8 (network) +0: check for timeout
+# -todo 8 (telnet) +0: check for timeout
 	):
 
 		tcpTimein= threading.Timer(_timeIn, self.tcpSock.close)
@@ -272,7 +287,7 @@ class KiTelnet():
 		try:
 			self.sendTelnet(_command)
 		except:
-			if not self.blockedFlag.isSet():
+			if not self.blockedFlag.isSet(): #not after end
 				kiLog.err('Telnet error')
 				self.reset()
 
