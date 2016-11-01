@@ -296,11 +296,4 @@ class KiTelnet():
 			self.telnet.write( (self.telnetPass +"\n").encode() )
 
 		self.telnet.read_until(self.telnetPrompt)
-		self.telnet.write( ("(%s)| nc %s %s >/dev/null\n" % (_command, self.selfAddr, self.selfPort)).encode() )
-#  todo 19 (telnet) +0: get telnet finish elseway
-		self.telnet.read_until(self.telnetPrompt) #wait for response
-		self.telnet.close();
-
-
-
-
+		self.telnet.write( ("(%s)| nc %s %s >/dev/null ;exit\n" % (_command, self.selfAddr, self.selfPort)).encode() )
