@@ -13,7 +13,7 @@ connect to Yi and get live file
 reconnect if needed
 '''
 class KiYiListener():
-	reLsMask= re.compile('^(?P<rights>[^\s]+)\s+(?P<links>[^\s]+)\s+(?P<owner>[^\s]+)\s+(?P<group>[^\s]+)\s+(?P<size>[^\s]+)\s+(?P<date>\w+\s+\w+\s+\d+\s+\d+:\d+:\d+\s+\d+)\s+(?P<fname>.*)\s*$')
+	lsMaskRe= re.compile('^(?P<rights>[^\s]+)\s+(?P<links>[^\s]+)\s+(?P<owner>[^\s]+)\s+(?P<group>[^\s]+)\s+(?P<size>[^\s]+)\s+(?P<date>\w+\s+\w+\s+\d+\s+\d+:\d+:\d+\s+\d+)\s+(?P<fname>.*)\s*$')
 
 	camIP= '192.168.42.1'
 	camUser= 'root'
@@ -21,7 +21,7 @@ class KiYiListener():
 	camRoot= '/tmp/fuse_d'
 	camMask= '???MEDIA/L???????.MP4'
 
-	detectTimeGap= 4 #maximum number of seconds to consider tested file 'live'
+	liveOldAge= 4 #maximum number of seconds to consider tested file 'live'
 
 
 	flagRun= False
@@ -137,22 +137,21 @@ class KiYiListener():
 			return False
 		telnetResA= telnetResA.split("\n") #'file \n date' retured
 
-		camFileRe= self.reLsMask.match(telnetResA[0])
-		if not camFileRe: #mismatch result
+		camFileMatch= self.lsMaskRe.match(telnetResA[0])
+		if not camFileMatch: #mismatch result
 			return
 
 
-		camFile= camFileRe.groupdict()
+		camFileMatch= camFileMatch.groupdict()
 
 		camTime= time.mktime( time.strptime(telnetResA[1], '%a %b %d %H:%M:%S UTC %Y') )
-		camFileTime= time.mktime( time.strptime(camFile['date']) )
-		camFile['age']= camTime-camFileTime
+		camFileTime= time.mktime( time.strptime(camFileMatch['date']) )
+		camFileMatch['age']= camTime-camFileTime
 
-		
-		if camFile['age']>self.detectTimeGap: #too old
+		if camFileMatch['age']>self.liveOldAge: #too old
 			return
 			
-		return {'fname': camFile['fname'], 'size': int(camFile['size'])}
+		return {'fname': camFileMatch['fname'], 'size': int(camFileMatch['size'])}
 
 
 
