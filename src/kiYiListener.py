@@ -20,11 +20,13 @@ class KiYiListener():
 	camPass= ''
 	camRoot= '/tmp/fuse_d'
 	camMask= '???MEDIA/L???????.MP4'
+	camMaskRe= re.compile('^(?P<dir>\d\d\d)MEDIA/L(?P<seq>\d\d\d)(?P<num>\d\d\d\d).MP4$')
 
 	liveOldAge= 4 #maximum number of seconds to consider tested file 'live'
+	liveBufferMin= 5000000 #bytes prefetch at file reading start
+	ddBlock= 1000000
 
-
-	goAir= True
+	flagLive= True #live switch
 	flagRun= False #global cycle switch
 
 
@@ -81,6 +83,7 @@ class KiYiListener():
 			kiLog.err('disconnected')
 
 
+
 	'''
 	(re)connect to Yi
 	Initial state is error.
@@ -92,13 +95,18 @@ class KiYiListener():
 		while self.flagRun:
 			fileOld= fileNew
 			fileNew= self.detectActiveFile()
-
 			self.checkTriger(fileOld, fileNew)
 
-			if self.goAir and self.camLive:
+			if (
+				self.flagLive
+				and getA(fileNew, 'size', 0) > self.liveBufferMin
+			):
 				kiLog.warn('ON AIR')
-#				self.camRead(fileNew)
-				kiLog.warn('OFF AIR')
+				if self.camAirStart(fileNew):
+					kiLog.warn('OFF AIR')
+				else:
+					self.flagLive= False
+					kiLog.err('BAD AIR')
 
 			time.sleep(1)
 
@@ -108,17 +116,72 @@ class KiYiListener():
 
 
 
-#		req= {'readPath':readPath, 'readName':readName, 'readStart':readStart+1, 'readLen':readLen}
+	def camAirStart(self, _file):
+		stamp= time.time()
 
-#		self.aa= [0]
-#		res2= self.yiTelnet.command("tail -c +%(readStart)s %(readPath)s/%(readName)s | head -c %(readLen)s" % req, self.cbYiRead, True)
-#			res2= self.yiTelnet.command("tail -c +%(readStart)s %(readPath)s/%(readName)s" % req, self.cbYiRead, True)
+		fNameMatch= self.camMaskRe.match(_file['fname'])
+		if not fNameMatch:
+			return False
+		fParts= {'dir':int(fNameMatch.group('dir')), 'seq':int(fNameMatch.group('seq')), 'num':int(fNameMatch.group('num'))}
 
-#		print(self.aa[0])
+
+		fPos= _file['size'] -self.liveBufferMin
+
+		while True:
+			fName= '%sMEDIA/L%s%s.MP4' % (pad(fParts['dir'],3), pad(fParts['seq'],3), pad(fParts['num'],4))
+			totalBytes= 0
+			kiLog.ok('Read %s from %d ...' % (fName, fPos))
+			while True:
+				if not self.flagLive:
+					return True
+
+				readBytes= self.camReadFile(fName, fPos)
+
+				if readBytes==-1:
+					return False
+
+				if not readBytes:
+					break
+
+				fPos+= readBytes
+				totalBytes+= readBytes
+
+				time.sleep(1)
+
+			kiLog.ok("... %d bytes from %s" % (totalBytes, fName))
+
+			fPos= 0
+
+			fParts['num']= (fParts['num'] +1) %1000
+			if fParts['num']==0:
+				fParts['dir']+= 1
 
 
-#	def cbYiRead(self, _iIn):
-#		self.aa[0]+=len(_iIn)
+		return totalBytes
+
+
+	def camReadFile(self, _fname, _start):
+		ddSkipBlocks= int(_start /self.ddBlock)
+
+		skipBuffer= [_start-(ddSkipBlocks*self.ddBlock)] #bytes to skip, len
+		self.readBuffer= 0
+		def cbReadFile(_data):
+			if skipBuffer[0]>0:
+				skipBuffer[0]-= len(_data)
+				if skipBuffer[0]>=0:
+					return
+				else:
+					_data= _data[skipBuffer[0]:]
+
+			self.readBuffer+= len(_data)
+
+		telCmd= "dd bs=%d skip=%d if=%s/DCIM/%s" % (self.ddBlock, ddSkipBlocks, self.camRoot, _fname)
+		if KiTelnet(telCmd, cbReadFile).result()==False:
+			return -1
+		return self.readBuffer
+
+
+
 
 
 
