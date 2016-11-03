@@ -165,20 +165,13 @@ class KiYiListener():
 	'''
 	def camReadFile(self, _fname, _start):
 		ddSkipBlocks= int(_start /self.ddBlock)
+		skipBuffer= _start %self.ddBlock #bytes to skip, len
 
-		skipBuffer= [_start-(ddSkipBlocks*self.ddBlock)] #bytes to skip, len
 		self.readBuffer= 0
 		def cbReadFile(_data):
-			if skipBuffer[0]>0:
-				skipBuffer[0]-= len(_data)
-				if skipBuffer[0]>=0:
-					return
-				else:
-					_data= _data[skipBuffer[0]:]
-
 			self.readBuffer+= len(_data)
 
-		telCmd= "dd bs=%d skip=%d if=%s/DCIM/%s" % (self.ddBlock, ddSkipBlocks, self.camRoot, _fname)
+		telCmd= "dd bs=%d skip=%d if=%s/DCIM/%s |tail -c +%d" % (self.ddBlock, ddSkipBlocks, self.camRoot, _fname, skipBuffer+1)
 		if KiTelnet(telCmd, cbReadFile).result()==False:
 			return -1
 		return self.readBuffer
