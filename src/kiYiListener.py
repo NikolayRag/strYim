@@ -58,7 +58,7 @@ class KiYiListener():
 
 		threading.Timer(0, self.check).start()
 
-
+		self.flagLive= False
 	def stop(self):
 		self.flagRun= False
 
@@ -99,7 +99,8 @@ class KiYiListener():
 
 			if (
 				self.flagLive
-				and getA(fileNew, 'size', 0) > self.liveBufferMin
+				and fileNew
+				and fileNew['size'] > self.liveBufferMin
 			):
 				kiLog.warn('ON AIR')
 				if self.camAirStart(fileNew):
@@ -129,7 +130,6 @@ class KiYiListener():
 
 		while True:
 			fName= '%sMEDIA/L%s%s.MP4' % (pad(fParts['dir'],3), pad(fParts['seq'],3), pad(fParts['num'],4))
-			totalBytes= 0
 			kiLog.ok('Read %s from %d ...' % (fName, fPos))
 			while True:
 				if not self.flagLive:
@@ -144,11 +144,10 @@ class KiYiListener():
 					break
 
 				fPos+= readBytes
-				totalBytes+= readBytes
 
 				time.sleep(1)
 
-			kiLog.ok("... %d bytes from %s" % (totalBytes, fName))
+			kiLog.ok("... to %d" % fPos)
 
 			fPos= 0
 
@@ -157,7 +156,7 @@ class KiYiListener():
 				fParts['dir']+= 1
 
 
-		return totalBytes
+		return True
 
 
 	def camReadFile(self, _fname, _start):
