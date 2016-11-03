@@ -58,10 +58,10 @@ class KiYiListener():
 
 		threading.Timer(0, self.check).start()
 
-		self.flagLive= False
+
 	def stop(self):
 		self.flagRun= False
-
+		self.flagLive= False
 
 
 
