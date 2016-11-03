@@ -151,6 +151,7 @@ class KiYiListener():
 
 			fPos= 0
 
+# =todo 31 (read, cam) +0: check 999+ file switch
 			fParts['num']= (fParts['num'] +1) %1000
 			if fParts['num']==0:
 				fParts['dir']+= 1
@@ -159,6 +160,9 @@ class KiYiListener():
 		return True
 
 
+	'''
+	read specified file from start position till (current) end.
+	'''
 	def camReadFile(self, _fname, _start):
 		ddSkipBlocks= int(_start /self.ddBlock)
 
@@ -243,6 +247,9 @@ import threading
 
 KiYi= [None]
 
+'''
+YiOn/Off commands are used to test Stryim in Sublime, `coz its lazy to set up running environment.
+'''
 class YiOnCommand(sublime_plugin.TextCommand):
 	def run(self, _edit):
 		if KiYi[0]:
