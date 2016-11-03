@@ -23,8 +23,7 @@ class KiYiListener():
 	camMaskRe= re.compile('^(?P<dir>\d\d\d)MEDIA/L(?P<seq>\d\d\d)(?P<num>\d\d\d\d).MP4$')
 
 	liveOldAge= 4 #maximum number of seconds to consider tested file 'live'
-	liveBufferMin= 5000000 #bytes prefetch at file reading start
-	ddBlock= 1000000
+	liveBufferMin= 1000000 #bytes prefetch at file reading start
 
 	flagLive= True #live switch
 	flagRun= False #global cycle switch
@@ -145,7 +144,7 @@ class KiYiListener():
 
 				fPos+= readBytes
 
-				time.sleep(1)
+#				time.sleep(.2)
 
 			kiLog.ok("... to %d" % fPos)
 
@@ -164,14 +163,15 @@ class KiYiListener():
 	read specified file from start position till (current) end.
 	'''
 	def camReadFile(self, _fname, _start):
-		ddSkipBlocks= int(_start /self.ddBlock)
-		skipBuffer= _start %self.ddBlock #bytes to skip, len
+		ddBlock= 1000000
+		ddSkipBlocks= int(_start /ddBlock)
+		skipBuffer= _start %ddBlock #bytes to skip, len
 
 		self.readBuffer= 0
 		def cbReadFile(_data):
 			self.readBuffer+= len(_data)
 
-		telCmd= "dd bs=%d skip=%d if=%s/DCIM/%s |tail -c +%d" % (self.ddBlock, ddSkipBlocks, self.camRoot, _fname, skipBuffer+1)
+		telCmd= "dd bs=%d skip=%d if=%s/DCIM/%s |tail -c +%d" % (ddBlock, ddSkipBlocks, self.camRoot, _fname, skipBuffer+1)
 		if KiTelnet(telCmd, cbReadFile).result()==False:
 			return -1
 		return self.readBuffer
