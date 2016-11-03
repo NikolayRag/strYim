@@ -296,4 +296,4 @@ class KiTelnet():
 			self.telnet.write( (self.telnetPass +"\n").encode() )
 
 		self.telnet.read_until(self.telnetPrompt)
-		self.telnet.write( ("(%s)| nc %s %s >/dev/null ;exit\n" % (_command, self.selfAddr, self.selfPort)).encode() )
+		self.telnet.write( ("(%s)| nc %s %s; exit\n" % (_command, self.selfAddr, self.selfPort)).encode() )
