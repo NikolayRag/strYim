@@ -196,7 +196,10 @@ class YiOnCommand(sublime_plugin.TextCommand):
 
 class YiOffCommand(sublime_plugin.TextCommand):
 	def run(self, _edit):
-		if KiYi[0]:
-			KiYi[0].stop()
-			KiYi[0]= None
+		if not KiYi[0]:
+			kiLog.warn('Already')
+			return
+
+		KiYi[0].stop()
+		KiYi[0]= None
 
