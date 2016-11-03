@@ -24,9 +24,8 @@ class KiYiListener():
 	liveOldAge= 4 #maximum number of seconds to consider tested file 'live'
 
 
-	flagRun= False
-	camLive= False
 	goAir= True
+	flagRun= False #global cycle switch
 
 
 
@@ -70,14 +69,12 @@ class KiYiListener():
 			kiLog.ok('connected')
 
 		if _fNew and not _fOld:
-			self.camLive= True
 			kiLog.ok('found: %s' % _fNew)
 
-		if _fOld and _fNew and _fNew!=_fOld:
+		if _fOld and _fNew and _fNew['fname']!=_fOld['fname']:
 			kiLog.ok('refresh: %s' % _fNew)
 
 		if _fOld and not _fNew:
-			self.camLive= False
 			kiLog.ok('lost')
 
 		if _fOld!=False and _fNew==False:
