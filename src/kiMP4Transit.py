@@ -45,6 +45,8 @@ import sublime, sublime_plugin
 import threading
 
 from .kiYiListener import *
+from .kiTelnet import *
+from .kiLog import *
 
 
 KiYi= [None]
@@ -54,6 +56,16 @@ YiOn/Off commands are used to test Stryim in Sublime, `coz its lazy to set up ru
 '''
 class YiOnCommand(sublime_plugin.TextCommand):
 	def run(self, _edit):
+		kiLog.states(
+		      False
+		    , False
+		    , False
+		    , 'KiTelnet'
+		)
+
+		KiTelnet.defaults('192.168.42.1', 'root', '', 8088)
+
+
 		if KiYi[0]:
 			kiLog.warn('Already')
 			return

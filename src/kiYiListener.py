@@ -14,9 +14,6 @@ reconnect if needed
 class KiYiListener():
 	lsMaskRe= re.compile('^(?P<rights>[^\s]+)\s+(?P<links>[^\s]+)\s+(?P<owner>[^\s]+)\s+(?P<group>[^\s]+)\s+(?P<size>[^\s]+)\s+(?P<date>\w+\s+\w+\s+\d+\s+\d+:\d+:\d+\s+\d+)\s+(?P<fname>.*)\s*$')
 
-	camIP= '192.168.42.1'
-	camUser= 'root'
-	camPass= ''
 	camRoot= '/tmp/fuse_d/DCIM'
 	camMask= '???MEDIA/L???????.MP4'
 	camMaskRe= re.compile('^(?P<dir>\d\d\d)MEDIA/L(?P<seq>\d\d\d)(?P<num>\d\d\d\d).MP4$')
@@ -28,16 +25,6 @@ class KiYiListener():
 	flagRun= False #global cycle switch
 
 	mp4Buffer= False
-
-
-	kiLog.states(
-	      False
-	    , False
-	    , False
-	    , 'KiTelnet'
-	)
-
-	KiTelnet.defaults(camIP, camUser, camPass, 8088)
 
 
 	def __init__(self, _mp4Buffer):
