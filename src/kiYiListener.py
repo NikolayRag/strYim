@@ -25,7 +25,7 @@ class KiYiListener():
 	liveOldAge= 4 #maximum number of seconds to consider tested file 'live'
 	liveBufferMin= 1000000 #bytes prefetch at file reading start
 
-	flagLive= True #live switch
+	flagLive= False #live switch
 	flagRun= False #global cycle switch
 
 
@@ -43,7 +43,6 @@ class KiYiListener():
 	def __init__(self):
 		self.flagRun= False
 
-		self.start()
 
 
 
@@ -59,7 +58,14 @@ class KiYiListener():
 
 
 	def stop(self):
+		self.dead()
 		self.flagRun= False
+
+
+	def live(self):
+		self.flagLive= True
+
+	def dead(self):
 		self.flagLive= False
 
 
@@ -105,7 +111,7 @@ class KiYiListener():
 				if self.camAirStart(fileNew):
 					kiLog.warn('OFF AIR')
 				else:
-					self.flagLive= False
+					self.dead()
 					kiLog.err('BAD AIR')
 
 			time.sleep(1)
@@ -250,6 +256,8 @@ class YiOnCommand(sublime_plugin.TextCommand):
 			return
 
 		KiYi[0]= KiYiListener()
+		KiYi[0].start()
+		KiYi[0].live()
 
 
 class YiOffCommand(sublime_plugin.TextCommand):
