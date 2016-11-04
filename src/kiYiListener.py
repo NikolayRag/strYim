@@ -27,6 +27,7 @@ class KiYiListener():
 	flagLive= False #live switch
 	flagRun= False #global cycle switch
 
+	mp4Buffer= False
 
 
 	kiLog.states(
@@ -39,10 +40,10 @@ class KiYiListener():
 	KiTelnet.defaults(camIP, camUser, camPass, 8088)
 
 
-	def __init__(self):
+	def __init__(self, _mp4Buffer):
+		self.mp4Buffer= _mp4Buffer
+
 		self.flagRun= False
-
-
 
 
 
@@ -170,18 +171,23 @@ class KiYiListener():
 	read specified file from start position till (current) end.
 	'''
 	def camReadFile(self, _fname, _start):
+		if not self.mp4Buffer:
+			kiLog.err('No buffer')
+			return -1
+
+
 		ddBlock= 1000000
 		ddSkipBlocks= int(_start /ddBlock)
 		skipBuffer= _start %ddBlock #bytes to skip, len
 
-		self.readBuffer= 0
-		def cbReadFile(_data):
-			self.readBuffer+= len(_data)
+		cLen= self.mp4Buffer.context(_fname)
 
 		telCmd= "dd bs=%d skip=%d if=%s/DCIM/%s |tail -c +%d" % (ddBlock, ddSkipBlocks, self.camRoot, _fname, skipBuffer+1)
-		if KiTelnet(telCmd, cbReadFile).result()==False:
+		if KiTelnet(telCmd, self.mp4Buffer.add).result()==False:
+			kiLog.err('Telnet error')
 			return -1
-		return self.readBuffer
+
+		return self.mp4Buffer.context(_fname)-cLen
 
 
 
@@ -225,12 +231,32 @@ class KiYiListener():
 
 
 
+class KiMP4Transit():
+	q= False
+
+	
+	def __init__(self, _triggerCB=None, _triggerLen=0):
+		self.q= [[None, b'']]
 
 
+	'''
+	Check last element context, create new if mismatch
+	'''
+	def context(self, _ctx):
+		cEl= self.q[-1]
+
+		if cEl[0]!=_ctx:
+			cEl= [_ctx, b'']
+			self.q.append(cEl)
+
+		return len(cEl[1])
 
 
+	def add(self, _data, _ctx=None):
+		if _ctx:
+			self.context(_ctx)
 
-
+		self.q[-1][1]+= _data
 
 
 
@@ -256,7 +282,8 @@ class YiOnCommand(sublime_plugin.TextCommand):
 			kiLog.warn('Already')
 			return
 
-		KiYi[0]= KiYiListener()
+		buffer= KiMP4Transit()
+		KiYi[0]= KiYiListener(buffer)
 		KiYi[0].start()
 		KiYi[0].live()
 
