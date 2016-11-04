@@ -1,5 +1,4 @@
-import time, re
-import threading
+import time, re, threading
 
 from .kiTelnet import *
 from .kiSupport import *
@@ -133,6 +132,8 @@ class KiYiListener():
 
 		fPos= _file['size'] -self.liveBufferMin
 
+#  todo 33 (read, cam) +0: detect buffer overrun
+#  todo 34 (read, cam) +0: detect buffer underrun
 		while True:
 			fName= '%sMEDIA/L%s%s.MP4' % (pad(fParts['dir'],3), pad(fParts['seq'],3), pad(fParts['num'],4))
 			kiLog.ok('Read %s from %d ...' % (fName, fPos))
