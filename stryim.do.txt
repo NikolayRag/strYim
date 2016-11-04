@@ -8,23 +8,35 @@
 +network 7: +1 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiTelnet.py" user 16/10/28 23:26:41
 	start sending telnet ONLY after TCP started listening
 
-=network 8: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiTelnet.py" user 16/10/29 17:18:08
+-telnet 8: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiTelnet.py" user 16/10/31 04:54:52
 	check for timeout
 
 +code 11: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiTelnet.py" user 16/10/29 20:09:13
 	call telnet unblocking
 
- clean, network 16: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiYiListener.py" user 16/10/30 23:47:21
-	cleanup unneeded KiTelnet at stop()
+!clean, network 16: +0 "" user 16/10/31 06:45:59
+	outdated
 
 +clean, network 17: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiYiListener.py" user 16/10/29 21:29:24
 	make sure KiTelnet recreated
 
- telnet 19: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiTelnet.py" user 16/10/29 20:04:54
++telnet 19: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiTelnet.py" user 16/11/01 15:15:06
 	get telnet finish elseway
 
 +telnet, log 20: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiTelnet.py" kii 16/10/30 15:53:35
 	use log elseway
 
+!telnet 23: +0 "" user 16/10/31 03:58:52
+	add timeout for blankNone
 
-Reserved: 23
+=read, cam 31: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiYiListener.py" user 16/11/03 18:58:36
+	check 999+ file switch
+
+ read, cam 33: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiYiListener.py" user 16/11/04 20:21:34
+	detect buffer overrun
+
+ read, cam 34: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiYiListener.py" user 16/11/04 20:21:54
+	detect buffer underrun
+
+
+Reserved: 35
