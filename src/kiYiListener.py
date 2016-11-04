@@ -17,7 +17,7 @@ class KiYiListener():
 	camIP= '192.168.42.1'
 	camUser= 'root'
 	camPass= ''
-	camRoot= '/tmp/fuse_d'
+	camRoot= '/tmp/fuse_d/DCIM'
 	camMask= '???MEDIA/L???????.MP4'
 	camMaskRe= re.compile('^(?P<dir>\d\d\d)MEDIA/L(?P<seq>\d\d\d)(?P<num>\d\d\d\d).MP4$')
 
@@ -182,7 +182,7 @@ class KiYiListener():
 
 		cLen= self.mp4Buffer.context(_fname)
 
-		telCmd= "dd bs=%d skip=%d if=%s/DCIM/%s |tail -c +%d" % (ddBlock, ddSkipBlocks, self.camRoot, _fname, skipBuffer+1)
+		telCmd= "dd bs=%d skip=%d if=%s/%s |tail -c +%d" % (ddBlock, ddSkipBlocks, self.camRoot, _fname, skipBuffer+1)
 		if KiTelnet(telCmd, self.mp4Buffer.add).result()==False:
 			kiLog.err('Telnet error')
 			return -1
@@ -200,7 +200,7 @@ class KiYiListener():
 	called in cycle using self return value, search for currently "actual" file.
 	'''
 	def detectActiveFile(self):
-		telCmd= "cd %s/DCIM/; ls -e -R -t %s |head -n 1; date" % (self.camRoot, self.camMask)
+		telCmd= "cd %s/; ls -e -R -t %s |head -n 1; date" % (self.camRoot, self.camMask)
 		telnetResA= KiTelnet(telCmd).result()
 		if telnetResA==False: #error
 			return False
