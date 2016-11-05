@@ -49,7 +49,7 @@ class YiOnCommand(sublime_plugin.TextCommand):
 			kiLog.warn('Already')
 			return
 
-		KiTelnet.defaults('192.168.42.1', 'root', '', 8088)
+		selfIP= KiTelnet.defaults('192.168.42.1', 'root', '', 8088)
 
 		restoreO= mp4Restore()
 		buffer= byteTransit(restoreO.parse, 10000000)
