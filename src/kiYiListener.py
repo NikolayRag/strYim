@@ -141,7 +141,7 @@ class KiYiListener():
 
 				fPos+= readBytes
 
-#				time.sleep(.2)
+				time.sleep(.5)
 
 			kiLog.ok("... to %d" % fPos)
 
