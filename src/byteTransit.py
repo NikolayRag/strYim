@@ -54,14 +54,19 @@ class byteTransit():
 
 
 	def dispatch(self, _cEl, _force=False):
-		if not _force and len(_cEl.data[_cEl.position:])<self.trigger:
+		dataToSend= _cEl.data[_cEl.position:]
+
+		if not len(dataToSend):
+			return 0
+
+		if not _force and len(dataToSend)<self.trigger:
 			return 0
 
 
 		dispatched= False
 
 		if callable(self.dispatchCB):
-			dispatched= self.dispatchCB(_cEl.data[_cEl.position:], _cEl.context)
+			dispatched= self.dispatchCB(dataToSend, _cEl.context)
 
 		if (dispatched or 0)>0:
 			_cEl.position+= dispatched
