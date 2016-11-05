@@ -1,25 +1,17 @@
-
-
-
-
-
-
-
-
 '''
 Manage context-grouped chunks of byte data.
-Data can be added to active chunk, splitted by context;
-Incoming data is sequentally sent to provided callback.
+Data is added to active chunks, splitted by context and then sequentally dispatched to callback function.
 
 
 byteTransit(cb, trigger)
 	Constructor.
 
-	cb(ctx, data)
+	cb(data, ctx)
 		Dispatch callback at adding data.
 		Should return ammount of bytes consumed - remaining chunk will be shifted that size.
 		Data dispatched is always belongs to one context.
-		If new context is declared, previous context data will be dispatched until dried out.
+		If new context is declared, previous context data will be dispatched in cycle until dried out.
+		In that case callback returning 0 or False is assumed as all data been consumed, and cycle will end.
 
 			ctx
 				current context
