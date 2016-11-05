@@ -7,16 +7,6 @@ class KiTelnet(address, name, pass, cmd, callback, selfPort)
 	Executes 'cmd' in specified telnet.
 	To see result, use .result() or provide callback
 
-	address
-		Default ''
-		Telnet address.
-
-	user
-		Defalt 'root'
-
-	pass
-		Default ''
-
 	cmd
 		Default ''
 		Command to execute.
@@ -24,6 +14,16 @@ class KiTelnet(address, name, pass, cmd, callback, selfPort)
 	callback(bytestring)
 		Function to get partial console output as command is executing.
 		if specified, command response is not returned by function itself.
+
+	address
+		Default None
+		Telnet address.
+
+	user
+		Defalt 'root'
+
+	pass
+		Default ''
 
 	selfPort
 		Default 8088
@@ -54,14 +54,6 @@ from .kiLog import *
 
 
 class KiTelnet():
-	kiLog.prefixes(
-	      'KiTelnet log:'
-	    , 'KiTelnet warning:'
-	    , 'KiTelnet ERROR:'
-	)
-
-
-
 	tcpSock= None
 	blockedFlag= None
 	tcpResult= False
@@ -71,11 +63,13 @@ class KiTelnet():
 	telnetPromptPass= b'Password: '
 	telnetPrompt= b' # '
 
+	telnetAddr= None
+	telnetUser= None
+	telnetPass= None
 	telnet= None
-	telnetUser= ''
-	telnetPass= ''
 
-	selfAddr= ''
+	selfAddr= None
+	selfPort= None
 
 
 
@@ -93,36 +87,91 @@ class KiTelnet():
 		return
 
 
-
-
-	def __init__(self
-		, _telAddr
-		, _telUser='root'
-		, _telPass=''
-		, _command=''
-		, _cbRes=None
-		, _selfPort=8088
+	@staticmethod
+	def defaults(
+		  _telAddr=None
+		, _telUser=None
+		, _telPass=None
+		, _selfPort=None
 		, _selfAddr=None
 	):
-#  todo 20 (telnet, log) +0: use log elseway
+		if _selfAddr!=None:
+			KiTelnet.selfAddr= _selfAddr
+		if _selfPort!=None:
+			KiTelnet.selfPort= _selfPort
 
-		self.blockedFlag= threading.Event()
+		if _telAddr!=None:
+			KiTelnet.telnetAddr= _telAddr
+		if _telUser!=None:
+			KiTelnet.telnetUser= _telUser
+		if _telPass!=None:
+			KiTelnet.telnetPass= _telPass
 
-		self.telnetUser= _telUser
-		self.telnetPass= _telPass
-		self.telnetAddr= _telAddr
-		self.telnet= telnetlib.Telnet()
 
 
-		if not _selfAddr:
-			_selfAddr= self.localIp(_telAddr)
-			
-		if not _selfAddr:
-			kiLog.err('No self IP')
-			self.reset()
+	def argsFill(self, _telAddr, _telUser, _telPass, _selfAddr, _selfPort):
+		if _telAddr!=None:
+			self.telnetAddr= _telAddr
+		if self.telnetAddr==None:
+			kiLog.err('missing telnet address')
 			return
 
-		self.selfAddr= (_selfAddr, _selfPort)
+		if _telUser!=None:
+			self.telnetUser= _telUser
+		if self.telnetUser==None:
+			kiLog.err('missing telnet user')
+			return
+
+		if _telPass!=None:
+			self.telnetPass= _telPass
+		if self.telnetPass==None:
+			kiLog.err('missing telnet pass')
+			return
+
+		if not _selfAddr:
+			_selfAddr= self.localIp(self.telnetAddr)
+
+		if _selfAddr!=None:
+			self.selfAddr= _selfAddr
+		if self.selfAddr==None:
+			kiLog.err('missing self address')
+			return
+
+		if _selfPort!=None:
+			self.selfPort= _selfPort
+		if self.selfPort==None:
+			kiLog.err('missing self port')
+			return
+
+		return True
+
+
+
+
+	'''
+	Constructor.
+	Provided command is started to execute without delay.
+	Result is fetched with .result(), blocking until command is finished.
+
+	If not provided, telnet and network parameters are taken from defaults,
+	 which are set by defaults() static method.
+	'''
+	def __init__(self
+		, _command=''
+		, _cbRes=None
+		, _telAddr=None
+		, _telUser=None
+		, _telPass=None
+		, _selfPort=None
+		, _selfAddr=None
+	):
+		self.telnet= telnetlib.Telnet()
+		self.blockedFlag= threading.Event()
+
+
+		if not self.argsFill(_telAddr, _telUser, _telPass, _selfAddr, _selfPort):
+			self.reset()
+			return
 
 
 		if self.tcpPrepare():
@@ -162,19 +211,25 @@ class KiTelnet():
 
 
 
+
+
+
+
+
+
 	def tcpPrepare(self):
 		self.tcpSock= socket.socket()
 
 		try:
-			self.tcpSock.bind(self.selfAddr)
+			self.tcpSock.bind((self.selfAddr,self.selfPort))
 		except:
-			kiLog.err('Cannot listen to %s' % str(self.selfAddr))
+			kiLog.err('Cannot listen to port %s' % self.selfPort)
 			self.reset()
 			return
 
 		self.tcpSock.listen(1)
 
-		kiLog.ok('Tcp listening %s:%s...' % self.selfAddr)
+		kiLog.ok('Tcp listening to port %s...' % self.selfPort)
 
 		return True
 
@@ -183,7 +238,7 @@ class KiTelnet():
 		, _cbRes=None
 		, _timeIn= 2	#not starting within
 		, _timeOut= 5	#no output longer than
-# =todo 8 (network) +0: check for timeout
+# -todo 8 (telnet) +0: check for timeout
 	):
 
 		tcpTimein= threading.Timer(_timeIn, self.tcpSock.close)
@@ -222,41 +277,23 @@ class KiTelnet():
 
 	def tryTelnet(self, _command):
 		try:
-			self.sendTelnet(self.telnetAddr, self.telnetUser, self.telnetPass, _command, self.selfAddr)
+			self.sendTelnet(_command)
 		except:
-			if not self.blockedFlag.isSet():
+			if not self.blockedFlag.isSet(): #not after end
 				kiLog.err('Telnet error')
 				self.reset()
 
 
-	def sendTelnet(self
-		, _addr
-		, _log
-		, _pass
-		, _command
-		, _addrOut
-	):
-		self.telnet.open(_addr)
+	def sendTelnet(self, _command):
+		self.telnet.open(self.telnetAddr)
 		kiLog.ok("Telnet running:\n%s" % _command)
 
 		self.telnet.read_until(self.telnetPromptLog)
-		self.telnet.write( (_log +"\n").encode() )
+		self.telnet.write( (self.telnetUser +"\n").encode() )
 
-		if _pass and _pass!='':
+		if self.telnetPass:
 			self.telnet.read_until(self.telnetPromptPass)
-			self.telnet.write( (_pass +"\n").encode() )
+			self.telnet.write( (self.telnetPass +"\n").encode() )
 
 		self.telnet.read_until(self.telnetPrompt)
-		req= {
-			  'cmd':_command
-			, 'ip':_addrOut[0]
-			, 'port':_addrOut[1]
-		}
-		self.telnet.write( ("(%(cmd)s)| nc %(ip)s %(port)s >/dev/null\n" % req).encode() )
-#  todo 19 (telnet) +0: get telnet finish elseway
-		self.telnet.read_until(self.telnetPrompt) #wait for response
-		self.telnet.close();
-
-
-
-
+		self.telnet.write( ("(%s)| nc %s %s; exit\n" % (_command, self.selfAddr, self.selfPort)).encode() )

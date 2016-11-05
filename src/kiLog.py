@@ -6,9 +6,9 @@ class kiLog():
 	#statical collection
 	contexts= {
 		'':{
-			    'ok':[True, 'Log']
-			  , 'warn':[True, 'Warning']
-			  , 'err':[True, 'Error']
+			    'ok':[False, 'log']
+			  , 'warn':[True, 'warning']
+			  , 'err':[True, 'error']
 		}
 	}
 
@@ -17,10 +17,11 @@ class kiLog():
 	def getCtx(_ctx, _create=False):
 		cCtx= getA(kiLog.contexts, _ctx)
 		if not cCtx:
+			defaultCtx= kiLog.contexts['']
 			cCtx= {
-				  'ok': kiLog.contexts['']['ok'].copy()
-				, 'warn': kiLog.contexts['']['warn'].copy()
-				, 'err': kiLog.contexts['']['err'].copy()
+				  'ok': [defaultCtx['ok'][0], str(_ctx)+' '+defaultCtx['ok'][1]]
+				, 'warn': [defaultCtx['warn'][0], str(_ctx)+' '+defaultCtx['warn'][1]]
+				, 'err': [defaultCtx['err'][0], str(_ctx)+' '+defaultCtx['err'][1]]
 			}
 
 			if _create:
@@ -86,7 +87,7 @@ class kiLog():
 		):
 			return
 
-		print(cCtx[_lvl][1], _msg)
+		print(cCtx[_lvl][1] +':', _msg)
 
 
 

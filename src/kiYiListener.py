@@ -1,5 +1,4 @@
-import time, re
-import threading
+import time, re, threading
 
 from .kiTelnet import *
 from .kiSupport import *
@@ -13,54 +12,25 @@ connect to Yi and get live file
 reconnect if needed
 '''
 class KiYiListener():
-	kiLog.prefixes(
-	      'YiListen log:'
-	    , 'YiListen warning:'
-	    , 'YiListen ERROR:'
-	)
+	lsMaskRe= re.compile('^(?P<rights>[^\s]+)\s+(?P<links>[^\s]+)\s+(?P<owner>[^\s]+)\s+(?P<group>[^\s]+)\s+(?P<size>[^\s]+)\s+(?P<date>\w+\s+\w+\s+\d+\s+\d+:\d+:\d+\s+\d+)\s+(?P<fname>.*)\s*$')
 
-
-
-	reLsMask= re.compile('^(?P<rights>[^\s]+)\s+(?P<links>[^\s]+)\s+(?P<owner>[^\s]+)\s+(?P<group>[^\s]+)\s+(?P<size>[^\s]+)\s+(?P<date>[\w]+\s[\w]+\s[\d]+\s\d\d:\d\d:\d\d \d\d\d\d)\s+(?P<fname>.*)\s*$')
-
-	camIP= '192.168.42.1'
-	camUser= 'root'
-	camPass= ''
-	camRoot= '/tmp/fuse_d'
+	camRoot= '/tmp/fuse_d/DCIM'
 	camMask= '???MEDIA/L???????.MP4'
+	camMaskRe= re.compile('^(?P<dir>\d\d\d)MEDIA/L(?P<seq>\d\d\d)(?P<num>\d\d\d\d).MP4$')
 
-	detectTimeGap= 4 #maximum number of seconds to consider tested file 'live'
+	liveOldAge= 4 #maximum number of seconds to consider tested file 'live'
+	liveBufferMin= 1000000 #bytes prefetch at file reading start
 
+	flagLive= False #live switch
+	flagRun= False #global cycle switch
 
-	flagRun= False
-
-
-
-
-	'''
-	support for telnet
-	'''
-	def telnet(self, _command, _cb=None, _block=True):
-		yiTelnet= KiTelnet(self.camIP, self.camUser, self.camPass, _command, _cb)
-		if _block:
-			return yiTelnet.result()
+	mp4Buffer= False
 
 
-
-
-	def __init__(self):
-		kiLog.states(
-		      False
-		    , False
-		    , False
-		    , 'KiTelnet'
-		)
-
+	def __init__(self, _mp4Buffer):
+		self.mp4Buffer= _mp4Buffer
 
 		self.flagRun= False
-
-		self.start()
-
 
 
 
@@ -75,69 +45,141 @@ class KiYiListener():
 
 
 	def stop(self):
+		self.dead()
 		self.flagRun= False
+
+
+	def live(self):
+		self.flagLive= True
+
+	def dead(self):
+		self.flagLive= False
+
+
+
+
+	def checkTriger(self, _fOld, _fNew):
+		if _fOld==False and _fNew!=False:
+			kiLog.ok('connected')
+
+		if _fNew and not _fOld:
+			kiLog.ok('found: %s' % _fNew)
+
+		if _fOld and _fNew and _fNew['fname']!=_fOld['fname']:
+			kiLog.ok('refresh: %s' % _fNew)
+
+		if _fOld and not _fNew:
+			kiLog.ok('lost')
+
+		if _fOld!=False and _fNew==False:
+			kiLog.err('disconnected')
 
 
 
 	'''
 	(re)connect to Yi
+	Initial state is error.
 	'''
 	def check(self):
-		if not self.yiCheck():
-			kiLog.warn('No proper camera found')
-			return
-		kiLog.ok('Listening')
+		kiLog.ok('start')
 
-		testFileOld= ''
+		fileNew= fileOld= False
 		while self.flagRun:
+			fileOld= fileNew
+			fileNew= self.detectActiveFile()
+			self.checkTriger(fileOld, fileNew)
+
+			if (
+				self.flagLive
+				and fileNew
+				and fileNew['size'] > self.liveBufferMin
+			):
+				kiLog.warn('ON AIR')
+				if self.camAirStart(fileNew):
+					kiLog.warn('OFF AIR')
+				else:
+					self.dead()
+					kiLog.err('BAD AIR')
+				self.mp4Buffer.context(None)
+
+
 			time.sleep(1)
 
-			testFileNew= self.detectActiveFile()
 
-			if testFileOld!=False and testFileNew==False:
-				kiLog.err('while listening')
-
-			if testFileNew and not testFileOld:
-				kiLog.ok('On air: %s' % testFileNew)
-
-			if testFileOld and not testFileNew:
-				kiLog.ok('Off air')
-
-			if testFileOld and testFileNew and testFileNew!=testFileOld:
-				kiLog.ok('Fresh air: %s' % testFileNew)
-
-
-			testFileOld= testFileNew
-
-		kiLog.ok('Unlistening')
-
-# -todo 16 (clean, network) +0: cleanup unneeded KiTelnet at stop()
+		kiLog.ok('stop')
 
 
 
-#		req= {'readPath':readPath, 'readName':readName, 'readStart':readStart+1, 'readLen':readLen}
 
-#		self.aa= [0]
-#		res2= self.yiTelnet.command("tail -c +%(readStart)s %(readPath)s/%(readName)s | head -c %(readLen)s" % req, self.cbYiRead, True)
-#			res2= self.yiTelnet.command("tail -c +%(readStart)s %(readPath)s/%(readName)s" % req, self.cbYiRead, True)
+	def camAirStart(self, _file):
+		stamp= time.time()
 
-#		print(self.aa[0])
-
-
-#	def cbYiRead(self, _iIn):
-#		self.aa[0]+=len(_iIn)
+		fNameMatch= self.camMaskRe.match(_file['fname'])
+		if not fNameMatch:
+			return False
+		fParts= {'dir':int(fNameMatch.group('dir')), 'seq':int(fNameMatch.group('seq')), 'num':int(fNameMatch.group('num'))}
 
 
+		fPos= _file['size'] -self.liveBufferMin
+
+#  todo 33 (read, cam) +0: detect buffer overrun
+#  todo 34 (read, cam) +0: detect buffer underrun
+		while True:
+			fName= '%sMEDIA/L%s%s.MP4' % (pad(fParts['dir'],3), pad(fParts['seq'],3), pad(fParts['num'],4))
+			kiLog.ok('Read %s from %d ...' % (fName, fPos))
+			while True:
+				if not self.flagLive:
+					kiLog.warn("... stop at %d" % fPos)
+					return True
+
+				readBytes= self.camReadFile(fName, fPos)
+
+				if readBytes==-1:
+					kiLog.err("... error at %d" % fPos)
+					return False
+
+				if not readBytes:
+					break
+
+				fPos+= readBytes
+
+				time.sleep(.5)
+
+			kiLog.ok("... to %d" % fPos)
+
+			fPos= 0
+
+# =todo 31 (read, cam) +0: check 999+ file switch
+			fParts['num']= (fParts['num'] +1) %1000
+			if fParts['num']==0:
+				fParts['dir']+= 1
 
 
 
 	'''
-	check if specified telnet belongs to Yi
+	read specified file from start position till (current) end.
 	'''
-	def yiCheck(self):
-		#list path and listen only for errors
-		if self.telnet("(ls %s |head -n 0) 2>&1" % self.camRoot) == "":
-			return True
+	def camReadFile(self, _fname, _start):
+		if not self.mp4Buffer:
+			kiLog.err('No buffer')
+			return -1
+
+
+		ddBlock= 1000000
+		ddSkipBlocks= int(_start /ddBlock)
+		skipBuffer= _start %ddBlock #bytes to skip, len
+
+		cLen= self.mp4Buffer.context(_fname)
+
+		telCmd= "dd bs=%d skip=%d if=%s/%s |tail -c +%d" % (ddBlock, ddSkipBlocks, self.camRoot, _fname, skipBuffer+1)
+		if KiTelnet(telCmd, self.mp4Buffer.add).result()==False:
+			kiLog.err('Telnet error')
+			return -1
+
+		return self.mp4Buffer.context(_fname)-cLen
+
+
+
 
 
 
@@ -147,69 +189,25 @@ class KiYiListener():
 	called in cycle using self return value, search for currently "actual" file.
 	'''
 	def detectActiveFile(self):
-		telnetResA= self.telnet("cd %s/DCIM/; ls -e -R -t %s |head -n 1; date" % (self.camRoot, self.camMask))
-		if not telnetResA: #error
+		telCmd= "cd %s/; ls -e -R -t %s |head -n 1; date" % (self.camRoot, self.camMask)
+		telnetResA= KiTelnet(telCmd).result()
+		if telnetResA==False: #error
 			return False
 		telnetResA= telnetResA.split("\n") #'file \n date' retured
 
-		camFileRe= self.reLsMask.match(telnetResA[0])
-		if not camFileRe: #mismatch result
-			return False
-
-
-		camFile= camFileRe.groupdict()
-
-		camTime= time.mktime( time.strptime(telnetResA[1], '%a %b %d %H:%M:%S UTC %Y') )
-		camFileTime= time.mktime( time.strptime(camFile['date']) )
-		camFile['age']= camTime-camFileTime
-
-		
-		if camFile['age']<=self.detectTimeGap:
-			return camFile['fname']
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-import sublime, sublime_plugin
-import threading
-
-#from .kiYiListener import *
-
-
-KiYi= [None]
-
-class YiOnCommand(sublime_plugin.TextCommand):
-	def run(self, _edit):
-		if KiYi[0]:
-			kiLog.warn('Already')
+		camFileMatch= self.lsMaskRe.match(telnetResA[0])
+		if not camFileMatch: #mismatch result
 			return
 
-		KiYi[0]= KiYiListener()
 
+		camFileMatch= camFileMatch.groupdict()
 
-class YiOffCommand(sublime_plugin.TextCommand):
-	def run(self, _edit):
-		if KiYi[0]:
-			KiYi[0].stop()
-			KiYi[0]= None
+		camTime= time.mktime( time.strptime(telnetResA[1], '%a %b %d %H:%M:%S UTC %Y') )
+		camFileTime= time.mktime( time.strptime(camFileMatch['date']) )
+		camFileMatch['age']= camTime-camFileTime
+
+		if camFileMatch['age']>self.liveOldAge: #too old
+			return
+			
+		return {'fname': camFileMatch['fname'], 'size': int(camFileMatch['size'])}
 
