@@ -83,7 +83,7 @@ class byteTransit():
 		cEl= self.chunksA[-1]
 
 		if cEl.context!=_ctx:
-			while self.dispatch(cEl, True): #old
+			while self.dispatch(self.chunksA[0], True): #old
 				None
 
 			self.chunksA= self.chunksA[1:] #shift
@@ -101,9 +101,8 @@ class byteTransit():
 		if _ctx:
 			self.context(_ctx)
 
-		cEl= self.chunksA[-1]
-		cEl.data+= _data
+		self.chunksA[-1].data+= _data
 
-		self.dispatch(cEl)
+		self.dispatch(self.chunksA[0])
 
 
