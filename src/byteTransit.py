@@ -53,6 +53,7 @@ class byteTransit():
 
 
 
+#  todo 37 (transit, clean) +0: remove dried context more precisely
 	def dispatch(self, _cEl, _force=False):
 		dataToSend= _cEl.data[_cEl.position:]
 

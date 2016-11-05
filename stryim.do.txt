@@ -38,5 +38,11 @@
  read, cam 34: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiYiListener.py" user 16/11/04 20:21:54
 	detect buffer underrun
 
++transit 35: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\byteTransit.py" user 16/11/05 04:51:40
+	add trigger functionality
 
-Reserved: 35
+ transit, clean 37: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\byteTransit.py" user 16/11/05 05:16:09
+	remove dried context more precisely
+
+
+Reserved: 38
