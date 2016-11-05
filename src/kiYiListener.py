@@ -127,11 +127,13 @@ class KiYiListener():
 			kiLog.ok('Read %s from %d ...' % (fName, fPos))
 			while True:
 				if not self.flagLive:
+					kiLog.warn("... stop at %d" % fPos)
 					return True
 
 				readBytes= self.camReadFile(fName, fPos)
 
 				if readBytes==-1:
+					kiLog.err("... error at %d" % fPos)
 					return False
 
 				if not readBytes:
