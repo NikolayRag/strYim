@@ -40,37 +40,34 @@ class byteTransitChunk():
 
 
 class byteTransit():
-	chunksA= False
+	chunk= False
 
 	dispatchCB= None
 	trigger= 0
 	
 	def __init__(self, _dispatchCB, _trigger=0):
-		self.chunksA= [byteTransitChunk()] #blank
-
 		self.dispatchCB= _dispatchCB
 		self.trigger= _trigger
 
 
 
-#  todo 37 (transit, clean) +0: remove dried context more precisely
-	def dispatch(self, _cEl, _force=False):
-		dataToSend= _cEl.data[_cEl.position:]
+	def dispatch(self, _force=False):
+		dataLeft= self.chunk.data[self.chunk.position:]
 
-		if not len(dataToSend):
+		if not len(dataLeft):
 			return 0
 
-		if not _force and len(dataToSend)<self.trigger:
+		if not _force and len(dataLeft)<self.trigger:
 			return 0
 
 
 		dispatched= False
 
 		if callable(self.dispatchCB):
-			dispatched= self.dispatchCB(dataToSend, _cEl.context)
+			dispatched= self.dispatchCB(dataLeft, self.chunk.context)
 
 		if (dispatched or 0)>0:
-			_cEl.position+= dispatched
+			self.chunk.position+= dispatched
 
 		return dispatched
 
@@ -80,20 +77,14 @@ class byteTransit():
 	Check last element context, create new if mismatch
 	'''
 	def context(self, _ctx):
-		cEl= self.chunksA[-1]
-
-		if cEl.context!=_ctx:
-			while self.dispatch(self.chunksA[0], True): #old
+		if self.chunk and self.chunk.context!=_ctx:
+			while self.dispatch(True): #old
 				None
 
-			self.chunksA= self.chunksA[1:] #shift
+		if not self.chunk or self.chunk.context!=_ctx:
+			self.chunk= byteTransitChunk(_ctx)	#new
 
-
-			cEl= byteTransitChunk(_ctx)	#new
-			self.chunksA.append(cEl)
-
-
-		return len(cEl.data)
+		return len(self.chunk.data)
 
 
 
@@ -101,8 +92,8 @@ class byteTransit():
 		if _ctx:
 			self.context(_ctx)
 
-		self.chunksA[-1].data+= _data
+		self.chunk.data+= _data
 
-		self.dispatch(self.chunksA[0])
+		self.dispatch()
 
 
