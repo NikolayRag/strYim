@@ -132,6 +132,11 @@ class KiYiListener():
 					kiLog.warn("... stop at %d" % fPos)
 					return True
 
+				if not self.mp4Buffer:
+					kiLog.err('No buffer')
+					return False
+
+				self.mp4Buffer.context('%s_%s' % (pad(fParts['dir'],3), pad(fParts['num'],4)))
 				readBytes= self.camReadFile(fName, fPos)
 
 				if readBytes==-1:
@@ -160,23 +165,18 @@ class KiYiListener():
 	read specified file from start position till (current) end.
 	'''
 	def camReadFile(self, _fname, _start):
-		if not self.mp4Buffer:
-			kiLog.err('No buffer')
-			return -1
-
-
 		ddBlock= 1000000
 		ddSkipBlocks= int(_start /ddBlock)
 		skipBuffer= _start %ddBlock #bytes to skip, len
 
-		cLen= self.mp4Buffer.context(_fname)
+		cLen= self.mp4Buffer.len()
 
 		telCmd= "dd bs=%d skip=%d if=%s/%s |tail -c +%d" % (ddBlock, ddSkipBlocks, self.camRoot, _fname, skipBuffer+1)
 		if KiTelnet(telCmd, self.mp4Buffer.add).result()==False:
 			kiLog.err('Telnet error')
 			return -1
 
-		return self.mp4Buffer.context(_fname)-cLen
+		return self.mp4Buffer.len()-cLen
 
 
 

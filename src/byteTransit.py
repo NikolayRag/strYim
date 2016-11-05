@@ -75,6 +75,7 @@ class byteTransit():
 
 	'''
 	Check last element context, create new if mismatch
+	Retrn True is context was changed
 	'''
 	def context(self, _ctx):
 		if self.chunk and self.chunk.context!=_ctx:
@@ -84,6 +85,13 @@ class byteTransit():
 		if not self.chunk or self.chunk.context!=_ctx:
 			self.chunk= byteTransitChunk(_ctx)	#new
 
+			return True
+
+
+	'''
+	current chunk length
+	'''
+	def len(self):
 		return len(self.chunk.data)
 
 
