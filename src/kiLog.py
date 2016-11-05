@@ -6,7 +6,7 @@ class kiLog():
 	#statical collection
 	contexts= {
 		'':{
-			    'ok':[True, 'log']
+			    'ok':[False, 'log']
 			  , 'warn':[True, 'warning']
 			  , 'err':[True, 'error']
 		}

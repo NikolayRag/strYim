@@ -18,13 +18,6 @@ class YiOnCommand(sublime_plugin.TextCommand):
 			kiLog.warn('Already')
 			return
 
-		kiLog.states(
-		      False
-		    , False
-		    , False
-		    , 'KiTelnet'
-		)
-
 		KiTelnet.defaults('192.168.42.1', 'root', '', 8088)
 
 		def pp(data, ctx):
