@@ -44,11 +44,14 @@
 +transit, clean 37: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\byteTransit.py" user 16/11/05 18:07:26
 	remove dried context more precisely
 
- cam 39: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiYiListener.py" user 16/11/06 00:04:34
++cam 39: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiYiListener.py" user 16/11/06 00:41:16
 	add on-off, live-dead callbacks to start()
 
- cam 40: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiYiListener.py" user 16/11/06 00:05:03
++cam 40: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiYiListener.py" user 16/11/06 00:44:37
 	add mp4Buffer argument to live()
 
+!cam 41: +0 "" user 16/11/06 00:45:39
+	spoiled
 
-Reserved: 41
+
+Reserved: 42
