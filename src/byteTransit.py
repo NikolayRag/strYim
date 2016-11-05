@@ -28,22 +28,30 @@ context(ctx)
 
 
 '''
+class byteTransitChunk():
+	context= None
+	data= b''
+	position= 0
+
+	def __init__(self, _context=None):
+		self.context= _context
+		self.data= b''
+		self.position= 0
+
+
 class byteTransit():
-	class bChunk():
-		context= None
-		data= b''
-		position= 0
-
-
 	chunksA= False
 
-	triggerCB= None
-
+	dispatchCB= None
+	trigger= 0
 	
-	def __init__(self, _triggerCB=None, _triggerLen=0):
-		self.chunksA= [bChunk()] #blank
+	def __init__(self, _dispatchCB, _trigger=0):
+		self.chunksA= [byteTransitChunk()] #blank
 
-		self.triggerCB= _triggerCB
+		self.dispatchCB= _dispatchCB
+
+#  todo 35 (transit) +0: add trigger functionality
+		self.trigger= _trigger
 
 
 	'''
@@ -52,18 +60,18 @@ class byteTransit():
 	def context(self, _ctx):
 		cEl= self.chunksA[-1]
 
-		if cEl[0]!=_ctx:
-			cEl= [_ctx, b'']
+		if cEl.context!=_ctx:
+			cEl= byteTransitChunk(_ctx)
 			self.chunksA.append(cEl)
 
-		return len(cEl[1])
+		return len(cEl.data)
 
 
 	def add(self, _data, _ctx=None):
 		if _ctx:
 			self.context(_ctx)
 
-		self.chunksA[-1][1]+= _data
+		self.chunksA[-1].data+= _data
 
 
 
@@ -100,7 +108,7 @@ class YiOnCommand(sublime_plugin.TextCommand):
 
 		KiTelnet.defaults('192.168.42.1', 'root', '', 8088)
 
-		buffer= byteTransit()
+		buffer= byteTransit(print)
 		KiYi[0]= KiYiListener(buffer)
 		KiYi[0].start()
 		KiYi[0].live()
