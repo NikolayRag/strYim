@@ -54,8 +54,17 @@ class YiOnCommand(sublime_plugin.TextCommand):
 		restoreO= mp4Restore()
 		buffer= byteTransit(restoreO.parse, 10000000)
 		KiYi[0]= KiYiListener()
-		KiYi[0].start()
-		KiYi[0].live(buffer)
+
+
+		def connn(mode):
+			print('conn:', mode)
+		def livee(mode):
+			print('live:', mode)
+		def airr(mode):
+			print('air:', mode)
+
+		KiYi[0].start(connn, livee)
+		KiYi[0].live(buffer, airr)
 
 
 class YiOffCommand(sublime_plugin.TextCommand):

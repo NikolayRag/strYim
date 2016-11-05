@@ -26,6 +26,7 @@ class KiYiListener():
 
 	connectCB= None
 	liveCB= None
+	airCB= None
 	mp4Buffer= False
 
 
@@ -34,6 +35,24 @@ class KiYiListener():
 
 
 
+	'''
+	Begin to look at camera state.
+	This is neccessary for live() to start.
+
+		connectCB
+			callback for connection state,
+			True or False is passed in as a state
+
+		liveCB
+			callback for camera shooting detection,
+			passed in value of:
+				1
+					camera begin to shoot
+				0
+					camera continue to shoot seamlessly (in loop mode)
+				-1
+					camera stops shooting
+	'''
 	def start(self, _connectCB=None, _liveCB=None):
 		if self.flagRun:
 			kiLog.warn('Already running')
@@ -52,12 +71,32 @@ class KiYiListener():
 
 
 
-	def live(self, _mp4Buffer):
+	'''
+	attempt to start streaming to byteTransit mp4Buffer.
+
+		mp4Buffer
+			byteTransit object for which to stream mp4 content
+
+		airCB
+			callback, called with
+				1
+					for actually start streaming
+				0
+					when streaming ends normally (by demand)
+				-1
+					when streaming error occurs
+	'''
+	def live(self, _mp4Buffer, _airCB=None):
+		if not self.flagRun:
+			kiLog.warn('Listener is currently idle')
+			return
+
 		if self.flagLive:
 			kiLog.warn('Already live')
 			return
 
 		self.mp4Buffer= _mp4Buffer
+		self.airCB= _airCB
 		self.flagLive= True
 
 	def dead(self):
@@ -73,15 +112,15 @@ class KiYiListener():
 
 		if _fNew and not _fOld:
 			kiLog.ok('found: %s' % _fNew)
-			callable(self.liveCB) and self.liveCB(_fNew)
+			callable(self.liveCB) and self.liveCB(1)
 
 		if _fOld and _fNew and _fNew['fname']!=_fOld['fname']:
 			kiLog.ok('refresh: %s' % _fNew)
-			callable(self.liveCB) and self.liveCB(_fNew)
+			callable(self.liveCB) and self.liveCB(0)
 
 		if _fOld and not _fNew:
 			kiLog.ok('lost')
-			callable(self.liveCB) and self.liveCB(None)
+			callable(self.liveCB) and self.liveCB(-1)
 
 		if _fOld!=False and _fNew==False:
 			kiLog.err('disconnected')
@@ -104,16 +143,20 @@ class KiYiListener():
 
 			if (
 				self.flagLive
-				and self.mp4Buffer
 				and fileNew
 				and fileNew['size'] > self.liveBufferMin
 			):
-				kiLog.warn('ON AIR')
+				kiLog.ok('ON AIR')
+				callable(self.airCB) and self.airCB(1)
 				if self.camAirStart(fileNew):
-					kiLog.warn('OFF AIR')
+
+					kiLog.ok('OFF AIR')
+					callable(self.airCB) and self.airCB(0)
 				else:
 					self.dead()
 					kiLog.err('BAD AIR')
+					callable(self.airCB) and self.airCB(-1)
+
 				self.mp4Buffer.context(None)
 
 
