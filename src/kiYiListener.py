@@ -91,6 +91,7 @@ class KiYiListener():
 
 			if (
 				self.flagLive
+				and self.mp4Buffer
 				and fileNew
 				and fileNew['size'] > self.liveBufferMin
 			):
@@ -131,10 +132,6 @@ class KiYiListener():
 				if not self.flagLive:
 					kiLog.warn("... stop at %d" % fPos)
 					return True
-
-				if not self.mp4Buffer:
-					kiLog.err('No buffer')
-					return False
 
 				self.mp4Buffer.context('%s_%s' % (pad(fParts['dir'],3), pad(fParts['num'],4)))
 				readBytes= self.camReadFile(fName, fPos)
