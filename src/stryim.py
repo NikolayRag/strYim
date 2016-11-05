@@ -44,6 +44,21 @@ KiYi= [None]
 YiOn/Off commands are used to test Stryim in Sublime, `coz its lazy to set up running environment.
 '''
 class YiOnCommand(sublime_plugin.TextCommand):
+	def cbConn(self, _mode):
+		kiLog.ok('Connected' if _mode else 'Disconnected')
+	def cbLive(self, _mode):
+		if _mode==1:
+			kiLog.ok('Live')
+		if _mode==-1:
+			kiLog.ok('Dead')
+	def cbAir(self, _mode):
+		if _mode==1:
+			kiLog.warn('Air On')
+		if _mode==0:
+			kiLog.warn('Air Off')
+		if _mode==-1:
+			kiLog.err('Air bad')
+
 	def run(self, _edit):
 		if KiYi[0]:
 			kiLog.warn('Already')
@@ -54,17 +69,8 @@ class YiOnCommand(sublime_plugin.TextCommand):
 		restoreO= mp4Restore()
 		buffer= byteTransit(restoreO.parse, 10000000)
 		KiYi[0]= KiYiListener()
-
-
-		def connn(mode):
-			print('conn:', mode)
-		def livee(mode):
-			print('live:', mode)
-		def airr(mode):
-			print('air:', mode)
-
-		KiYi[0].start(connn, livee)
-		KiYi[0].live(buffer, airr)
+		KiYi[0].start(self.cbConn, self.cbLive)
+		KiYi[0].live(buffer, self.cbAir)
 
 
 class YiOffCommand(sublime_plugin.TextCommand):
