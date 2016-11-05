@@ -155,8 +155,6 @@ class KiYiListener():
 				fParts['dir']+= 1
 
 
-		return True
-
 
 	'''
 	read specified file from start position till (current) end.
