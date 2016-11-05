@@ -76,7 +76,6 @@ class KiTelnet():
 	'''
 	find local IP in in the same /24 network as given one
 	'''
-#  todo 6 (network, unsure) +0: think of telnet over route
 	def localIp(self, _remoteIP):
 		telIPA= str(_remoteIP).split('.')[0:3]
 

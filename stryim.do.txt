@@ -2,7 +2,7 @@
 !test 2: +0 "src\kiTelnet.py" kii 16/10/28 20:48:47
 	test
 
- network, unsure 6: +0 "src\kiTelnet.py" user 16/10/29 02:12:48
+!network, unsure 6: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiTelnet.py" kii 16/11/05 23:18:34
 	think of telnet over route
 
 +network 7: +1 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiTelnet.py" user 16/10/28 23:26:41
@@ -44,5 +44,11 @@
 +transit, clean 37: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\byteTransit.py" user 16/11/05 18:07:26
 	remove dried context more precisely
 
+ cam 39: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiYiListener.py" user 16/11/06 00:04:34
+	add on-off, live-dead callbacks to start()
 
-Reserved: 39
+ cam 40: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiYiListener.py" user 16/11/06 00:05:03
+	add mp4Buffer argument to live()
+
+
+Reserved: 41

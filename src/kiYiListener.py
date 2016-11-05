@@ -34,6 +34,7 @@ class KiYiListener():
 
 
 
+#  todo 39 (cam) +0: add on-off, live-dead callbacks to start()
 	def start(self):
 		if self.flagRun:
 			kiLog.warn('not twice')
@@ -49,6 +50,7 @@ class KiYiListener():
 		self.flagRun= False
 
 
+#  todo 40 (cam) +0: add mp4Buffer argument to live()
 	def live(self):
 		self.flagLive= True
 
