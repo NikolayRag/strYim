@@ -28,6 +28,10 @@ class mp4Restore():
 
 
 
+
+
+
+
 from .byteTransit import *
 from .kiYiListener import *
 from .kiTelnet import *
@@ -49,9 +53,9 @@ class YiOnCommand(sublime_plugin.TextCommand):
 
 		restoreO= mp4Restore()
 		buffer= byteTransit(restoreO.parse, 10000000)
-		KiYi[0]= KiYiListener(buffer)
+		KiYi[0]= KiYiListener()
 		KiYi[0].start()
-		KiYi[0].live()
+		KiYi[0].live(buffer)
 
 
 class YiOffCommand(sublime_plugin.TextCommand):

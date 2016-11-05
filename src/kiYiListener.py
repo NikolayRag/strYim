@@ -24,22 +24,23 @@ class KiYiListener():
 	flagLive= False #live switch
 	flagRun= False #global cycle switch
 
+	connectCB= None
+	liveCB= None
 	mp4Buffer= False
 
 
-	def __init__(self, _mp4Buffer):
-		self.mp4Buffer= _mp4Buffer
-
-		self.flagRun= False
+	def __init__(self):
+		None
 
 
 
-#  todo 39 (cam) +0: add on-off, live-dead callbacks to start()
-	def start(self):
+	def start(self, _connectCB=None, _liveCB=None):
 		if self.flagRun:
-			kiLog.warn('not twice')
+			kiLog.warn('Already running')
 			return
 
+		self.connectCB= _connectCB
+		self.liveCB= _liveCB
 		self.flagRun= True
 
 		threading.Timer(0, self.check).start()
@@ -50,8 +51,13 @@ class KiYiListener():
 		self.flagRun= False
 
 
-#  todo 40 (cam) +0: add mp4Buffer argument to live()
-	def live(self):
+
+	def live(self, _mp4Buffer):
+		if self.flagLive:
+			kiLog.warn('Already live')
+			return
+
+		self.mp4Buffer= _mp4Buffer
 		self.flagLive= True
 
 	def dead(self):
@@ -63,18 +69,23 @@ class KiYiListener():
 	def checkTriger(self, _fOld, _fNew):
 		if _fOld==False and _fNew!=False:
 			kiLog.ok('connected')
+			callable(self.connectCB) and self.connectCB(True)
 
 		if _fNew and not _fOld:
 			kiLog.ok('found: %s' % _fNew)
+			callable(self.liveCB) and self.liveCB(_fNew)
 
 		if _fOld and _fNew and _fNew['fname']!=_fOld['fname']:
 			kiLog.ok('refresh: %s' % _fNew)
+			callable(self.liveCB) and self.liveCB(_fNew)
 
 		if _fOld and not _fNew:
 			kiLog.ok('lost')
+			callable(self.liveCB) and self.liveCB(None)
 
 		if _fOld!=False and _fNew==False:
 			kiLog.err('disconnected')
+			callable(self.connectCB) and self.connectCB(False)
 
 
 
