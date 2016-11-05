@@ -49,9 +49,25 @@ class byteTransit():
 		self.chunksA= [byteTransitChunk()] #blank
 
 		self.dispatchCB= _dispatchCB
-
-#  todo 35 (transit) +0: add trigger functionality
 		self.trigger= _trigger
+
+
+
+	def dispatch(self, _cEl, _force=False):
+		if not _force and len(_cEl.data[_cEl.position:])<self.trigger:
+			return 0
+
+
+		dispatched= False
+
+		if callable(self.dispatchCB):
+			dispatched= self.dispatchCB(_cEl.data[_cEl.position:], _cEl.context)
+
+		if (dispatched or 0)>0:
+			_cEl.position+= dispatched
+
+		return dispatched
+
 
 
 	'''
@@ -61,17 +77,28 @@ class byteTransit():
 		cEl= self.chunksA[-1]
 
 		if cEl.context!=_ctx:
-			cEl= byteTransitChunk(_ctx)
+			while self.dispatch(cEl, True): #old
+				None
+
+			self.chunksA= self.chunksA[1:] #shift
+
+
+			cEl= byteTransitChunk(_ctx)	#new
 			self.chunksA.append(cEl)
 
+
 		return len(cEl.data)
+
 
 
 	def add(self, _data, _ctx=None):
 		if _ctx:
 			self.context(_ctx)
 
-		self.chunksA[-1].data+= _data
+		cEl= self.chunksA[-1]
+		cEl.data+= _data
+
+		self.dispatch(cEl)
 
 
 
@@ -108,7 +135,11 @@ class YiOnCommand(sublime_plugin.TextCommand):
 
 		KiTelnet.defaults('192.168.42.1', 'root', '', 8088)
 
-		buffer= byteTransit(print)
+		def pp(data, ctx):
+			print(len(data), ctx)
+			return len(data)
+
+		buffer= byteTransit(pp, 10000000)
 		KiYi[0]= KiYiListener(buffer)
 		KiYi[0].start()
 		KiYi[0].live()
