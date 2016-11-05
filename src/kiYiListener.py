@@ -100,6 +100,8 @@ class KiYiListener():
 				else:
 					self.dead()
 					kiLog.err('BAD AIR')
+				self.mp4Buffer.context(None)
+
 
 			time.sleep(1)
 
