@@ -24,6 +24,9 @@ class mp4RecoverExe():
 
 		context
 			arbitrary identifier of supplied data
+
+		final
+			boolean, indicates no more data for this context will be sent (if consumed all).
 	'''
 	def parse(self, _data, _ctx, _final=False):
 		if self.cContext!=_ctx:
@@ -39,10 +42,13 @@ class mp4RecoverExe():
 
 		kiLog.ok("%d MP4 %s data append to %s, final:%s" % (len(_data), self.cContext, self.cFile, _final))
 
+
+		#store data
 		cFile= open(self.cFile, 'ab')
 		cFile.write(_data)
 		cFile.close()
 
+		#analyze data
 		cwd= os.getcwd()
 		os.chdir('D:/yi/restore/')
 		recoverMeta= subprocess.check_output('recover_mp4_x64.exe "%s" --novideo --noaudio --ambarella --start %s' % (self.cFile, hex(self.cPos)), shell=True)
@@ -131,6 +137,7 @@ class YiOnCommand(sublime_plugin.TextCommand):
 
 	def run(self, _edit):
 		kiLog.states(True, True, True)
+		kiLog.states(True, True, True, 'mp4RecoverExe')
 
 		if KiYi[0]:
 			kiLog.warn('Already')
