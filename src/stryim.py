@@ -2,7 +2,7 @@ import sublime, sublime_plugin
 import subprocess, threading, tempfile, os
 
 
-class mp4Restore():
+class mp4RecoverExe():
 	cContext= None
 	cFile= None
 	cPos= 0
@@ -90,7 +90,7 @@ class YiOnCommand(sublime_plugin.TextCommand):
 
 		selfIP= KiTelnet.defaults('192.168.42.1', 'root', '', 8088)
 
-		restoreO= mp4Restore()
+		restoreO= mp4RecoverExe()
 		buffer= byteTransit(restoreO.parse, 10000000)
 		KiYi[0]= KiYiListener()
 		KiYi[0].start(self.cbConn, self.cbLive)
