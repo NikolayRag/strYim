@@ -168,6 +168,10 @@ class KiYiListener():
 
 
 
+	'''
+	start to read files from _file,
+	assuming it's Loop mode (file name is Laaabbbb.MP4)
+	'''
 	def camAirStart(self, _file):
 		stamp= time.time()
 
@@ -214,6 +218,7 @@ class KiYiListener():
 
 
 
+#  todo 53 (cam) +0: force kill data sending at dead()
 	'''
 	read specified file from start position till (current) end.
 	'''
