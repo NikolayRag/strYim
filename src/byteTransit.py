@@ -54,11 +54,9 @@ class byteTransit():
 	def dispatch(self, _force=False):
 		dataLeft= self.chunk.data[self.chunk.position:]
 
-		if not len(dataLeft):
-			return 0
-
-		if not _force and len(dataLeft)<self.trigger:
-			return 0
+		if not _force:
+			if not len(dataLeft) or len(dataLeft)<self.trigger:
+				return 0
 
 
 		dispatched= False
