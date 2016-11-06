@@ -1,4 +1,3 @@
-import sublime, sublime_plugin
 import subprocess, threading, tempfile, os
 
 
@@ -56,6 +55,8 @@ class mp4RecoverExe():
 
 
 
+
+import sublime, sublime_plugin
 from .byteTransit import *
 from .kiYiListener import *
 from .kiTelnet import *
@@ -84,6 +85,8 @@ class YiOnCommand(sublime_plugin.TextCommand):
 			kiLog.err('Air bad')
 
 	def run(self, _edit):
+		kiLog.states(True, True, True)
+
 		if KiYi[0]:
 			kiLog.warn('Already')
 			return
@@ -91,7 +94,7 @@ class YiOnCommand(sublime_plugin.TextCommand):
 		selfIP= KiTelnet.defaults('192.168.42.1', 'root', '', 8088)
 
 		restoreO= mp4RecoverExe()
-		buffer= byteTransit(restoreO.parse, 10000000)
+		buffer= byteTransit(restoreO.parse, 1000000)
 		KiYi[0]= KiYiListener()
 		KiYi[0].start(self.cbConn, self.cbLive)
 		KiYi[0].live(buffer, self.cbAir)
