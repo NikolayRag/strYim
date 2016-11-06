@@ -42,10 +42,9 @@ class mp4RecoverExe():
 		os.chdir('D:/yi/restore/')
 		recoverMeta= subprocess.check_output('recover_mp4_x64.exe "%s" --novideo --noaudio --ambarella --start %s' % (self.cFile, hex(self.cPos)), shell=True)
 		os.chdir(cwd)
-		cFile= open(self.cFile+'.txt', 'w')
-		for cStr in recoverMeta.decode('ascii').split("\r\n")[0:]:
-			cFile.write(cStr+"\n")
-		cFile.close()
+		for cStr in recoverMeta.decode('ascii').split("\r\n"):
+# =todo 44 (mp4restore) +0: move start position as data recovered
+			None
 		
 		return len(_data)
 
