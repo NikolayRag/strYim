@@ -62,7 +62,7 @@ class byteTransit():
 		dispatched= False
 
 		if callable(self.dispatchCB):
-			dispatched= self.dispatchCB(dataLeft, self.chunk.context)
+			dispatched= self.dispatchCB(dataLeft, self.chunk.context, _force)
 
 		if (dispatched or 0)>0:
 			self.chunk.position+= dispatched
@@ -78,7 +78,8 @@ class byteTransit():
 	def context(self, _ctx):
 		if self.chunk and self.chunk.context!=_ctx:
 			while self.dispatch(True): #old
-				None
+				if self.chunk.position>=len(self.chunk.data): #that was last, no need to continue
+					break
 
 		if not self.chunk or self.chunk.context!=_ctx:
 			self.chunk= byteTransitChunk(_ctx)	#new

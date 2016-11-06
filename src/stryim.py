@@ -20,12 +20,7 @@ class mp4RecoverExe():
 		context
 			arbitrary identifier of supplied data
 	'''
-	def parse(self, _data, _ctx):
-		if not len(_data):
-			if self.cFile:
-				os.remove(self.cFile)
-				return 0
-			
+	def parse(self, _data, _ctx, _final=False):
 		if self.cContext!=_ctx:
 			self.cContext= _ctx
 			cFile= tempfile.NamedTemporaryFile(delete=False)
@@ -46,6 +41,11 @@ class mp4RecoverExe():
 # =todo 44 (mp4restore) +0: move start position as data recovered
 			None
 		
+		if _final:
+			if self.cFile:
+				None
+#				os.remove(self.cFile)
+
 		return len(_data)
 
 
