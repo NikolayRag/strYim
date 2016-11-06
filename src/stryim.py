@@ -1,9 +1,11 @@
 import sublime, sublime_plugin
-import threading
+import subprocess, threading, tempfile, os
 
 
 class mp4Restore():
 	cContext= None
+	cFile= None
+	cPos= 0
 
 	def __init__(self):
 		None
@@ -20,11 +22,33 @@ class mp4Restore():
 			arbitrary identifier of supplied data
 	'''
 	def parse(self, _data, _ctx):
+		if not len(_data):
+			if self.cFile:
+				os.remove(self.cFile)
+				return 0
+			
 		if self.cContext!=_ctx:
-			None
-		print(len(_data), _ctx)
-		return min(len(_data), 10000000)
+			self.cContext= _ctx
+			cFile= tempfile.NamedTemporaryFile(delete=False)
+			self.cFile= cFile.name
+			cFile.close()
 
+
+		kiLog.ok("%d MP4 data append to %s" % (len(_data), self.cFile))
+		cFile= open(self.cFile, 'ab')
+		cFile.write(_data)
+		cFile.close()
+
+		cwd= os.getcwd()
+		os.chdir('D:/yi/restore/')
+		recoverMeta= subprocess.check_output('recover_mp4_x64.exe "%s" --novideo --noaudio --ambarella --start %s' % (self.cFile, hex(self.cPos)), shell=True)
+		os.chdir(cwd)
+		cFile= open(self.cFile+'.txt', 'w')
+		for cStr in recoverMeta.decode('ascii').split("\r\n")[0:]:
+			cFile.write(cStr+"\n")
+		cFile.close()
+		
+		return len(_data)
 
 
 
