@@ -1,13 +1,18 @@
-import subprocess, threading, tempfile, os
+import subprocess, threading, tempfile, os, re
 
 
 class mp4RecoverExe():
+	reAtom= re.compile('^\s*(?P<type>H264|AAC):\s+0x(?P<offset>[\dA-F]{8})\s+\[0x\s*(?P<len>[\dA-F]{1,8})\](\s+\{(?P<sign>([\dA-F]{2}\s*)+)\}\s+(?P<ftype>[A-Z]+)\s+frame)?$')
 	cContext= None
 	cFile= None
+
 	cPos= 0
+	foundAAC= []
+	found264= []
 
 	def __init__(self):
-		None
+		self.foundAAC= []
+		self.found264= []
 
 
 	'''
@@ -27,8 +32,13 @@ class mp4RecoverExe():
 			self.cFile= cFile.name
 			cFile.close()
 
+			self.foundAAC= []
+			self.found264= []
+			self.cPos= 0
 
-		kiLog.ok("%d MP4 data append to %s" % (len(_data), self.cFile))
+
+		kiLog.ok("%d MP4 %s data append to %s, final:%s" % (len(_data), self.cContext, self.cFile, _final))
+
 		cFile= open(self.cFile, 'ab')
 		cFile.write(_data)
 		cFile.close()
@@ -36,12 +46,48 @@ class mp4RecoverExe():
 		cwd= os.getcwd()
 		os.chdir('D:/yi/restore/')
 		recoverMeta= subprocess.check_output('recover_mp4_x64.exe "%s" --novideo --noaudio --ambarella --start %s' % (self.cFile, hex(self.cPos)), shell=True)
+		recoverMetaA= recoverMeta.decode('ascii').split("\r\n")
 		os.chdir(cwd)
-		for cStr in recoverMeta.decode('ascii').split("\r\n"):
-# =todo 44 (mp4restore) +0: move start position as data recovered
-			None
-		
+
+		found264= []
+		foundAAC= []
+
+
+		cFile= open(self.cFile+'_.txt', 'a+')
+		cFile.write(hex(self.cPos)+"\n")
+
+		#deal with data
+		#aac after last frame should be ignored untill it's not successful end of stream
+		for cStr in recoverMetaA:
+# =todo 44 (recover) +0: move start position as data recovered
+			mp4Match= self.reAtom.match(cStr)
+			if not mp4Match:
+				continue
+
+			cFile.write(cStr+"\n")
+
+			atom= mp4Match.groupdict()
+			atom= {'type':atom['type'], 'offset':int(atom['offset'],16), 'len':int(atom['len'],16), 'ftype':atom['ftype'], 'sign':bytes.fromhex(atom['sign'] or '')}
+			if atom['type']=='H264':
+				found264.append(atom)
+				self.found264.append(atom)
+
+			if atom['type']=='AAC':
+				foundAAC.append(atom)
+				self.foundAAC.append(atom)
+
+			self.cPos= atom['offset']+ atom['len']
+
+		cFile.close()
+
+		kiLog.ok("%d frames in" % len(found264))
+
+
+
+
 		if _final:
+			kiLog.ok("%d h264, %d aac" % (len(self.found264), len(self.foundAAC)))
+
 			if self.cFile:
 				None
 #				os.remove(self.cFile)
