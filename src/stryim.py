@@ -5,14 +5,10 @@ class mp4RecoverExe():
 	reAtom= re.compile('^\s*(?P<type>H264|AAC):\s+0x(?P<offset>[\dA-F]{8})\s+\[0x\s*(?P<len>[\dA-F]{1,8})\](\s+\{(?P<sign>([\dA-F]{2}\s*)+)\}\s+(?P<ftype>[A-Z]+)\s+frame)?$')
 	cContext= None
 	cFile= None
-
 	cPos= 0
-	foundAAC= []
-	found264= []
 
 	def __init__(self):
-		self.foundAAC= []
-		self.found264= []
+		None
 
 
 	'''
@@ -28,25 +24,47 @@ class mp4RecoverExe():
 		final
 			boolean, indicates no more data for this context will be sent (if consumed all).
 	'''
-	def parse(self, _data, _ctx, _final=False):
-		#check context
+	def parse(self, _data, _ctx, _finalize=False):
+		self.checkContext(_ctx)
+		self.holdData(_data)
+		recoverAtoms= self.analyze(_finalize)
+
+		kiLog.ok("%d atoms%s" % (len(recoverAtoms), ', finaly' if _finalize else '') )
+
+		for atom in recoverAtoms:
+			if atom['type']=='H264':
+				None
+
+			if atom['type']=='AAC':
+				None
+
+
+		if _finalize and self.cFile:
+			os.remove(self.cFile)
+
+
+		return len(_data) #all been consumed
+
+
+
+
+	def checkContext(self, _ctx):
 		if self.cContext!=_ctx:
 			self.cContext= _ctx
 			cFile= tempfile.NamedTemporaryFile(delete=False)
 			self.cFile= cFile.name
 			cFile.close()
 
-			self.foundAAC= []
-			self.found264= []
 			self.cPos= 0
 
 
-		#store data
+	def holdData(self, _data):
 		cFile= open(self.cFile, 'ab')
 		cFile.write(_data)
 		cFile.close()
 
-		#analyze data
+
+	def analyze(self, _finalize):
 		cwd= os.getcwd()
 		os.chdir('D:/yi/restore/')
 		try:
@@ -56,53 +74,23 @@ class mp4RecoverExe():
 		os.chdir(cwd)
 
 
-		recoverAtoms= []
-		recoverLastFrame= None
+		atomsA= []
+		lastFrameI= None
 		for cStr in recoverMeta.decode('ascii').split("\r\n"):
 			mp4Match= self.reAtom.match(cStr)
 			if mp4Match:
 				atom= {'type':mp4Match.group('type'), 'offset':int(mp4Match.group('offset'),16), 'len':int(mp4Match.group('len'),16), 'ftype':mp4Match.group('ftype'), 'sign':bytes.fromhex(mp4Match.group('sign') or '')}
-				recoverAtoms.append(atom)
 
-				#atoms after last frame should be ignored untill it's not successful end of stream
-				if not _final and atom['type']=='H264':
-					recoverLastFrame= len(recoverAtoms)
+				#last frame and remaining should be left to next run untill it's not final
+				if not _finalize and atom['type']=='H264':
+					self.cPos= atom['offset']
+					lastFrameI= len(atomsA)
 
-		found264= []
-		foundAAC= []
-
-
-		cFile= open(self.cFile+'_.txt', 'a+')
-		cFile.write(hex(self.cPos)+"\n")
-
-		#deal with data
-		for atom in recoverAtoms[:recoverLastFrame]:
-			cFile.write(str(atom)+"\n")
-
-			if atom['type']=='H264':
-				found264.append(atom)
-				self.found264.append(atom)
-
-			if atom['type']=='AAC':
-				foundAAC.append(atom)
-				self.foundAAC.append(atom)
-
-			self.cPos= atom['offset']+ atom['len']
-
-		cFile.close()
-
-		kiLog.ok("%d frames in%s" % (len(found264), ', finaly' if _final else '') )
+				atomsA.append(atom)
 
 
+		return atomsA[:lastFrameI]
 
-
-		if _final:
-			kiLog.ok("%d h264, %d aac" % (len(self.found264), len(self.foundAAC)))
-
-			if self.cFile:
-				os.remove(self.cFile)
-
-		return len(_data)
 
 
 
