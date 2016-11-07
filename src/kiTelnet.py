@@ -76,8 +76,8 @@ class KiTelnet():
 	'''
 	find local IP in in the same /24 network as given one
 	'''
-#  todo 6 (network, unsure) +0: think of telnet over route
-	def localIp(self, _remoteIP):
+	@staticmethod
+	def localIp(_remoteIP):
 		telIPA= str(_remoteIP).split('.')[0:3]
 
 		for cIp in socket.gethostbyname_ex(socket.gethostname())[2]:
@@ -95,6 +95,9 @@ class KiTelnet():
 		, _selfPort=None
 		, _selfAddr=None
 	):
+		if not _selfAddr:
+			_selfAddr= KiTelnet.localIp(_telAddr)
+
 		if _selfAddr!=None:
 			KiTelnet.selfAddr= _selfAddr
 		if _selfPort!=None:
@@ -107,6 +110,7 @@ class KiTelnet():
 		if _telPass!=None:
 			KiTelnet.telnetPass= _telPass
 
+		return (KiTelnet.selfAddr, KiTelnet.selfPort)
 
 
 	def argsFill(self, _telAddr, _telUser, _telPass, _selfAddr, _selfPort):
@@ -129,7 +133,7 @@ class KiTelnet():
 			return
 
 		if not _selfAddr:
-			_selfAddr= self.localIp(self.telnetAddr)
+			_selfAddr= KiTelnet.localIp(self.telnetAddr)
 
 		if _selfAddr!=None:
 			self.selfAddr= _selfAddr

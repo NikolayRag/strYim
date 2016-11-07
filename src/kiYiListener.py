@@ -24,21 +24,42 @@ class KiYiListener():
 	flagLive= False #live switch
 	flagRun= False #global cycle switch
 
+	connectCB= None
+	liveCB= None
+	airCB= None
 	mp4Buffer= False
 
 
-	def __init__(self, _mp4Buffer):
-		self.mp4Buffer= _mp4Buffer
-
-		self.flagRun= False
+	def __init__(self):
+		None
 
 
 
-	def start(self):
+	'''
+	Begin to look at camera state.
+	This is neccessary for live() to start.
+
+		connectCB
+			callback for connection state,
+			True or False is passed in as a state
+
+		liveCB
+			callback for camera shooting detection,
+			passed in value of:
+				1
+					camera begin to shoot
+				0
+					camera continue to shoot seamlessly (in loop mode)
+				-1
+					camera stops shooting
+	'''
+	def start(self, _connectCB=None, _liveCB=None):
 		if self.flagRun:
-			kiLog.warn('not twice')
+			kiLog.warn('Already running')
 			return
 
+		self.connectCB= _connectCB
+		self.liveCB= _liveCB
 		self.flagRun= True
 
 		threading.Timer(0, self.check).start()
@@ -49,7 +70,33 @@ class KiYiListener():
 		self.flagRun= False
 
 
-	def live(self):
+
+	'''
+	attempt to start streaming to byteTransit mp4Buffer.
+
+		mp4Buffer
+			byteTransit object for which to stream mp4 content
+
+		airCB
+			callback, called with
+				1
+					for actually start streaming
+				0
+					when streaming ends normally (by demand)
+				-1
+					when streaming error occurs
+	'''
+	def live(self, _mp4Buffer, _airCB=None):
+		if not self.flagRun:
+			kiLog.warn('Listener is currently idle')
+			return
+
+		if self.flagLive:
+			kiLog.warn('Already live')
+			return
+
+		self.mp4Buffer= _mp4Buffer
+		self.airCB= _airCB
 		self.flagLive= True
 
 	def dead(self):
@@ -61,18 +108,23 @@ class KiYiListener():
 	def checkTriger(self, _fOld, _fNew):
 		if _fOld==False and _fNew!=False:
 			kiLog.ok('connected')
+			callable(self.connectCB) and self.connectCB(True)
 
 		if _fNew and not _fOld:
 			kiLog.ok('found: %s' % _fNew)
+			callable(self.liveCB) and self.liveCB(1)
 
 		if _fOld and _fNew and _fNew['fname']!=_fOld['fname']:
 			kiLog.ok('refresh: %s' % _fNew)
+			callable(self.liveCB) and self.liveCB(0)
 
 		if _fOld and not _fNew:
 			kiLog.ok('lost')
+			callable(self.liveCB) and self.liveCB(-1)
 
 		if _fOld!=False and _fNew==False:
 			kiLog.err('disconnected')
+			callable(self.connectCB) and self.connectCB(False)
 
 
 
@@ -94,12 +146,17 @@ class KiYiListener():
 				and fileNew
 				and fileNew['size'] > self.liveBufferMin
 			):
-				kiLog.warn('ON AIR')
+				kiLog.ok('ON AIR')
+				callable(self.airCB) and self.airCB(1)
 				if self.camAirStart(fileNew):
-					kiLog.warn('OFF AIR')
+
+					kiLog.ok('OFF AIR')
+					callable(self.airCB) and self.airCB(0)
 				else:
 					self.dead()
 					kiLog.err('BAD AIR')
+					callable(self.airCB) and self.airCB(-1)
+
 				self.mp4Buffer.context(None)
 
 
@@ -111,6 +168,10 @@ class KiYiListener():
 
 
 
+	'''
+	start to read files from _file,
+	assuming it's Loop mode (file name is Laaabbbb.MP4)
+	'''
 	def camAirStart(self, _file):
 		stamp= time.time()
 
@@ -132,6 +193,7 @@ class KiYiListener():
 					kiLog.warn("... stop at %d" % fPos)
 					return True
 
+				self.mp4Buffer.context('%s_%s' % (pad(fParts['dir'],3), pad(fParts['num'],4)))
 				readBytes= self.camReadFile(fName, fPos)
 
 				if readBytes==-1:
@@ -156,27 +218,23 @@ class KiYiListener():
 
 
 
+#  todo 53 (cam) +0: force kill data sending at dead()
 	'''
 	read specified file from start position till (current) end.
 	'''
 	def camReadFile(self, _fname, _start):
-		if not self.mp4Buffer:
-			kiLog.err('No buffer')
-			return -1
-
-
 		ddBlock= 1000000
 		ddSkipBlocks= int(_start /ddBlock)
 		skipBuffer= _start %ddBlock #bytes to skip, len
 
-		cLen= self.mp4Buffer.context(_fname)
+		cLen= self.mp4Buffer.len()
 
 		telCmd= "dd bs=%d skip=%d if=%s/%s |tail -c +%d" % (ddBlock, ddSkipBlocks, self.camRoot, _fname, skipBuffer+1)
 		if KiTelnet(telCmd, self.mp4Buffer.add).result()==False:
 			kiLog.err('Telnet error')
 			return -1
 
-		return self.mp4Buffer.context(_fname)-cLen
+		return self.mp4Buffer.len()-cLen
 
 
 

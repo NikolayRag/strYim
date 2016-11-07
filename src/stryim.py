@@ -1,6 +1,12 @@
-import sublime, sublime_plugin
-import threading
 
+
+
+
+
+
+
+import sublime, sublime_plugin
+from .mp4RecoverExe import *
 from .byteTransit import *
 from .kiYiListener import *
 from .kiTelnet import *
@@ -13,21 +19,36 @@ KiYi= [None]
 YiOn/Off commands are used to test Stryim in Sublime, `coz its lazy to set up running environment.
 '''
 class YiOnCommand(sublime_plugin.TextCommand):
+	def cbConn(self, _mode):
+		kiLog.ok('Connected' if _mode else 'Disconnected')
+	def cbLive(self, _mode):
+		if _mode==1:
+			kiLog.ok('Live')
+		if _mode==-1:
+			kiLog.ok('Dead')
+	def cbAir(self, _mode):
+		if _mode==1:
+			kiLog.warn('Air On')
+		if _mode==0:
+			kiLog.warn('Air Off')
+		if _mode==-1:
+			kiLog.err('Air bad')
+
 	def run(self, _edit):
+		kiLog.states(True, True, True)
+		kiLog.states(True, True, True, 'mp4RecoverExe')
+
 		if KiYi[0]:
 			kiLog.warn('Already')
 			return
 
-		KiTelnet.defaults('192.168.42.1', 'root', '', 8088)
+		selfIP= KiTelnet.defaults('192.168.42.1', 'root', '', 8088)
 
-		def pp(data, ctx):
-			print(len(data), ctx)
-			return min(len(data), 10000000)
-
-		buffer= byteTransit(pp, 10000000)
-		KiYi[0]= KiYiListener(buffer)
-		KiYi[0].start()
-		KiYi[0].live()
+		restoreO= mp4RecoverExe(None)
+		buffer= byteTransit(restoreO.parse, 500000)
+		KiYi[0]= KiYiListener()
+		KiYi[0].start(self.cbConn, self.cbLive)
+		KiYi[0].live(buffer, self.cbAir)
 
 
 class YiOffCommand(sublime_plugin.TextCommand):

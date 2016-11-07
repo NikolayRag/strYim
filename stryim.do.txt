@@ -2,7 +2,7 @@
 !test 2: +0 "src\kiTelnet.py" kii 16/10/28 20:48:47
 	test
 
- network, unsure 6: +0 "src\kiTelnet.py" user 16/10/29 02:12:48
+!network, unsure 6: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiTelnet.py" kii 16/11/05 23:18:34
 	think of telnet over route
 
 +network 7: +1 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiTelnet.py" user 16/10/28 23:26:41
@@ -44,5 +44,38 @@
 +transit, clean 37: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\byteTransit.py" user 16/11/05 18:07:26
 	remove dried context more precisely
 
++cam 39: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiYiListener.py" user 16/11/06 00:41:16
+	add on-off, live-dead callbacks to start()
 
-Reserved: 39
++cam 40: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiYiListener.py" user 16/11/06 00:44:37
+	add mp4Buffer argument to live()
+
+!cam 41: +0 "" user 16/11/06 00:45:39
+	spoiled
+
++recover 44: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/11/07 03:33:04
+	move start position as data recovered
+
++stage 46: +0 "" kii 16/11/06 15:45:43
+	stage: continuous read
+
++stage 47: +0 "" kii 16/11/07 05:24:32
+	stage: recover
+
+=stage 48: +0 "" kii 16/11/07 05:24:38
+	stage: mux
+
+-stage, output 49: +0 "" kii 16/11/06 15:47:22
+	stage: send to rtmp
+
+-stage, output 50: +0 "" kii 16/11/06 15:47:34
+	stage: rtmp server
+
+ cam 53: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiYiListener.py" user 16/11/07 02:49:46
+	force kill data sending at dead()
+
+=recover, callback 55: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/11/07 06:17:52
+	send atom data, not only meta
+
+
+Reserved: 56
