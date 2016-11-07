@@ -53,8 +53,29 @@
 !cam 41: +0 "" user 16/11/06 00:45:39
 	spoiled
 
-=mp4restore 44: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/11/06 06:01:58
++recover 44: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/11/07 03:33:04
 	move start position as data recovered
 
++stage 46: +0 "" kii 16/11/06 15:45:43
+	stage: continuous read
 
-Reserved: 45
++stage 47: +0 "" kii 16/11/07 05:24:32
+	stage: recover
+
+=stage 48: +0 "" kii 16/11/07 05:24:38
+	stage: mux
+
+-stage, output 49: +0 "" kii 16/11/06 15:47:22
+	stage: send to rtmp
+
+-stage, output 50: +0 "" kii 16/11/06 15:47:34
+	stage: rtmp server
+
+ cam 53: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiYiListener.py" user 16/11/07 02:49:46
+	force kill data sending at dead()
+
+=recover, callback 55: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/11/07 06:17:52
+	send atom data, not only meta
+
+
+Reserved: 56
