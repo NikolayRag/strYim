@@ -37,7 +37,7 @@ class mp4RecoverExe():
 
 		if callable(self.atomCB):
 			for atom in recoverAtoms:
-# =todo 55 (recover, callback) +0: send atom data, not only meta
+# =todo 55 (recover, callback) +1: send atom data, not only meta
 				self.atomCB(atom)
 
 

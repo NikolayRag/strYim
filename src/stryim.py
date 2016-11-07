@@ -45,7 +45,7 @@ class YiOnCommand(sublime_plugin.TextCommand):
 		selfIP= KiTelnet.defaults('192.168.42.1', 'root', '', 8088)
 
 		restoreO= mp4RecoverExe(None)
-		buffer= byteTransit(restoreO.parse, 500000)
+		buffer= byteTransit(restoreO.parse, 2000000)
 		KiYi[0]= KiYiListener()
 		KiYi[0].start(self.cbConn, self.cbLive)
 		KiYi[0].live(buffer, self.cbAir)
