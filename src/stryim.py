@@ -29,6 +29,7 @@ class mp4RecoverExe():
 			boolean, indicates no more data for this context will be sent (if consumed all).
 	'''
 	def parse(self, _data, _ctx, _final=False):
+		#check context
 		if self.cContext!=_ctx:
 			self.cContext= _ctx
 			cFile= tempfile.NamedTemporaryFile(delete=False)
@@ -96,8 +97,7 @@ class mp4RecoverExe():
 			kiLog.ok("%d h264, %d aac" % (len(self.found264), len(self.foundAAC)))
 
 			if self.cFile:
-				None
-#				os.remove(self.cFile)
+				os.remove(self.cFile)
 
 		return len(_data)
 
@@ -147,7 +147,7 @@ class YiOnCommand(sublime_plugin.TextCommand):
 		selfIP= KiTelnet.defaults('192.168.42.1', 'root', '', 8088)
 
 		restoreO= mp4RecoverExe()
-		buffer= byteTransit(restoreO.parse, 1000000)
+		buffer= byteTransit(restoreO.parse, 2000000)
 		KiYi[0]= KiYiListener()
 		KiYi[0].start(self.cbConn, self.cbLive)
 		KiYi[0].live(buffer, self.cbAir)
