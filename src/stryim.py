@@ -49,7 +49,10 @@ class mp4RecoverExe():
 		#analyze data
 		cwd= os.getcwd()
 		os.chdir('D:/yi/restore/')
-		recoverMeta= subprocess.check_output('recover_mp4_x64.exe "%s" --novideo --noaudio --ambarella --start %s' % (self.cFile, hex(self.cPos)), shell=True)
+		catch:
+			recoverMeta= subprocess.check_output('recover_mp4_x64.exe "%s" --novideo --noaudio --ambarella --start %s' % (self.cFile, hex(self.cPos)), shell=True)
+		except:
+			recoverMeta= b''
 		os.chdir(cwd)
 
 
