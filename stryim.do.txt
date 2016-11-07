@@ -74,7 +74,7 @@
  cam 53: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiYiListener.py" user 16/11/07 02:49:46
 	force kill data sending at dead()
 
-=recover, callback 55: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/11/07 06:17:52
+=recover, callback 55: +1 "..\..\Application Data\Sublime Text 3\Packages\stryim\mp4RecoverExe.py" user 16/11/07 06:25:05
 	send atom data, not only meta
 
 
