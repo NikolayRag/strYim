@@ -7,8 +7,10 @@ class mp4RecoverExe():
 	cFile= None
 	cPos= 0
 
-	def __init__(self):
-		None
+	atomCB=None
+
+	def __init__(self, _atomCB):
+		self.atomCB= _atomCB
 
 
 	'''
@@ -31,12 +33,9 @@ class mp4RecoverExe():
 
 		kiLog.ok("%d atoms%s" % (len(recoverAtoms), ', finaly' if _finalize else '') )
 
-		for atom in recoverAtoms:
-			if atom['type']=='H264':
-				None
-
-			if atom['type']=='AAC':
-				None
+		if callable(self.atomCB):
+			for atom in recoverAtoms:
+				self.atomCB(atom)
 
 
 		if _finalize and self.cFile:
@@ -137,7 +136,7 @@ class YiOnCommand(sublime_plugin.TextCommand):
 
 		selfIP= KiTelnet.defaults('192.168.42.1', 'root', '', 8088)
 
-		restoreO= mp4RecoverExe()
+		restoreO= mp4RecoverExe(None)
 		buffer= byteTransit(restoreO.parse, 2000000)
 		KiYi[0]= KiYiListener()
 		KiYi[0].start(self.cbConn, self.cbLive)
