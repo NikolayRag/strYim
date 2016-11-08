@@ -193,7 +193,7 @@ class KiTelnet():
 		if self.tcpResult==False:
 			return False
 
-		return self.tcpResult.decode('ascii')
+		return self.tcpResult
 
 
 

@@ -251,7 +251,7 @@ class KiYiListener():
 		telnetResA= KiTelnet(telCmd).result()
 		if telnetResA==False: #error
 			return False
-		telnetResA= telnetResA.split("\n") #'file \n date' retured
+		telnetResA= telnetResA.decode('ascii').split("\n") #'file \n date' retured
 
 		camFileMatch= self.lsMaskRe.match(telnetResA[0])
 		if not camFileMatch: #mismatch result
