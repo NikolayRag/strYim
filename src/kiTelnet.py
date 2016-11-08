@@ -261,7 +261,7 @@ class KiTelnet():
 
 		self.tcpResult= b'';
 		while 1:
-			iIn= c.recv(1000000)
+			iIn= c.recv(16384)
 			if not iIn:
 				break
 
