@@ -38,6 +38,10 @@ class byteTransitChunk():
 		self.data= b''
 		self.position= 0
 
+	def len(self):
+		return len(self.data)
+
+
 
 class byteTransit():
 	chunk= False
@@ -78,20 +82,13 @@ class byteTransit():
 	def context(self, _ctx):
 		if self.chunk and self.chunk.context!=_ctx:
 			while self.dispatch(True): #old
-				if self.chunk.position>=len(self.chunk.data): #that was last, no need to continue
+				if self.chunk.position>=self.chunk.len(): #that was last, no need to continue
 					break
 
 		if not self.chunk or self.chunk.context!=_ctx:
 			self.chunk= byteTransitChunk(_ctx)	#new
 
 			return True
-
-
-	'''
-	current chunk length
-	'''
-	def len(self):
-		return len(self.chunk.data)
 
 
 
