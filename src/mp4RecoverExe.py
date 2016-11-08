@@ -37,9 +37,13 @@ class mp4RecoverExe():
 		kiLog.ok("%d atoms%s" % (len(recoverAtoms), ', finaly' if _finalize else '') )
 
 		if callable(self.atomCB):
+			cFile= open(self.cFile, 'rb')
+
 			for atom in recoverAtoms:
-# =todo 55 (recover, callback) +1: send atom data, not only meta
-				self.atomCB(atom)
+				cFile.seek(atom['offset'])
+				self.atomCB(atom, cFile.read(atom['len']))
+
+			cFile.close()
 
 
 		#clean
@@ -94,4 +98,6 @@ class mp4RecoverExe():
 
 
 		return atomsA[:lastFrameI]
+
+
 
