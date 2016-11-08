@@ -28,6 +28,7 @@ class mp4RecoverExe():
 		final
 			boolean, indicates no more data for this context will be sent (if consumed all).
 	'''
+#  todo 64 (mp4) +0: allow start only from 264 frame
 	def parse(self, _data, _ctx, _finalize=False):
 		self.checkContext(_ctx)
 		self.holdData(_data)

@@ -51,9 +51,12 @@ class byteTransitChunk():
 		self.length+= len(_data)
 
 
+#  todo 62 (speed, bytes) +0: read more quickly maybe
 	def read(self, _from=0, _to=-1):
 		self.dataIO.seek(_from)
 		return self.dataIO.read(_to)
+
+
 
 
 class byteTransit():
