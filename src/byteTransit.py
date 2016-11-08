@@ -1,3 +1,5 @@
+import io
+
 '''
 Manage context-grouped chunks of byte data.
 Data is added to active chunks, splitted by context and then sequentally dispatched to callback function.
@@ -30,17 +32,28 @@ context(ctx)
 '''
 class byteTransitChunk():
 	context= None
-	data= b''
+	dataIO = None
 	position= 0
+	length= 0
 
 	def __init__(self, _context=None):
 		self.context= _context
-		self.data= b''
+		self.dataIO = io.BytesIO(b'')
 		self.position= 0
+		self.length= 0
 
 	def len(self):
-		return len(self.data)
+		return self.length
 
+	
+	def add(self, _data):
+		self.dataIO.write(_data)
+		self.length+= len(_data)
+
+
+	def read(self, _from=0, _to=-1):
+		self.dataIO.seek(_from)
+		return self.dataIO.read(_to)
 
 
 class byteTransit():
@@ -56,7 +69,8 @@ class byteTransit():
 
 
 	def dispatch(self, _force=False):
-		dataLeft= self.chunk.data[self.chunk.position:]
+		dataLeft= self.chunk.read(self.chunk.position)
+
 
 		if not _force:
 			if not len(dataLeft) or len(dataLeft)<self.trigger:
@@ -96,7 +110,7 @@ class byteTransit():
 		if _ctx:
 			self.context(_ctx)
 
-		self.chunk.data+= _data
+		self.chunk.add(_data)
 
 		self.dispatch()
 
