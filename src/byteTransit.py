@@ -115,3 +115,6 @@ class byteTransit():
 		self.dispatch()
 
 
+
+	def len(self):
+		return self.chunk.len()
