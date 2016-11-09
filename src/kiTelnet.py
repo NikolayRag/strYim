@@ -228,7 +228,7 @@ class KiTelnet():
 		if isinstance(self.selfPortA, int):
 			self.selfPortA= [self.selfPortA,]
 
-		for self.selfPortOne in self.selfPortA+[None]:
+		for self.selfPortOne in list(self.selfPortA)+[None]:
 			if not self.selfPortOne:
 				kiLog.err('Cannot listen to ports: %s' % self.selfPortA)
 				self.reset()
