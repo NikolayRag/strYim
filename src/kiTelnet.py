@@ -64,8 +64,8 @@ class KiTelnet():
 	telnetPrompt= b' # '
 
 	telnetAddr= None
-	telnetUser= None
-	telnetPass= None
+	telnetUser= 'root'
+	telnetPass= ''
 	telnet= None
 
 	selfAddr= None
