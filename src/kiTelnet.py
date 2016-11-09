@@ -3,7 +3,7 @@ Execute telnet command.
 
 
 
-class KiTelnet(address, name, pass, cmd, callback, selfPort)
+class KiTelnet(cmd, callback, address, user, pass, localport, localip)
 	Executes 'cmd' in specified telnet.
 	To see result, use .result() or provide callback
 
@@ -25,13 +25,13 @@ class KiTelnet(address, name, pass, cmd, callback, selfPort)
 	pass
 		Default ''
 
-	selfPort, int or iterable int
+	localport, int or iterable int
 		Default range(8081, 8089)
 		Params for connecting to self from telnet.
 		Should be firewall-enabled if telnet is remote.
 
-	selfAddr
-		Default None
+	localip
+		Default None.
 		Local address for telnet to send results to.
 		If not specified, will be tried to detected automatically
 		 in same /24 net as specified telnet address.
@@ -90,26 +90,26 @@ class KiTelnet():
 
 	@staticmethod
 	def defaults(
-		  _telAddr=None
-		, _telUser=None
-		, _telPass=None
-		, _selfPort=None
-		, _selfAddr=None
+		  address=None
+		, user=None
+		, password=None
+		, localport=None
+		, localip=None
 	):
-		if not _selfAddr:
-			_selfAddr= KiTelnet.localIp(_telAddr)
+		if not localip:
+			localip= KiTelnet.localIp(address)
 
-		if _selfAddr!=None:
-			KiTelnet.selfAddr= _selfAddr
-		if _selfPort!=None:
-			KiTelnet.selfPort= _selfPort
+		if localip!=None:
+			KiTelnet.selfAddr= localip
+		if localport!=None:
+			KiTelnet.selfPort= localport
 
-		if _telAddr!=None:
-			KiTelnet.telnetAddr= _telAddr
-		if _telUser!=None:
-			KiTelnet.telnetUser= _telUser
-		if _telPass!=None:
-			KiTelnet.telnetPass= _telPass
+		if address!=None:
+			KiTelnet.telnetAddr= address
+		if user!=None:
+			KiTelnet.telnetUser= user
+		if password!=None:
+			KiTelnet.telnetPass= password
 
 		return (KiTelnet.selfAddr, KiTelnet.selfPort)
 
@@ -164,17 +164,17 @@ class KiTelnet():
 	def __init__(self
 		, _command=''
 		, _cbRes=None
-		, _telAddr=None
-		, _telUser=None
-		, _telPass=None
-		, _selfPort=None
-		, _selfAddr=None
+		, address=None
+		, user=None
+		, password=None
+		, localport=None
+		, localip=None
 	):
 		self.telnet= telnetlib.Telnet()
 		self.blockedFlag= threading.Event()
 
 
-		if not self.argsFill(_telAddr, _telUser, _telPass, _selfAddr, _selfPort):
+		if not self.argsFill(address, user, password, localip, localport):
 			self.reset()
 			return
 
