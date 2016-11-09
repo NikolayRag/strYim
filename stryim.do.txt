@@ -74,8 +74,20 @@
  cam 53: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiYiListener.py" user 16/11/07 02:49:46
 	force kill data sending at dead()
 
-=recover, callback 55: +1 "..\..\Application Data\Sublime Text 3\Packages\stryim\mp4RecoverExe.py" user 16/11/07 06:25:05
++recover, callback 55: +1 "..\..\Application Data\Sublime Text 3\Packages\stryim\mp4RecoverExe.py" user 16/11/08 19:21:09
 	send atom data, not only meta
 
++speed, bytes 61: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\byteTransit.py" user 16/11/08 17:15:04
+	dont use adding bytes
 
-Reserved: 56
+ speed, bytes 62: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\byteTransit.py" user 16/11/08 17:25:49
+	read more quickly maybe
+
+!general 63: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\mp4RecoverExe.py" kii 16/11/09 10:34:21
+	
+
+ mp4 64: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\mp4RecoverExe.py" user 16/11/08 17:47:06
+	allow start only from 264 frame
+
+
+Reserved: 66
