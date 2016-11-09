@@ -3,7 +3,7 @@ Execute telnet command.
 
 
 
-class KiTelnet(address, name, pass, cmd, callback, selfPort)
+class KiTelnet(cmd, callback, address, user, pass, localport, localip)
 	Executes 'cmd' in specified telnet.
 	To see result, use .result() or provide callback
 
@@ -25,13 +25,13 @@ class KiTelnet(address, name, pass, cmd, callback, selfPort)
 	pass
 		Default ''
 
-	selfPort
-		Default 8088
+	localport, int or iterable int
+		Default range(8081, 8089)
 		Params for connecting to self from telnet.
 		Should be firewall-enabled if telnet is remote.
 
-	selfAddr
-		Default None
+	localip
+		Default None.
 		Local address for telnet to send results to.
 		If not specified, will be tried to detected automatically
 		 in same /24 net as specified telnet address.
@@ -64,12 +64,13 @@ class KiTelnet():
 	telnetPrompt= b' # '
 
 	telnetAddr= None
-	telnetUser= None
-	telnetPass= None
+	telnetUser= 'root'
+	telnetPass= ''
 	telnet= None
 
 	selfAddr= None
-	selfPort= None
+	selfPortA= range(8081,8089)
+	selfPortOne= None
 
 
 
@@ -89,28 +90,28 @@ class KiTelnet():
 
 	@staticmethod
 	def defaults(
-		  _telAddr=None
-		, _telUser=None
-		, _telPass=None
-		, _selfPort=None
-		, _selfAddr=None
+		  address=None
+		, user=None
+		, password=None
+		, localport=None
+		, localip=None
 	):
-		if not _selfAddr:
-			_selfAddr= KiTelnet.localIp(_telAddr)
+		if not localip:
+			localip= KiTelnet.localIp(address)
 
-		if _selfAddr!=None:
-			KiTelnet.selfAddr= _selfAddr
-		if _selfPort!=None:
-			KiTelnet.selfPort= _selfPort
+		if localip!=None:
+			KiTelnet.selfAddr= localip
+		if localport!=None:
+			KiTelnet.selfPortA= localport
 
-		if _telAddr!=None:
-			KiTelnet.telnetAddr= _telAddr
-		if _telUser!=None:
-			KiTelnet.telnetUser= _telUser
-		if _telPass!=None:
-			KiTelnet.telnetPass= _telPass
+		if address!=None:
+			KiTelnet.telnetAddr= address
+		if user!=None:
+			KiTelnet.telnetUser= user
+		if password!=None:
+			KiTelnet.telnetPass= password
 
-		return (KiTelnet.selfAddr, KiTelnet.selfPort)
+		return (KiTelnet.selfAddr, KiTelnet.selfPortA)
 
 
 	def argsFill(self, _telAddr, _telUser, _telPass, _selfAddr, _selfPort):
@@ -142,8 +143,8 @@ class KiTelnet():
 			return
 
 		if _selfPort!=None:
-			self.selfPort= _selfPort
-		if self.selfPort==None:
+			self.selfPortA= _selfPort
+		if self.selfPortA==None:
 			kiLog.err('missing self port')
 			return
 
@@ -163,17 +164,17 @@ class KiTelnet():
 	def __init__(self
 		, _command=''
 		, _cbRes=None
-		, _telAddr=None
-		, _telUser=None
-		, _telPass=None
-		, _selfPort=None
-		, _selfAddr=None
+		, address=None
+		, user=None
+		, password=None
+		, localport=None
+		, localip=None
 	):
 		self.telnet= telnetlib.Telnet()
 		self.blockedFlag= threading.Event()
 
 
-		if not self.argsFill(_telAddr, _telUser, _telPass, _selfAddr, _selfPort):
+		if not self.argsFill(address, user, password, localip, localport):
 			self.reset()
 			return
 
@@ -193,7 +194,7 @@ class KiTelnet():
 		if self.tcpResult==False:
 			return False
 
-		return self.tcpResult.decode('ascii')
+		return self.tcpResult
 
 
 
@@ -224,16 +225,25 @@ class KiTelnet():
 	def tcpPrepare(self):
 		self.tcpSock= socket.socket()
 
-		try:
-			self.tcpSock.bind((self.selfAddr,self.selfPort))
-		except:
-			kiLog.err('Cannot listen to port %s' % self.selfPort)
-			self.reset()
-			return
+		if isinstance(self.selfPortA, int):
+			self.selfPortA= [self.selfPortA,]
+
+		for self.selfPortOne in list(self.selfPortA)+[None]:
+			if not self.selfPortOne:
+				kiLog.err('Cannot listen to ports: %s' % self.selfPortA)
+				self.reset()
+				return
+				
+			try:
+				self.tcpSock.bind((self.selfAddr,self.selfPortOne))
+				break
+			except:
+				None
+
 
 		self.tcpSock.listen(1)
 
-		kiLog.ok('Tcp listening to port %s...' % self.selfPort)
+		kiLog.ok('Tcp listening to port %s...' % self.selfPortOne)
 
 		return True
 
@@ -261,7 +271,7 @@ class KiTelnet():
 
 		self.tcpResult= b'';
 		while 1:
-			iIn= c.recv(1000000)
+			iIn= c.recv(16384)
 			if not iIn:
 				break
 
@@ -300,4 +310,4 @@ class KiTelnet():
 			self.telnet.write( (self.telnetPass +"\n").encode() )
 
 		self.telnet.read_until(self.telnetPrompt)
-		self.telnet.write( ("(%s)| nc %s %s; exit\n" % (_command, self.selfAddr, self.selfPort)).encode() )
+		self.telnet.write( ("(%s)| nc %s %s; exit\n" % (_command, self.selfAddr, self.selfPortOne)).encode() )

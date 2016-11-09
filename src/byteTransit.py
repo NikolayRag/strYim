@@ -1,3 +1,5 @@
+import io
+
 '''
 Manage context-grouped chunks of byte data.
 Data is added to active chunks, splitted by context and then sequentally dispatched to callback function.
@@ -30,13 +32,31 @@ context(ctx)
 '''
 class byteTransitChunk():
 	context= None
-	data= b''
+	dataIO = None
 	position= 0
+	length= 0
 
 	def __init__(self, _context=None):
 		self.context= _context
-		self.data= b''
+		self.dataIO = io.BytesIO(b'')
 		self.position= 0
+		self.length= 0
+
+	def len(self):
+		return self.length
+
+	
+	def add(self, _data):
+		self.dataIO.write(_data)
+		self.length+= len(_data)
+
+
+#  todo 62 (speed, bytes) +0: read more quickly maybe
+	def read(self, _from=0, _to=-1):
+		self.dataIO.seek(_from)
+		return self.dataIO.read(_to)
+
+
 
 
 class byteTransit():
@@ -52,7 +72,8 @@ class byteTransit():
 
 
 	def dispatch(self, _force=False):
-		dataLeft= self.chunk.data[self.chunk.position:]
+		dataLeft= self.chunk.read(self.chunk.position)
+
 
 		if not _force:
 			if not len(dataLeft) or len(dataLeft)<self.trigger:
@@ -78,7 +99,7 @@ class byteTransit():
 	def context(self, _ctx):
 		if self.chunk and self.chunk.context!=_ctx:
 			while self.dispatch(True): #old
-				if self.chunk.position>=len(self.chunk.data): #that was last, no need to continue
+				if self.chunk.position>=self.chunk.len(): #that was last, no need to continue
 					break
 
 		if not self.chunk or self.chunk.context!=_ctx:
@@ -87,20 +108,16 @@ class byteTransit():
 			return True
 
 
-	'''
-	current chunk length
-	'''
-	def len(self):
-		return len(self.chunk.data)
-
-
 
 	def add(self, _data, _ctx=None):
 		if _ctx:
 			self.context(_ctx)
 
-		self.chunk.data+= _data
+		self.chunk.add(_data)
 
 		self.dispatch()
 
 
+
+	def len(self):
+		return self.chunk.len()

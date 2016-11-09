@@ -36,21 +36,35 @@ class YiOnCommand(sublime_plugin.TextCommand):
 
 	def run(self, _edit):
 		kiLog.states(True, True, True)
-		kiLog.states(True, True, True, 'mp4RecoverExe')
+		kiLog.states(False, False, True, 'KiYiListener')
 
 		if KiYi[0]:
 			kiLog.warn('Already')
 			return
 
-		selfIP= KiTelnet.defaults('192.168.42.1', 'root', '', 8088)
+		selfIP= KiTelnet.defaults(address='192.168.42.1')
+		
 
+		def abs(a, d):
+			print(a['ftype'],len(d))
 		restoreO= mp4RecoverExe(None)
-		buffer= byteTransit(restoreO.parse, 500000)
+		buffer= byteTransit(restoreO.parse, 1000000)
+
+
+
+#		buffer.context('123')
+#		KiTelnet('cat /tmp/fuse_d/DCIM/105MEDIA/L0010639.MP4', buffer.add).result()
+#		buffer.context(None)
+#		return
+
+
+
 		KiYi[0]= KiYiListener()
 		KiYi[0].start(self.cbConn, self.cbLive)
 		KiYi[0].live(buffer, self.cbAir)
 
 
+#ast.literal_eval(aa)
 class YiOffCommand(sublime_plugin.TextCommand):
 	def run(self, _edit):
 		if not KiYi[0]:

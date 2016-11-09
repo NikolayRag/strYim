@@ -148,12 +148,11 @@ class KiYiListener():
 			):
 				kiLog.ok('ON AIR')
 				callable(self.airCB) and self.airCB(1)
-				if self.camAirStart(fileNew):
 
+				if self.camAirStart(fileNew):
 					kiLog.ok('OFF AIR')
 					callable(self.airCB) and self.airCB(0)
 				else:
-					self.dead()
 					kiLog.err('BAD AIR')
 					callable(self.airCB) and self.airCB(-1)
 
@@ -166,6 +165,10 @@ class KiYiListener():
 		kiLog.ok('stop')
 
 
+
+
+	def buildName(self, _fParts):
+		return '%sMEDIA/L%s0%s.MP4' % (pad(_fParts['dir'],3), pad(_fParts['seq'],3), pad(_fParts['num'],3))
 
 
 	'''
@@ -181,17 +184,17 @@ class KiYiListener():
 		fParts= {'dir':int(fNameMatch.group('dir')), 'seq':int(fNameMatch.group('seq')), 'num':int(fNameMatch.group('num'))}
 
 
+		fName= self.buildName(fParts)
 		fPos= _file['size'] -self.liveBufferMin
 
 #  todo 33 (read, cam) +0: detect buffer overrun
 #  todo 34 (read, cam) +0: detect buffer underrun
 		while True:
-			fName= '%sMEDIA/L%s%s.MP4' % (pad(fParts['dir'],3), pad(fParts['seq'],3), pad(fParts['num'],4))
 			kiLog.ok('Read %s from %d ...' % (fName, fPos))
 			while True:
 				if not self.flagLive:
 					kiLog.warn("... stop at %d" % fPos)
-					return True
+					return True #stopped by demand
 
 				self.mp4Buffer.context('%s_%s' % (pad(fParts['dir'],3), pad(fParts['num'],4)))
 				readBytes= self.camReadFile(fName, fPos)
@@ -207,14 +210,24 @@ class KiYiListener():
 
 				time.sleep(.5)
 
-			kiLog.ok("... to %d" % fPos)
-
-			fPos= 0
 
 # =todo 31 (read, cam) +0: check 999+ file switch
 			fParts['num']= (fParts['num'] +1) %1000
 			if fParts['num']==0:
 				fParts['dir']+= 1
+
+			fName= self.buildName(fParts)
+
+			checkCurrent= KiTelnet("ls %s/%s" % (self.camRoot, fName)).result()
+			if not checkCurrent:
+				kiLog.warn("... finish at %d" % fPos)
+#  todo 68 (cam, stability) -1: found other way to forget stopped file as live
+				time.sleep(self.liveOldAge-1) #wait till stopped file will get old to not treat it as live at next cycle
+				return True #stopped by camera
+
+			kiLog.ok("... to %d" % fPos)
+
+			fPos= 0
 
 
 
@@ -251,7 +264,7 @@ class KiYiListener():
 		telnetResA= KiTelnet(telCmd).result()
 		if telnetResA==False: #error
 			return False
-		telnetResA= telnetResA.split("\n") #'file \n date' retured
+		telnetResA= telnetResA.decode('ascii').split("\n") #'file \n date' retured
 
 		camFileMatch= self.lsMaskRe.match(telnetResA[0])
 		if not camFileMatch: #mismatch result

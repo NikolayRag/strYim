@@ -28,6 +28,7 @@ class mp4RecoverExe():
 		final
 			boolean, indicates no more data for this context will be sent (if consumed all).
 	'''
+#  todo 64 (mp4) +0: allow start only from 264 frame
 	def parse(self, _data, _ctx, _finalize=False):
 		self.checkContext(_ctx)
 		self.holdData(_data)
@@ -36,9 +37,13 @@ class mp4RecoverExe():
 		kiLog.ok("%d atoms%s" % (len(recoverAtoms), ', finaly' if _finalize else '') )
 
 		if callable(self.atomCB):
+			cFile= open(self.cFile, 'rb')
+
 			for atom in recoverAtoms:
-# =todo 55 (recover, callback) +0: send atom data, not only meta
-				self.atomCB(atom)
+				cFile.seek(atom['offset'])
+				self.atomCB(atom, cFile.read(atom['len']))
+
+			cFile.close()
 
 
 		#clean
@@ -93,4 +98,6 @@ class mp4RecoverExe():
 
 
 		return atomsA[:lastFrameI]
+
+
 
