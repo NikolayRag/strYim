@@ -148,8 +148,8 @@ class KiYiListener():
 			):
 				kiLog.ok('ON AIR')
 				callable(self.airCB) and self.airCB(1)
-				if self.camAirStart(fileNew):
 
+				if self.camAirStart(fileNew):
 					kiLog.ok('OFF AIR')
 					callable(self.airCB) and self.airCB(0)
 				else:
@@ -194,7 +194,7 @@ class KiYiListener():
 			while True:
 				if not self.flagLive:
 					kiLog.warn("... stop at %d" % fPos)
-					return True
+					return True #stopped by demand
 
 				self.mp4Buffer.context('%s_%s' % (pad(fParts['dir'],3), pad(fParts['num'],4)))
 				readBytes= self.camReadFile(fName, fPos)
@@ -221,12 +221,14 @@ class KiYiListener():
 			checkCurrent= KiTelnet("ls %s/%s" % (self.camRoot, fName)).result()
 			if not checkCurrent:
 				kiLog.warn("... finish at %d" % fPos)
+#  todo 68 (cam, stability) -1: found other way to forget stopped file as live
 				time.sleep(self.liveOldAge-1) #wait till stopped file will get old to not treat it as live at next cycle
-				return True #No next file means camera is stopped
+				return True #stopped by camera
 
 			kiLog.ok("... to %d" % fPos)
 
 			fPos= 0
+
 
 
 #  todo 53 (cam) +0: force kill data sending at dead()

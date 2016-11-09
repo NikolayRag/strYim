@@ -36,7 +36,7 @@ class YiOnCommand(sublime_plugin.TextCommand):
 
 	def run(self, _edit):
 		kiLog.states(True, True, True)
-		kiLog.states(True, True, True, 'KiYiListener')
+		kiLog.states(False, False, True, 'KiYiListener')
 
 		if KiYi[0]:
 			kiLog.warn('Already')
