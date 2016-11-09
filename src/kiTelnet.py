@@ -102,7 +102,7 @@ class KiTelnet():
 		if localip!=None:
 			KiTelnet.selfAddr= localip
 		if localport!=None:
-			KiTelnet.selfPort= localport
+			KiTelnet.selfPortA= localport
 
 		if address!=None:
 			KiTelnet.telnetAddr= address
@@ -111,7 +111,7 @@ class KiTelnet():
 		if password!=None:
 			KiTelnet.telnetPass= password
 
-		return (KiTelnet.selfAddr, KiTelnet.selfPort)
+		return (KiTelnet.selfAddr, KiTelnet.selfPortA)
 
 
 	def argsFill(self, _telAddr, _telUser, _telPass, _selfAddr, _selfPort):
