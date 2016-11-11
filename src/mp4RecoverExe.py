@@ -1,4 +1,4 @@
-import subprocess, threading, tempfile, os, re
+import subprocess, tempfile, os, re
 
 from .kiLog import *
 
@@ -73,13 +73,10 @@ class mp4RecoverExe():
 
 
 	def analyze(self, _finalize):
-		cwd= os.getcwd()
-		os.chdir('D:/yi/restore/')
 		try:
-			recoverMeta= subprocess.check_output('recover_mp4_x64.exe "%s" --novideo --noaudio --ambarella --start %s' % (self.cFile, hex(self.cPos)), shell=True)
+			recoverMeta= subprocess.check_output('D:/yi/restore/recover_mp4_x64.exe "%s" --novideo --noaudio --ambarella --start %s' % (self.cFile, hex(self.cPos)), shell=True)
 		except:
 			recoverMeta= b''
-		os.chdir(cwd)
 
 
 		atomsA= []
