@@ -1,27 +1,25 @@
 import subprocess, threading, time, socket
 
 class streamFFRTMP():
-	def go(self):
-		threading.Timer(0, lambda: subprocess.call('D:/yi/restore/ffmpeg -re -i tcp://localhost:2345 -vcodec copy -f flv rtmp://localhost:5130/live/yi/', shell=False)).start()
-		
+	tcp= None
+
+	def init(self):
+		threading.Timer(0, lambda: subprocess.call('D:/yi/restore/ff/ffmpeg -re -i tcp://localhost:2345 -vcodec copy -f flv rtmp://localhost:5130/live/yi/', shell=False)).start()
+
 		tcpSock= socket.socket()
 
 		tcpSock.bind(('127.0.0.1',2345))
 
 		tcpSock.listen(1)
-		c, a= tcpSock.accept()
+		self.tcp, a= tcpSock.accept()
 
-		a=0
-		while a<10:
-			f= open('D:/yi/restore/stryim/tmp2.h264', 'rb')
-			aa= f.read()
-			f.close()
 
-			c.sendall(aa)
+	def go(self, aa):
 
-			a+=1
+		self.tcp.sendall(aa)
 
-		c.close()
+	def stop(self):
+		self.tcp.close()
 
 
 
@@ -61,8 +59,6 @@ class YiOnCommand(sublime_plugin.TextCommand):
 			kiLog.err('Air bad')
 
 	def run(self, _edit):
-		streamFFRTMP().go()
-		return
 
 
 		kiLog.states(True, True, True)
@@ -75,10 +71,19 @@ class YiOnCommand(sublime_plugin.TextCommand):
 		selfIP= KiTelnet.defaults(address='192.168.42.1')
 		
 
+		ff= streamFFRTMP()
+		ff.init()
+		fi= open('D:/yi/restore/stryim/h', 'rb')
+		ff.go(fi.read())
+		fi.close()
+
+
 		def abs(a, d):
-#			print(a['ftype'],len(d))
-			None
-		restoreO= mp4RecoverExe(None)
+			if a['type']=='H264':
+				ff.go(b'\x00\x00\x00\x01')
+				ff.go(d[4:])
+
+		restoreO= mp4RecoverExe(abs)
 		buffer= byteTransit(restoreO.parse, 1000000)
 
 
