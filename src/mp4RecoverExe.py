@@ -41,9 +41,12 @@ class mp4RecoverExe():
 
 			for atom in recoverAtoms:
 				cFile.seek(atom['offset'])
-				self.atomCB(atom, cFile.read(atom['len']))
+				b264= cFile.read(atom['len'])
+
+				self.atomCB(atom, b264)
 
 			cFile.close()
+
 
 
 		#clean
@@ -74,7 +77,8 @@ class mp4RecoverExe():
 
 	def analyze(self, _finalize):
 		try:
-			recoverMeta= subprocess.check_output('D:/yi/restore/recover_mp4_x64.exe "%s" --novideo --noaudio --ambarella --start %s' % (self.cFile, hex(self.cPos)), shell=True)
+			os.chdir('D:/yi/restore/')
+			recoverMeta= subprocess.check_output('recover_mp4_x64.exe "%s" --novideo --noaudio --ambarella --start %s' % (self.cFile, hex(self.cPos)), shell=True)
 		except:
 			recoverMeta= b''
 
