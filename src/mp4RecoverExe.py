@@ -11,6 +11,7 @@ class mp4RecoverExe():
 
 	atomCB=None
 
+
 	def __init__(self, _atomCB):
 		self.atomCB= _atomCB
 
@@ -28,18 +29,26 @@ class mp4RecoverExe():
 		final
 			boolean, indicates no more data for this context will be sent (if consumed all).
 	'''
-#  todo 64 (mp4) +0: allow start only from 264 frame
 	def parse(self, _data, _ctx, _finalize=False):
 		self.checkContext(_ctx)
 		self.holdData(_data)
 		recoverAtoms= self.analyze(_finalize)
 
-		kiLog.ok("%d atoms%s" % (len(recoverAtoms), ', finaly' if _finalize else '') )
+		firstIDR= 0
+		for atom in recoverAtoms:
+			if atom['ftype']=='IDR':
+				break
+
+			firstIDR+= 1
+
+		kiLog.ok("%d atoms, %d skipped%s" % (len(recoverAtoms)-firstIDR, firstIDR, ', finaly' if _finalize else '') )
+
 
 		if callable(self.atomCB):
 			cFile= open(self.cFile, 'rb')
 
-			for atom in recoverAtoms:
+			for atom in recoverAtoms[firstIDR:]:
+# =todo 79 (mp4) +0: get data from memory, not file
 				cFile.seek(atom['offset'])
 				b264= cFile.read(atom['len'])
 
@@ -91,7 +100,7 @@ class mp4RecoverExe():
 				atom= {'type':mp4Match.group('type'), 'offset':int(mp4Match.group('offset'),16), 'len':int(mp4Match.group('len'),16), 'ftype':mp4Match.group('ftype'), 'sign':bytes.fromhex(mp4Match.group('sign') or '')}
 
 				#last frame and remaining should be left to next run untill it's not final
-				if not _finalize and atom['type']=='H264':
+				if not _finalize and atom['ftype']=='IDR':
 					self.cPos= atom['offset']
 					lastFrameI= len(atomsA)
 
