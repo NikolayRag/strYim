@@ -3,6 +3,35 @@ import subprocess, tempfile, os, re
 from .kiLog import *
 
 
+class Atom():
+	h264Presets= {
+		  (1080,30,0): b'\'M@3\x9ad\x03\xc0\x11?,\x8c\x04\x04\x05\x00\x00\x03\x03\xe9\x00\x00\xea`\xe8`\x00\xb7\x18\x00\x02\xdcl\xbb\xcb\x8d\x0c\x00\x16\xe3\x00\x00[\x8d\x97ypxD"R\xc0'
+		, -1: b'\x28\xee\x38\x80'
+	}
+
+
+	type= None
+	data= None
+
+
+	def __init__(self, _type=None, _data=b'', preset=None):
+		if preset:
+			_data= self.h264Presets[preset]
+
+		self.type= _type
+		self.data= _data
+
+
+	def len(self):
+		return len(self.data)
+
+	def lenB(self, _pad=4):
+		return len(self.data).to_bytes(_pad, 'big')
+
+
+
+
+
 class mp4RecoverExe():
 
 	reAtom= re.compile('^\s*(?P<atype>H264|AAC):\s+0x(?P<offset>[\dA-F]{8})\s+\[0x\s*(?P<len>[\dA-F]{1,8})\](\s+\{(?P<sign>([\dA-F]{2}\s*)+)\}\s+(?P<type>[A-Z]+)\s+frame)?$')
@@ -50,10 +79,10 @@ class mp4RecoverExe():
 
 			for atom in recoverAtoms[firstIDR:]:
 # =todo 79 (mp4) +0: get data from memory, not file
-				cFile.seek(atom['offset'])
-				b264= cFile.read(atom['len'])
+				cFile.seek( int(atom['offset'],16)+4 )
+				b264= cFile.read( int(atom['len'],16)-4 )
 
-				self.atomCB(atom, b264)
+				self.atomCB( Atom(atom['type'],b264) )
 
 			cFile.close()
 
