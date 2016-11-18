@@ -86,11 +86,29 @@
 !general 63: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\mp4RecoverExe.py" kii 16/11/09 10:34:21
 	
 
- mp4 64: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\mp4RecoverExe.py" user 16/11/08 17:47:06
-	allow start only from 264 frame
++mp4 64: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\mp4RecoverExe.py" user 16/11/16 23:20:08
+	allow start only from IDR frame
 
  cam, stability 68: -1 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiYiListener.py" user 16/11/10 02:46:42
 	found other way to forget stopped file as live
 
+=mp4 79: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\mp4RecoverExe.py" user 16/11/13 04:16:02
+	get data from memory, not file
 
-Reserved: 69
+=flv 90: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/11/18 07:47:15
+	construct META
+
+=flv 91: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/11/18 07:57:11
+	construct AVCDecoderConfigurationRecord
+
+ flv 92: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/11/18 07:57:50
+	make class non-static
+
+ flv 93: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/11/18 08:01:22
+	make data flow without overhead
+
+ app 94: +2 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/11/18 08:05:29
+	handle start-stop
+
+
+Reserved: 95
