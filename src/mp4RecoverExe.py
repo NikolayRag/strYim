@@ -4,7 +4,8 @@ from .kiLog import *
 
 
 class mp4RecoverExe():
-	reAtom= re.compile('^\s*(?P<type>H264|AAC):\s+0x(?P<offset>[\dA-F]{8})\s+\[0x\s*(?P<len>[\dA-F]{1,8})\](\s+\{(?P<sign>([\dA-F]{2}\s*)+)\}\s+(?P<ftype>[A-Z]+)\s+frame)?$')
+
+	reAtom= re.compile('^\s*(?P<atype>H264|AAC):\s+0x(?P<offset>[\dA-F]{8})\s+\[0x\s*(?P<len>[\dA-F]{1,8})\](\s+\{(?P<sign>([\dA-F]{2}\s*)+)\}\s+(?P<type>[A-Z]+)\s+frame)?$')
 	cContext= None
 	cFile= None
 	cPos= 0
@@ -36,7 +37,7 @@ class mp4RecoverExe():
 
 		firstIDR= 0
 		for atom in recoverAtoms:
-			if atom['ftype']=='IDR':
+			if atom['type']=='IDR':
 				break
 
 			firstIDR+= 1
@@ -75,7 +76,7 @@ class mp4RecoverExe():
 			self.cFile= cFile.name
 			cFile.close()
 
-			self.cPos= 0
+			self.cPos= '0'
 
 
 	def holdData(self, _data):
@@ -87,7 +88,7 @@ class mp4RecoverExe():
 	def analyze(self, _finalize):
 		try:
 			os.chdir('D:/yi/restore/')
-			recoverMeta= subprocess.check_output('recover_mp4_x64.exe "%s" --novideo --noaudio --ambarella --start %s' % (self.cFile, hex(self.cPos)), shell=True)
+			recoverMeta= subprocess.check_output('recover_mp4_x64.exe "%s" --novideo --noaudio --ambarella --start %s' % (self.cFile, self.cPos), shell=True)
 		except:
 			recoverMeta= b''
 
@@ -97,14 +98,14 @@ class mp4RecoverExe():
 		for cStr in recoverMeta.decode('ascii').split("\r\n"):
 			mp4Match= self.reAtom.match(cStr)
 			if mp4Match:
-				atom= {'type':mp4Match.group('type'), 'offset':int(mp4Match.group('offset'),16), 'len':int(mp4Match.group('len'),16), 'ftype':mp4Match.group('ftype'), 'sign':bytes.fromhex(mp4Match.group('sign') or '')}
+				mp4Match= mp4Match.groupdict()
 
 				#last frame and remaining should be left to next run untill it's not final
-				if not _finalize and atom['ftype']=='IDR':
-					self.cPos= atom['offset']
+				if not _finalize and mp4Match['type']=='IDR':
+					self.cPos= mp4Match['offset']
 					lastFrameI= len(atomsA)
 
-				atomsA.append(atom)
+				atomsA.append(mp4Match)
 
 
 		return atomsA[:lastFrameI]
