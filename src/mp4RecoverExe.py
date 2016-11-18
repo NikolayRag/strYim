@@ -37,7 +37,7 @@ class mp4RecoverExe():
 	reAtom= re.compile('^\s*(?P<atype>H264|AAC):\s+0x(?P<offset>[\dA-F]{8})\s+\[0x\s*(?P<len>[\dA-F]{1,8})\](\s+\{(?P<sign>([\dA-F]{2}\s*)+)\}\s+(?P<type>[A-Z]+)\s+frame)?$')
 	cContext= None
 	cFile= None
-	cPos= 0
+	safePos= 0
 
 	atomCB=None
 
@@ -105,7 +105,7 @@ class mp4RecoverExe():
 			self.cFile= cFile.name
 			cFile.close()
 
-			self.cPos= '0'
+			self.safePos= '0'
 
 
 	def holdData(self, _data):
@@ -117,7 +117,7 @@ class mp4RecoverExe():
 	def analyze(self, _finalize):
 		try:
 			os.chdir('D:/yi/restore/')
-			recoverMeta= subprocess.check_output('recover_mp4_x64.exe "%s" --novideo --noaudio --ambarella --start %s' % (self.cFile, self.cPos), shell=True)
+			recoverMeta= subprocess.check_output('recover_mp4_x64.exe "%s" --novideo --noaudio --ambarella --start %s' % (self.cFile, self.safePos), shell=True)
 		except:
 			recoverMeta= b''
 
@@ -131,7 +131,7 @@ class mp4RecoverExe():
 
 				#last frame and remaining should be left to next run untill it's not final
 				if not _finalize and mp4Match['type']=='IDR':
-					self.cPos= mp4Match['offset']
+					self.safePos= mp4Match['offset']
 					lastFrameI= len(atomsA)
 
 				atomsA.append(mp4Match)
