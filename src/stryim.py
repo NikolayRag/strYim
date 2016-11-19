@@ -180,7 +180,7 @@ class MuxFLV():
 	#FLV header: "FLV\x01..."
 	def header(self, video=True, audio=True):
 		video= 1* (video==True)
-		audio= 3* (audio==True)
+		audio= 4* (audio==True)
 
 		return b'\x46\x4c\x56\x01' +bytes([video+audio]) +b'\x00\x00\x00\x09' +b'\x00\x00\x00\x00'
 
