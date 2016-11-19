@@ -122,7 +122,7 @@ class MuxFLV():
 			return
 
 		self.sink.add(self.header(audio=False))
-		self.sink.add(self.metaTag())
+		self.sink.add(self.dataTag())
 		self.sink.add(self.videoTag(0,True))
 
 
@@ -185,8 +185,8 @@ class MuxFLV():
 		return b'\x46\x4c\x56\x01' +bytes([video+audio]) +b'\x00\x00\x00\x09' +b'\x00\x00\x00\x00'
 
 
-	#META tag
-	def metaTag(self):
+	#Data tag
+	def dataTag(self):
 		meta= self.tag(18, 0, [self.headMeta])
 
 		return b''.join(meta)
