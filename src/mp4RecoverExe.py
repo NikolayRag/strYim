@@ -4,20 +4,10 @@ from .kiLog import *
 
 
 class Atom():
-	h264Presets= {
-		  (1080,30,0): b'\'M@3\x9ad\x03\xc0\x11?,\x8c\x04\x04\x05\x00\x00\x03\x03\xe9\x00\x00\xea`\xe8`\x00\xb7\x18\x00\x02\xdcl\xbb\xcb\x8d\x0c\x00\x16\xe3\x00\x00[\x8d\x97ypxD"R\xc0'
-		, -1: b'\x28\xee\x38\x80'
-	}
-
-
 	type= None
 	data= None
 
-
-	def __init__(self, _type=None, _data=b'', preset=None):
-		if preset:
-			_data= self.h264Presets[preset]
-
+	def __init__(self, _type=None, _data=b''):
 		self.type= _type
 		self.data= _data
 
@@ -33,6 +23,11 @@ class Atom():
 
 
 class mp4RecoverExe():
+	h264Presets= {
+		  (1080,30,0): b'\'M@3\x9ad\x03\xc0\x11?,\x8c\x04\x04\x05\x00\x00\x03\x03\xe9\x00\x00\xea`\xe8`\x00\xb7\x18\x00\x02\xdcl\xbb\xcb\x8d\x0c\x00\x16\xe3\x00\x00[\x8d\x97ypxD"R\xc0'
+		, -1: b'\x28\xee\x38\x80'
+	}
+
 
 	reAtom= re.compile('^\s*(?P<atype>H264|AAC):\s+0x(?P<offset>[\dA-F]{8})\s+\[0x\s*(?P<len>[\dA-F]{1,8})\](\s+\{(?P<sign>([\dA-F]{2}\s*)+)\}\s+(?P<type>[A-Z]+)\s+frame)?$')
 	cContext= None
@@ -45,6 +40,10 @@ class mp4RecoverExe():
 	def __init__(self, _atomCB):
 		self.atomCB= _atomCB
 
+		if callable(self.atomCB):
+			self.atomCB( Atom('IDR',h264Presets[(1080,30,0)]) )
+			self.atomCB( Atom('IDR',h264Presets[-1]) )
+		
 
 	'''
 	Provide raw mp4 data to parse.
