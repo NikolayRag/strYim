@@ -157,13 +157,9 @@ from .mp4RecoverExe import *
 class StreamFFRTMP():
 	faac= None
 	f264= None
-	fflv= None
-	flvStamp= 0.
 
 	tcp= None
 	tcpSock= None
-	hHead0= Atom(preset=(1080,30,0))
-	hHead1= Atom(preset=-1)
 
 	initFlag= None
 
@@ -171,16 +167,7 @@ class StreamFFRTMP():
 	def __init__(self):
 		self.faac= open('D:/yi/restore/stryim/sss.aac', 'wb')
 		self.f264= open('D:/yi/restore/stryim/sss.h264', 'wb')
-		self.fflv= open('D:/yi/restore/stryim/sss.flv', 'wb')
-		self.flvStamp= 0.
-		self.flvRate= 1001./30
 
-		self.f264.write(b'\x00\x00\x00\x01' +self.hHead0.data +b'\x00\x00\x00\x01' +self.hHead1.data)
-
-		self.fflv.write(MuxFLV.header(audio=False))
-		self.fflv.write(MuxFLV.metaTag())
-		self.fflv.write(MuxFLV.videoTag(0,True))
-		self.fflv.write(MuxFLV.videoTag(1,True, self.hHead0.lenB()+self.hHead0.data+self.hHead1.lenB()+self.hHead1.data))
 		return
 
 
@@ -219,10 +206,6 @@ class StreamFFRTMP():
 	def go(self, _atom):
 		if _atom.type!=None: #not sound
 			self.f264.write(b'\x00\x00\x00\x01' +_atom.data)
-			flvTag= MuxFLV.videoTag(1,_atom.type=='IDR', _atom.lenB()+_atom.data, int(self.flvStamp))
-			self.fflv.write(flvTag)
-
-			self.flvStamp+= self.flvRate
 		else:
 			self.faac.write(_atom.data)
 		return
@@ -239,10 +222,6 @@ class StreamFFRTMP():
 	def stop(self):
 		self.faac.close()
 		self.f264.close()
-
-		self.fflv.write(MuxFLV.videoTag(2,True))
-		self.fflv.close()
-
 
 
 		tcp= self.tcp
