@@ -112,19 +112,23 @@ class MuxFLV():
 
 #  todo 93 (flv) +0: make data flow without overhead
 	#VIDEODATA
-	@staticmethod
-	def videoTag(_type, _key, _data=b'', _stamp=0, _ctime=0):
+	def videoTag(self, _type, _key, _data=b'', _stamp=0, _ctime=0):
+		dataLen= len(_data).to_bytes(4, 'big')
 		if _type==0:
-			_data= MuxFLV.headDCR
+			_data= self.headDCR
+			dataLen= b''
 
 
-		tagA= MuxFLV.tag(9, _stamp, b'', len(_data)+5) #prepare tag for data substitution
-		tagA[-1:-1]= [
+		avcData= [
 			  bytes([(16 if _key else 32) +7])			#frame type (1=key, 2=not) and codecID (7=avc)
 			, bytes([_type])							#AVCPacketType
 			, (_ctime).to_bytes(3, 'big', signed=True)	#Composition time
+			, dataLen
 			, _data
 		]
+
+		tagA= self.tag(9, _stamp, avcData)	#prepare tag for data substitution
+
 
 		return b''.join(tagA)
 
