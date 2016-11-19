@@ -79,10 +79,12 @@ class mp4RecoverExe():
 
 			for atom in recoverAtoms[firstIDR:]:
 # =todo 79 (mp4) +0: get data from memory, not file
-				cFile.seek( int(atom['offset'],16)+4 )
-				b264= cFile.read( int(atom['len'],16)-4 )
+				preSize= 4 if atom['type'] else 0 #skip ui32 size for 264 atoms
 
-				self.atomCB( Atom(atom['type'],b264) )
+				cFile.seek( int(atom['offset'],16)+preSize )
+				restoredData= cFile.read( int(atom['len'],16)-preSize )
+
+				self.atomCB( Atom(atom['type'],restoredData) )
 
 			cFile.close()
 
