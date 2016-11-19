@@ -310,7 +310,7 @@ from .kiTelnet import *
 from .kiLog import *
 
 
-KiYi= [None, None]
+KiYi= [None, None, None, None, None]
 
 '''
 YiOn/Off commands are used to test Stryim in Sublime, `coz its lazy to set up running environment.
