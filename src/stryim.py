@@ -105,9 +105,8 @@ class MuxFLV():
 
 
 	#META tag
-	@staticmethod
-	def metaTag():
-		meta= MuxFLV.tag(12, 0, MuxFLV.headMeta)
+	def metaTag(self):
+		meta= self.tag(18, 0, [self.headMeta])
 
 		return b''.join(meta)
 
