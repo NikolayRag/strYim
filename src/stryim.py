@@ -203,7 +203,7 @@ class MuxFLV():
 
 
 		avcData= [
-			  bytes([(16 if _key else 32) +7])			#frame type (1=key, 2=not) and codecID (7=avc)
+			  b'\x17' if _key else b'\x27'	#frame type (1=key, 2=not) and codecID (7=avc)
 			, bytes([_type])							#AVCPacketType
 			, b'\x00\x00\x00'				#Composition time
 			, dataLen
