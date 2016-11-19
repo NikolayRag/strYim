@@ -33,8 +33,8 @@ class mp4RecoverExe():
 		self.atomCB= _atomCB
 
 		if callable(self.atomCB):
-			self.atomCB( Atom('IDR',h264Presets[(1080,30,0)]) )
-			self.atomCB( Atom('IDR',h264Presets[-1]) )
+			self.atomCB( Atom('IDR',self.h264Presets[(1080,30,0)]) )
+			self.atomCB( Atom('IDR',self.h264Presets[-1]) )
 		
 
 	'''
