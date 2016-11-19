@@ -69,8 +69,7 @@ class MuxFLV():
 
 
 	#FLVTAG, size ended
-	@staticmethod
-	def tag(_type, _stamp=0, _data=b'', _dLen=0):
+	def tag(self, _type, _stamp=0, _data=[b'']):
 		if _stamp<0 or _stamp>2147483647: #0 to 7fffffff 
 			kiLog.err('Stamp out of range: %s' % _stamp)
 			_stamp= 0
@@ -78,18 +77,22 @@ class MuxFLV():
 
 		_stamp= (_stamp).to_bytes(4, 'big')
 
-		if not _dLen:
-			_dLen= len(_data)
+		dataLen= 0
+		for cD in _data:
+			dataLen+= len(cD)
 
-		return [
+		tagOut= [
 			  bytes([_type]) 				#tag type (8=audio, 9=video, ..)
-			, (_dLen).to_bytes(3, 'big')	#data lenth
+			, (dataLen).to_bytes(3, 'big')	#data lenth
 			, _stamp[1:]					#stamp ui24
 			, _stamp[0:1]					#stamp upper byte
 			, b'\x00\x00\x00'				#streamID
-			, _data
-			, (_dLen+11).to_bytes(4, 'big')	#tag length
 		]
+
+		tagOut.extend(_data)
+		tagOut.extend( (dataLen+11).to_bytes(4, 'big') )	#data+tagOut length
+
+		return tagOut
 
 
 	#FLV header: "FLV\x01..."
