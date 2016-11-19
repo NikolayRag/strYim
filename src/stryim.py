@@ -241,7 +241,7 @@ class StreamFFRTMP():
 import sublime, sublime_plugin
 from .mp4RecoverExe import *
 from .byteTransit import *
-from .kiYiListener import *
+from .yiListener import *
 from .kiTelnet import *
 from .kiLog import *
 
@@ -271,7 +271,7 @@ class YiOnCommand(sublime_plugin.TextCommand):
 
 	def run(self, _edit):
 		kiLog.states(True, True, True)
-		kiLog.states(False, False, True, 'KiYiListener')
+		kiLog.states(False, False, True, 'YiListener')
 		kiLog.states(True, True, True, 'mp4RecoverExe')
 
 		selfIP= KiTelnet.defaults(address='192.168.42.1')
@@ -291,7 +291,7 @@ class YiOnCommand(sublime_plugin.TextCommand):
 		restoreO= mp4RecoverExe(streamRelay)
 # =todo 95 (bytes) +0: use byteTransit inside mp4RecoverExe
 		buffer= byteTransit(restoreO.parse, 1000000)
-		KiYi[0]= KiYiListener()
+		KiYi[0]= YiListener()
 		KiYi[0].start(self.cbConn, self.cbLive)
 		KiYi[0].live(buffer, self.cbAir)
 

@@ -11,7 +11,7 @@ from .kiLog import *
 connect to Yi and get live file
 reconnect if needed
 '''
-class KiYiListener():
+class YiListener():
 	lsMaskRe= re.compile('^(?P<rights>[^\s]+)\s+(?P<links>[^\s]+)\s+(?P<owner>[^\s]+)\s+(?P<group>[^\s]+)\s+(?P<size>[^\s]+)\s+(?P<date>\w+\s+\w+\s+\d+\s+\d+:\d+:\d+\s+\d+)\s+(?P<fname>.*)\s*$')
 
 	camRoot= '/tmp/fuse_d/DCIM'
