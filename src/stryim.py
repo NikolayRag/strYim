@@ -193,7 +193,7 @@ class MuxFLV():
 
 
 	#VIDEODATA
-	def videoTag(self, _type, _key, _data=b'', stamp=0, comptime=0):
+	def videoTag(self, _type, _key, _data=b'', stamp=0):
 		if _type==0:
 			_data= self.headDCR
 
@@ -205,7 +205,7 @@ class MuxFLV():
 		avcData= [
 			  bytes([(16 if _key else 32) +7])			#frame type (1=key, 2=not) and codecID (7=avc)
 			, bytes([_type])							#AVCPacketType
-			, (comptime).to_bytes(3, 'big', signed=True)	#Composition time
+			, b'\x00\x00\x00'				#Composition time
 			, dataLen
 			, _data
 		]
