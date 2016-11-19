@@ -19,8 +19,80 @@ class SinkFile():
 '''
 Mux-suitable sink for sending binary data to RTMP
 '''
+import subprocess, threading, socket
 class SinkRTMP():
-	cFile= None
+	tcp= None
+	tcpSock= None
+
+	initFlag= None
+
+
+	def __init__(self):
+		self.tcp= None
+
+
+		self.initFlag= threading.Event()
+
+		ffport= 2345
+		threading.Timer(0, lambda: self.tcpInit(ffport)).start()
+		threading.Timer(0, lambda: self.serverInit(ffport)).start()
+
+		self.initFlag.wait();
+
+
+	def serverInit(self, _ffport):
+		None
+		subprocess.call('D:/yi/restore/ff/ffmpeg -re -i tcp://localhost:%d -vcodec copy -f flv rtmp://localhost:5130/live/yi/' % _ffport, shell=False)
+#		subprocess.call('D:/yi/restore/ff/ffmpeg -re -i tcp://localhost:%d -vcodec copy http://localhost:8090/yi.ffm' % _ffport, shell=False)
+
+
+	def tcpInit(self, _ffport):
+		self.tcpSock= socket.socket()
+
+		self.tcpSock.bind(('127.0.0.1',_ffport))
+
+		self.tcpSock.listen(1)
+		self.tcp, a= self.tcpSock.accept()
+
+		self.initFlag.set()
+
+
+	def add(self, _data):
+		if not self.tcp:
+			return
+
+		try:
+			self.tcp.sendall(b'\x00\x00\x00\x01' +_atom.data)
+		except:
+			kiLog('Socket error')
+			self.tcp= None
+
+
+	def close(self):
+		tcp= self.tcp
+		self.tcp= None
+		if tcp:
+			tcp.close()
+
+		self.tcpSock.close()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -214,86 +286,6 @@ class MuxAAC():
 
 
 
-import subprocess, threading, time, socket
-from .mp4RecoverExe import *
-
-
-class StreamFFRTMP():
-	faac= None
-	f264= None
-
-	tcp= None
-	tcpSock= None
-
-	initFlag= None
-
-
-	def __init__(self):
-		self.faac= open('D:/yi/restore/stryim/sss.aac', 'wb')
-		self.f264= open('D:/yi/restore/stryim/sss.h264', 'wb')
-
-		return
-
-
-
-		self.tcp= None
-
-
-		self.initFlag= threading.Event()
-
-		ffport= 2345
-		threading.Timer(0, lambda: self.tcpInit(ffport)).start()
-		threading.Timer(0, lambda: self.serverInit(ffport)).start()
-
-		self.initFlag.wait();
-
-
-	def serverInit(self, _ffport):
-		None
-		subprocess.call('D:/yi/restore/ff/ffmpeg -re -i tcp://localhost:%d -vcodec copy -f flv rtmp://localhost:5130/live/yi/' % _ffport, shell=False)
-#		subprocess.call('D:/yi/restore/ff/ffmpeg -re -i tcp://localhost:%d -vcodec copy http://localhost:8090/yi.ffm' % _ffport, shell=False)
-
-
-	def tcpInit(self, _ffport):
-		self.tcpSock= socket.socket()
-
-		self.tcpSock.bind(('127.0.0.1',_ffport))
-
-		self.tcpSock.listen(1)
-		self.tcp, a= self.tcpSock.accept()
-
-		self.tcp.sendall(self.h264[(1080,30,'low')])
-
-		self.initFlag.set()
-
-
-	def go(self, _atom):
-		if _atom.type!=None: #not sound
-			self.f264.write(b'\x00\x00\x00\x01' +_atom.data)
-		else:
-			self.faac.write(_atom.data)
-		return
-
-
-
-		if self.tcp and _atom.type!=None:
-			try:
-				self.tcp.sendall(b'\x00\x00\x00\x01' +_atom.data)
-			except:
-				self.tcp= None
-
-
-	def stop(self):
-		self.faac.close()
-		self.f264.close()
-
-
-		tcp= self.tcp
-		self.tcp= None
-		if tcp:
-			tcp.close()
-
-#		self.tcpSock.close()
 
 
 
@@ -346,13 +338,11 @@ class YiOnCommand(sublime_plugin.TextCommand):
 
 		
 
-		KiYi[1]= StreamFFRTMP()
 		muxFlash= KiYi[2]= MuxFLV(SinkFile('D:/yi/restore/stryim/sss+.flv'))
 		muxH264= KiYi[3]= MuxH264(SinkFile('D:/yi/restore/stryim/sss+.h264'))
 		muxAAC= KiYi[4]= MuxAAC(SinkFile('D:/yi/restore/stryim/sss+.aac'))
 
 		def streamRelay(_atom):
-			KiYi[1].go(_atom)
 			muxFlash.add(_atom)
 			muxH264.add(_atom)
 			muxAAC.add(_atom)
@@ -375,7 +365,6 @@ class YiOffCommand(sublime_plugin.TextCommand):
 		KiYi[0].stop()
 		KiYi[0]= None
 
-		KiYi[1].stop()
 		KiYi[2].stop()
 		KiYi[3].stop()
 		KiYi[4].stop()
