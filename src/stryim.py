@@ -190,7 +190,6 @@ class MuxFLV():
 		return b''.join(meta)
 
 
-#  todo 93 (flv) +0: make data flow without overhead
 	#VIDEODATA
 	def videoTag(self, _type, _key, _data=b'', _stamp=0, _ctime=0):
 		dataLen= len(_data).to_bytes(4, 'big')
@@ -293,7 +292,6 @@ class MuxAAC():
 
 
 
-#  todo 94 (app) +2: handle start-stop
 import sublime, sublime_plugin
 from .mp4RecoverExe import *
 from .byteTransit import *
@@ -310,6 +308,7 @@ YiOn/Off commands are used to test Stryim in Sublime, `coz its lazy to set up ru
 class YiOnCommand(sublime_plugin.TextCommand):
 	
 
+# =todo 94 (app) +2: handle start-stops
 	def cbConn(self, _mode):
 		kiLog.ok('Connected' if _mode else 'Disconnected')
 	def cbLive(self, _mode):
@@ -348,7 +347,7 @@ class YiOnCommand(sublime_plugin.TextCommand):
 			muxAAC.add(_atom)
 
 		restoreO= mp4RecoverExe(streamRelay)
-# =todo 95 (bytes) +0: use byteTransit inside mp4RecoverExe
+# =todo 95 (bytes) +0: move use of byteTransit inside mp4RecoverExe
 		buffer= byteTransit(restoreO.parse, 1000000)
 		KiYi[0]= YiListener()
 		KiYi[0].start(self.cbConn, self.cbLive)

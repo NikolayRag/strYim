@@ -104,14 +104,14 @@
 +flv 92: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/11/19 07:15:35
 	make class non-static
 
- flv 93: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/11/18 08:01:22
++flv 93: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/11/19 08:23:59
 	make data flow without overhead
 
- app 94: +2 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/11/18 08:05:29
-	handle start-stop
+=app 94: +2 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/11/19 08:24:30
+	handle start-stops
 
-=bytes 95: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/11/19 04:38:07
-	use byteTransit inside mp4RecoverExe
+=bytes 95: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/11/19 08:24:51
+	move use of byteTransit inside mp4RecoverExe
 
 
-Reserved: 96
+Reserved: 97
