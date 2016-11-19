@@ -144,6 +144,8 @@ class MuxFLV():
 		self.sink.add( self.videoTag(2,True,stamp=int(self.flvStamp)) )
 		self.sink.close()
 
+		self.sink= None
+
 
 
 	#private
@@ -248,6 +250,8 @@ class MuxH264():
 
 		self.sink.close()
 
+		self.sink= None
+
 
 
 
@@ -282,6 +286,7 @@ class MuxAAC():
 
 		self.sink.close()
 
+		self.sink= None
 
 
 
