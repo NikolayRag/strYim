@@ -12,14 +12,6 @@ class Atom():
 		self.data= _data
 
 
-	def len(self):
-		return len(self.data)
-
-	def lenB(self, _pad=4):
-		return len(self.data).to_bytes(_pad, 'big')
-
-
-
 
 
 class mp4RecoverExe():

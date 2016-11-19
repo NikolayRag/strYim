@@ -289,17 +289,8 @@ class YiOnCommand(sublime_plugin.TextCommand):
 			muxFlash.add(_atom)
 			KiYi[1].go(_atom)
 		restoreO= mp4RecoverExe(streamRelay)
+# =todo 95 (bytes) +0: use byteTransit inside mp4RecoverExe
 		buffer= byteTransit(restoreO.parse, 1000000)
-
-
-
-#		buffer.context('123')
-#		KiTelnet('cat /tmp/fuse_d/DCIM/105MEDIA/L0010639.MP4', buffer.add).result()
-#		buffer.context(None)
-#		return
-
-
-
 		KiYi[0]= KiYiListener()
 		KiYi[0].start(self.cbConn, self.cbLive)
 		KiYi[0].live(buffer, self.cbAir)
