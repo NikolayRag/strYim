@@ -178,6 +178,39 @@ class MuxH264():
 
 
 
+'''
+AAC test Muxer class
+Requires Sink to be specified
+'''
+class MuxAAC():
+
+	sink= None
+
+
+	def __init__(self, _sink):
+		self.sink= _sink
+
+		if not self.sink:
+			kiLog.err('Sink not specified')
+			return
+
+
+	def add(self, _atom):
+		if not self.sink:
+			return
+
+		if not _atom.type: #sound
+			self.sink.add(_atom.data)
+
+
+	def stop(self):
+		if not self.sink:
+			return
+
+		self.sink.close()
+
+
+
 
 
 
@@ -316,11 +349,14 @@ class YiOnCommand(sublime_plugin.TextCommand):
 		KiYi[1]= StreamFFRTMP()
 		muxFlash= KiYi[2]= MuxFLV(SinkFile('D:/yi/restore/stryim/sss+.flv'))
 		muxH264= KiYi[3]= MuxH264(SinkFile('D:/yi/restore/stryim/sss+.h264'))
+		muxAAC= KiYi[4]= MuxAAC(SinkFile('D:/yi/restore/stryim/sss+.aac'))
 
 		def streamRelay(_atom):
 			KiYi[1].go(_atom)
 			muxFlash.add(_atom)
 			muxH264.add(_atom)
+			muxAAC.add(_atom)
+
 		restoreO= mp4RecoverExe(streamRelay)
 # =todo 95 (bytes) +0: use byteTransit inside mp4RecoverExe
 		buffer= byteTransit(restoreO.parse, 1000000)
@@ -342,3 +378,4 @@ class YiOffCommand(sublime_plugin.TextCommand):
 		KiYi[1].stop()
 		KiYi[2].stop()
 		KiYi[3].stop()
+		KiYi[4].stop()
