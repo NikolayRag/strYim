@@ -283,8 +283,12 @@ class YiOnCommand(sublime_plugin.TextCommand):
 		
 
 		KiYi[1]= StreamFFRTMP()
+		muxFlash= KiYi[2]= MuxFLV(SinkFile('D:/yi/restore/stryim/sss.flv'))
 
-		restoreO= mp4RecoverExe(KiYi[1].go)
+		def streamRelay(_atom):
+			muxFlash.add(_atom)
+			KiYi[1].go(_atom)
+		restoreO= mp4RecoverExe(streamRelay)
 		buffer= byteTransit(restoreO.parse, 1000000)
 
 
@@ -312,3 +316,4 @@ class YiOffCommand(sublime_plugin.TextCommand):
 		KiYi[0]= None
 
 		KiYi[1].stop()
+		KiYi[2].stop()
