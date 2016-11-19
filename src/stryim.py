@@ -96,8 +96,7 @@ class MuxFLV():
 
 
 	#FLV header: "FLV\x01..."
-	@staticmethod
-	def header(video=True, audio=True):
+	def header(self, video=True, audio=True):
 		video= 1* (video==True)
 		audio= 3* (audio==True)
 
