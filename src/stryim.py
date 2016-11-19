@@ -29,6 +29,44 @@ class MuxFLV():
 # =todo 91 (flv) +0: construct AVCDecoderConfigurationRecord
 	headDCR= b'\x01\x4d\x40\x33\xff\xe1\x00\x34\x27\x4d\x40\x33\x9a\x64\x03\xc0\x11\x3f\x2c\x8c\x04\x04\x05\x00\x00\x03\x03\xe9\x00\x00\xea\x60\xe8\x60\x00\xb7\x18\x00\x02\xdc\x6c\xbb\xcb\x8d\x0c\x00\x16\xe3\x00\x00\x5b\x8d\x97\x79\x70\x78\x44\x22\x52\xc0\x01\x00\x04\x28\xee\x38\x80'
 
+	sink= None
+
+
+	def __init__(self, _sink):
+		self.flvStamp= 0.
+		self.flvRate= 1001./30
+
+
+		self.sink= _sink
+
+		if not self.sink:
+			return
+
+		self.sink.add(self.header(audio=False))
+		self.sink.add(self.metaTag())
+		self.sink.add(self.videoTag(0,True))
+
+
+	def add(self, _atom):
+		if not self.sink:
+			return
+
+		if _atom.type!=None: #not sound
+			flvTag= self.videoTag(1,_atom.type=='IDR', _atom.data, int(self.flvStamp))
+			self.sink.add(flvTag)
+
+			self.flvStamp+= self.flvRate
+
+
+	def stop(self):
+		if not self.sink:
+			return
+
+		self.sink.add(self.videoTag(2,True))
+		self.sink.close()
+
+
+
 
 	#FLVTAG, size ended
 	@staticmethod
