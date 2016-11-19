@@ -98,7 +98,7 @@ class MuxFLV():
 		]
 
 		tagOut.extend(_data)
-		tagOut.extend( (dataLen+11).to_bytes(4, 'big') )	#data+tagOut length
+		tagOut.extend([ (dataLen+11).to_bytes(4, 'big') ])	#data+tagOut length
 
 		return tagOut
 
