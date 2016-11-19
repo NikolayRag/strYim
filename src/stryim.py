@@ -141,7 +141,7 @@ class MuxFLV():
 		if not self.sink:
 			return
 
-		self.sink.add( self.videoTag(2,True,_stamp=int(self.flvStamp)) )
+		self.sink.add( self.videoTag(2,True,stamp=int(self.flvStamp)) )
 		self.sink.close()
 
 
@@ -191,7 +191,7 @@ class MuxFLV():
 
 
 	#VIDEODATA
-	def videoTag(self, _type, _key, _data=b'', _stamp=0, _ctime=0):
+	def videoTag(self, _type, _key, _data=b'', stamp=0, comptime=0):
 		if _type==0:
 			_data= self.headDCR
 
@@ -203,12 +203,12 @@ class MuxFLV():
 		avcData= [
 			  bytes([(16 if _key else 32) +7])			#frame type (1=key, 2=not) and codecID (7=avc)
 			, bytes([_type])							#AVCPacketType
-			, (_ctime).to_bytes(3, 'big', signed=True)	#Composition time
+			, (comptime).to_bytes(3, 'big', signed=True)	#Composition time
 			, dataLen
 			, _data
 		]
 
-		tagA= self.tag(9, _stamp, avcData)	#prepare tag for data substitution
+		tagA= self.tag(9, stamp, avcData)	#prepare tag for data substitution
 
 
 		return b''.join(tagA)
