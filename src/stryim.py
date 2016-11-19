@@ -136,6 +136,9 @@ class MuxFLV():
 
 			self.flvStamp+= self.flvRate
 
+		else:
+			None
+
 
 	def stop(self):
 		if not self.sink:
@@ -187,9 +190,9 @@ class MuxFLV():
 
 	#Data tag
 	def dataTag(self):
-		meta= self.tag(18, 0, [self.headMeta])
+		tagA= self.tag(18, 0, [self.headMeta])
 
-		return b''.join(meta)
+		return b''.join(tagA)
 
 
 	#VIDEODATA
@@ -204,7 +207,7 @@ class MuxFLV():
 
 		avcData= [
 			  b'\x17' if _key else b'\x27'	#frame type (1=key, 2=not) and codecID (7=avc)
-			, bytes([_type])							#AVCPacketType
+			, bytes([_type])				#AVCPacketType
 			, b'\x00\x00\x00'				#Composition time
 			, dataLen
 			, _data
