@@ -1,4 +1,28 @@
 #  todo 92 (flv) +0: make class non-static
+'''
+Mux-suitable sink for sending binary data to file
+'''
+class SinkFile():
+	cFile= None
+
+	def __init__(self, _fn):
+		self.cFile= open(_fn, 'wb')
+
+	def add(self, _data):
+		self.cFile.write(_data)
+
+	def close(self):
+		self.cFile.close()
+
+
+
+
+'''
+Mux-suitable sink for sending binary data to RTMP
+'''
+class SinkRTMP():
+	cFile= None
+
 class MuxFLV():
 # =todo 90 (flv) +0: construct META
 	headMeta= b'\x02\x00\nonMetaData\x08\x00\x00\x00\x0b\x00\x08duration\x00@D=\x91hr\xb0!\x00\x05width\x00@\x9e\x00\x00\x00\x00\x00\x00\x00\x06height\x00@\x90\xe0\x00\x00\x00\x00\x00\x00\rvideodatarate\x00@\xc7\x00\xcd\xe0\x00\x00\x00\x00\tframerate\x00@=\xf6\xff\x825\xd3D\x00\x0cvideocodecid\x00@\x1c\x00\x00\x00\x00\x00\x00\x00\x0bmajor_brand\x02\x00\x04isom\x00\rminor_version\x02\x00\x03512\x00\x11compatible_brands\x02\x00\x10isomiso2avc1mp41\x00\x07encoder\x02\x00\rLavf57.57.100\x00\x08filesize\x00A\x8d5\x11\x10\x00\x00\x00\x00\x00\t'
