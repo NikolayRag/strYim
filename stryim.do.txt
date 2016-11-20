@@ -8,7 +8,7 @@
 +network 7: +1 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiTelnet.py" user 16/10/28 23:26:41
 	start sending telnet ONLY after TCP started listening
 
--telnet 8: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiTelnet.py" user 16/10/31 04:54:52
+ telnet 8: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiTelnet.py" user 16/11/21 00:49:41
 	check for timeout
 
 +code 11: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiTelnet.py" user 16/10/29 20:09:13
@@ -62,7 +62,7 @@
 +stage 47: +0 "" kii 16/11/07 05:24:32
 	stage: recover
 
-=stage 48: +0 "" kii 16/11/07 05:24:38
++stage 48: +0 "" kii 16/11/21 00:52:19
 	stage: mux
 
 -stage, output 49: +0 "" kii 16/11/06 15:47:22
@@ -92,8 +92,8 @@
  cam, stability 68: -1 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiYiListener.py" user 16/11/10 02:46:42
 	found other way to forget stopped file as live
 
-=mp4 79: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\mp4RecoverExe.py" user 16/11/13 04:16:02
-	get data from memory, not file
+!mp4 79: +0 "" user 16/11/20 15:04:24
+	redundant
 
 =flv 90: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/11/18 07:47:15
 	construct META
@@ -116,5 +116,17 @@
  flv 98: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/11/20 01:28:54
 	build SPS and PPS
 
+-aac 99: +1 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/11/21 00:50:01
+	AAC header is reverse-engineered, ensure it is correct
 
-Reserved: 99
+!aac 100: +0 "" user 16/11/20 15:04:38
+	redundant
+
+=recover 101: +2 "..\..\Application Data\Sublime Text 3\Packages\stryim\mp4RecoverExe.py" user 16/11/20 15:05:06
+	use native atoms searching: [h264, aac, ...]
+
++bytes 102: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\byteTransit.py" user 16/11/21 01:23:24
+	make .add() the single public method
+
+
+Reserved: 103

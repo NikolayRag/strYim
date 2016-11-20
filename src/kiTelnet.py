@@ -249,7 +249,7 @@ class KiTelnet():
 		, _cbRes=None
 		, _timeIn= 2	#not starting within
 		, _timeOut= 5	#no output longer than
-# -todo 8 (telnet) +0: check for timeout
+#  todo 8 (telnet) +0: check for timeout
 	):
 
 		tcpTimein= threading.Timer(_timeIn, self.tcpSock.close)

@@ -120,5 +120,3 @@ class byteTransit():
 
 			return True
 
-
-# =todo 102 (b) +0: make .add() the single public method
