@@ -309,7 +309,7 @@ class MuxAAC():
 		if not _atom.type: #sound
 			if len(_atom.data)>2040:
 				kiLog.warn('Too big AAC found, skipped')
-				break
+				return
 
 			#  todo 99 (aac) +1: AAC header is reverse-engineered, ensure it is correct
 			aacPre= b'\xff\xf1\x4c\x80' +(len(_atom.data)*32+255).to_bytes(2,'big')+ +b'\xfc'
