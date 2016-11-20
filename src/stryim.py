@@ -338,7 +338,6 @@ class MuxAAC():
 
 import sublime, sublime_plugin
 from .mp4RecoverExe import *
-from .byteTransit import *
 from .yiListener import *
 from .kiTelnet import *
 from .kiLog import *
@@ -390,12 +389,10 @@ class YiOnCommand(sublime_plugin.TextCommand):
 			muxH264.add(_atom)
 			muxAAC.add(_atom)
 
-		restoreO= mp4RecoverExe(streamRelay)
-# =todo 95 (bytes) +0: move use of byteTransit inside mp4RecoverExe
-		buffer= byteTransit(restoreO.parse, 1000000)
+		mp4Restore= Mp4Recover(streamRelay)
 		KiYi[0]= YiListener()
 		KiYi[0].start(self.cbConn, self.cbLive)
-		KiYi[0].live(buffer.add, self.cbAir)
+		KiYi[0].live(mp4Restore.add, self.cbAir)
 
 
 #ast.literal_eval(aa)

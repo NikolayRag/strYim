@@ -1,5 +1,6 @@
 import subprocess, tempfile, os, re
 
+from .byteTransit import *
 from .kiLog import *
 
 
@@ -26,16 +27,26 @@ class Mp4Recover():
 	cFile= None
 	safePos= 0
 
+	transit= None
+
 	atomCB=None
 
 
 	def __init__(self, _atomCB):
+		self.transit= byteTransit(self.parse, 1000000)
+
+
 		self.atomCB= _atomCB
 
 		if callable(self.atomCB):
 			self.atomCB( Atom('IDR',self.h264Presets[(1080,30,0)]) )
 			self.atomCB( Atom('IDR',self.h264Presets[-1]) )
 		
+
+	def add(self, _data, _ctx=None):
+		self.transit.add()
+
+
 
 	'''
 	Provide raw mp4 data to parse.
