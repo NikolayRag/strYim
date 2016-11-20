@@ -191,9 +191,6 @@ class KiTelnet():
 	def result(self):
 		self.blockedFlag.wait();
 
-		if self.tcpResult==False:
-			return False
-
 		return self.tcpResult
 
 
@@ -207,7 +204,7 @@ class KiTelnet():
 			self.tcpSock= None
 
 		if not _soft:
-			self.tcpResult= False
+			self.tcpResult= -1
 
 		self.blockedFlag.set()
 		self.telnet.close()
@@ -269,7 +266,11 @@ class KiTelnet():
 		kiLog.ok('Tcp in from ' +a[0])
 
 
-		self.tcpResult= b'';
+		if not _cbRes:
+			self.tcpResult= b''
+		else:
+			self.tcpResult= 0
+
 		while 1:
 			iIn= c.recv(16384)
 			if not iIn:
@@ -280,8 +281,11 @@ class KiTelnet():
 			else:
 				try:
 					_cbRes(iIn)
+					self.tcpResult+= len(iIn)
 				except:
 					kiLog.err('Tcp callback exception')
+					self.tcpResult= -1
+					break
 
 		c.close()
 

@@ -240,14 +240,8 @@ class YiListener():
 		ddSkipBlocks= int(_start /ddBlock)
 		skipBuffer= _start %ddBlock #bytes to skip, len
 
-		cLen= self.mp4Buffer.len()
-
 		telCmd= "dd bs=%d skip=%d if=%s/%s |tail -c +%d" % (ddBlock, ddSkipBlocks, self.camRoot, _fname, skipBuffer+1)
-		if KiTelnet(telCmd, self.mp4Buffer.add).result()==False:
-			kiLog.err('Telnet error')
-			return -1
-
-		return self.mp4Buffer.len()-cLen
+		return KiTelnet(telCmd, self.mp4Buffer.add).result()
 
 
 
@@ -262,7 +256,7 @@ class YiListener():
 	def detectActiveFile(self):
 		telCmd= "cd %s/; ls -e -R -t %s |head -n 1; date" % (self.camRoot, self.camMask)
 		telnetResA= KiTelnet(telCmd).result()
-		if telnetResA==False: #error
+		if telnetResA==-1: #error
 			return False
 		telnetResA= telnetResA.decode('ascii').split("\n") #'file \n date' retured
 
