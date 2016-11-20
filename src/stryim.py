@@ -371,7 +371,7 @@ class YiOnCommand(sublime_plugin.TextCommand):
 	def run(self, _edit):
 		kiLog.states(True, True, True)
 		kiLog.states(False, False, True, 'YiListener')
-		kiLog.states(True, True, True, 'mp4RecoverExe')
+		kiLog.states(True, True, True, 'Mp4Recover')
 
 		selfIP= KiTelnet.defaults(address='192.168.42.1')
 
