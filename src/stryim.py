@@ -395,7 +395,7 @@ class YiOnCommand(sublime_plugin.TextCommand):
 		buffer= byteTransit(restoreO.parse, 1000000)
 		KiYi[0]= YiListener()
 		KiYi[0].start(self.cbConn, self.cbLive)
-		KiYi[0].live(buffer, self.cbAir)
+		KiYi[0].live(buffer.add, self.cbAir)
 
 
 #ast.literal_eval(aa)
