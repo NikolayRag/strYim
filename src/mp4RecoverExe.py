@@ -44,7 +44,7 @@ class Mp4Recover():
 		
 
 	def add(self, _data, _ctx=None):
-		self.transit.add()
+		self.transit.add(_data, _ctx)
 
 
 
