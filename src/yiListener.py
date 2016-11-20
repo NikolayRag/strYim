@@ -203,7 +203,7 @@ class YiListener():
 					kiLog.err("... error at %d" % fPos)
 					return False
 
-				if not readBytes:
+				if not readBytes: #no more, move to next
 					break
 
 				fPos+= readBytes

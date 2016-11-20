@@ -71,6 +71,19 @@ class byteTransit():
 
 
 
+	def add(self, _data, _ctx=None):
+		if _ctx:
+			self.context(_ctx)
+
+		if _data:
+			self.chunk.add(_data)
+
+			self.dispatch()
+
+
+
+	#private
+
 	def dispatch(self, _force=False):
 		dataLeft= self.chunk.read(self.chunk.position)
 
@@ -109,16 +122,3 @@ class byteTransit():
 
 
 # =todo 102 (b) +0: make .add() the single public method
-	def add(self, _data, _ctx=None):
-		if _ctx:
-			self.context(_ctx)
-
-		if _data:
-			self.chunk.add(_data)
-
-			self.dispatch()
-
-
-
-	def len(self):
-		return self.chunk.len()
