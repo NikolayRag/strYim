@@ -108,14 +108,15 @@ class byteTransit():
 			return True
 
 
-
+# =todo 102 (b) +0: make .add() the single public method
 	def add(self, _data, _ctx=None):
 		if _ctx:
 			self.context(_ctx)
 
-		self.chunk.add(_data)
+		if _data:
+			self.chunk.add(_data)
 
-		self.dispatch()
+			self.dispatch()
 
 
 

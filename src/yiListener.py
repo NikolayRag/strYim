@@ -156,7 +156,7 @@ class YiListener():
 					kiLog.err('BAD AIR')
 					callable(self.airCB) and self.airCB(-1)
 
-				self.mp4Buffer.context(None)
+				self.mp4Buffer.add(None,None)
 
 
 			time.sleep(1)
@@ -196,7 +196,7 @@ class YiListener():
 					kiLog.warn("... stop at %d" % fPos)
 					return True #stopped by demand
 
-				self.mp4Buffer.context('%s_%s' % (pad(fParts['dir'],3), pad(fParts['num'],4)))
+				self.mp4Buffer.add(None,'%s_%s' % (pad(fParts['dir'],3), pad(fParts['num'],4)))
 				readBytes= self.camReadFile(fName, fPos)
 
 				if readBytes==-1:
