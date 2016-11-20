@@ -218,8 +218,9 @@ class YiListener():
 
 			fName= self.buildName(fParts)
 
-			checkCurrent= KiTelnet("ls %s/%s" % (self.camRoot, fName)).result()
-			if not checkCurrent:
+			#current file dried but no next one
+			checkNext= KiTelnet("ls %s/%s" % (self.camRoot, fName)).result()
+			if not checkNext:
 				kiLog.warn("... finish at %d" % fPos)
 #  todo 68 (cam, stability) -1: found other way to forget stopped file as live
 				time.sleep(self.liveOldAge-1) #wait till stopped file will get old to not treat it as live at next cycle
