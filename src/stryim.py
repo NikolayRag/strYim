@@ -311,8 +311,8 @@ class MuxAAC():
 				kiLog.warn('Too big AAC found, skipped')
 				return
 
-			#  todo 99 (aac) +1: AAC header is reverse-engineered, ensure it is correct
-			aacPre= b'\xff\xf1\x4c\x80' +(len(_atom.data)*32+255).to_bytes(2,'big')+ +b'\xfc'
+			# -todo 99 (aac) +1: AAC header is reverse-engineered, ensure it is correct
+			aacPre= b'\xff\xf1\x4c\x80' +(len(_atom.data)*32+255).to_bytes(2,'big') +b'\xfc'
 
 			self.sink.add(aacPre +_atom.data)
 
