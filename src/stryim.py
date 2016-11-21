@@ -104,8 +104,6 @@ Requires Sink to be specified
 '''
 class MuxFLV():
 # =todo 90 (flv) +0: construct META
-	headMeta= b'\x02\x00\nonMetaData\x08\x00\x00\x00\x0b\x00\x08duration\x00@D=\x91hr\xb0!\x00\x05width\x00@\x9e\x00\x00\x00\x00\x00\x00\x00\x06height\x00@\x90\xe0\x00\x00\x00\x00\x00\x00\rvideodatarate\x00@\xc7\x00\xcd\xe0\x00\x00\x00\x00\tframerate\x00@=\xf6\xff\x825\xd3D\x00\x0cvideocodecid\x00@\x1c\x00\x00\x00\x00\x00\x00\x00\x0bmajor_brand\x02\x00\x04isom\x00\rminor_version\x02\x00\x03512\x00\x11compatible_brands\x02\x00\x10isomiso2avc1mp41\x00\x07encoder\x02\x00\rLavf57.57.100\x00\x08filesize\x00A\x8d5\x11\x10\x00\x00\x00\x00\x00\t'
-
 	sink= None
 
 
@@ -119,9 +117,12 @@ class MuxFLV():
 		if not self.sink:
 			return
 
-		self.sink.add(self.header(audio=False))
-		self.sink.add(self.dataTag())
-		self.sink.add(self.videoTag(0,True,self.videoDCR()))
+		self.useAudio= False
+
+		self.sink.add( self.header(audio=self.useAudio) )
+		self.sink.add( self.dataTag(self.flvMeta(self.useAudio)) )
+		self.sink.add( self.videoTag(0,True,self.videoDCR()) )
+		self.sink.add( self.audioTag(0,self.audioSC()) )
 
 
 	def add(self, _atom):
@@ -134,8 +135,9 @@ class MuxFLV():
 
 			self.flvStamp+= self.flvRate
 
-		else:
-			None
+		elif self.useAudio:
+			flvTag= self.audioTag(1, _atom.data, int(self.flvStamp))
+			self.sink.add(flvTag)
 
 
 	def stop(self):
@@ -187,20 +189,20 @@ class MuxFLV():
 
 
 	#Data tag
-	def dataTag(self):
-		tagA= self.tag(18, 0, [self.headMeta])
+	def dataTag(self, _data, _stamp=0):
+		tagA= self.tag(18, _stamp, [_data])
 
 		return b''.join(tagA)
 
 
-	#VIDEODATA
+	#VIDEODATA+AVCVIDEOPACKET
 	def videoTag(self, _type, _key, _data=b'', stamp=0):
 		dataLen= b''
 		if _type==1:
 			dataLen= len(_data).to_bytes(4, 'big')
 
 
-		avcData= [
+		vData= [
 			  b'\x17' if _key else b'\x27'	#frame type (1=key, 2=not) and codecID (7=avc)
 			, bytes([_type])				#AVCPacketType
 			, b'\x00\x00\x00'				#Composition time
@@ -208,7 +210,7 @@ class MuxFLV():
 			, _data
 		]
 
-		tagA= self.tag(9, stamp, avcData)	#prepare tag for data substitution
+		tagA= self.tag(9, stamp, vData)		#prepare tag for data substitution
 
 
 		return b''.join(tagA)
@@ -246,6 +248,41 @@ class MuxFLV():
 			print(dcr, refDCR)
 		
 		return dcr
+
+
+
+	#AUDIODATA+AACAUDIODATA
+	def audioTag(self, _type, _data=b'', stamp=0):
+
+		aData= [
+			  bytes([ 10<<4 +3<<2 +1<<1 +1 ])	#4xb=AAC, 2xb=AACSR, 16bit, stereo
+			, bytes([_type])					#AACPacketType
+			, _data
+		]
+
+		tagA= self.tag(8, stamp, aData)			#prepare tag for data substitution
+
+
+		return b''.join(tagA)
+
+
+
+	#AudioSpecificConfig
+	def audioSC(self):
+		refDCR= b'\x11\x90\x00\x00\x00'
+
+		return b'\x11\x90\x00\x00\x00'
+
+
+
+	def flvMeta(self, audio=True):
+		headMetaV= b'\x02\x00\nonMetaData\x08\x00\x00\x00\x0b\x00\x08duration\x00@D=\x91hr\xb0!\x00\x05width\x00@\x9e\x00\x00\x00\x00\x00\x00\x00\x06height\x00@\x90\xe0\x00\x00\x00\x00\x00\x00\rvideodatarate\x00@\xc7\x00\xcd\xe0\x00\x00\x00\x00\tframerate\x00@=\xf6\xff\x825\xd3D\x00\x0cvideocodecid\x00@\x1c\x00\x00\x00\x00\x00\x00\x00\x0bmajor_brand\x02\x00\x04isom\x00\rminor_version\x02\x00\x03512\x00\x11compatible_brands\x02\x00\x10isomiso2avc1mp41\x00\x07encoder\x02\x00\rLavf57.57.100\x00\x08filesize\x00A\x8d5\x11\x10\x00\x00\x00\x00\x00\t'
+		headMetaAV= b'\x02\x00\nonMetaData\x08\x00\x00\x00\x10\x00\x08duration\x00@N\x07\xae\x14z\xe1H\x00\x05width\x00@\x9e\x00\x00\x00\x00\x00\x00\x00\x06height\x00@\x90\xe0\x00\x00\x00\x00\x00\x00\nvideodatarate\x00@\xc6\xfc\x17@\x00\x00\x00\x00\tframerate\x00@=\xf8S\xe2Uk(\x00\x0cvideocodecid\x00@\x1c\x00\x00\x00\x00\x00\x00\x00\naudiodatarate\x00@_?\xa0\x00\x00\x00\x00\x00\x0faudiosamplerate\x00@\xe7p\x00\x00\x00\x00\x00\x00\x0faudiosamplesize\x00@0\x00\x00\x00\x00\x00\x00\x00\x06stereo\x01\x01\x00\x0caudiocodecid\x00@$\x00\x00\x00\x00\x00\x00\x00\x0bmajor_brand\x02\x00\x04avc1\x00\nminor_version\x02\x00\x010\x00\x11compatible_brands\x02\x00\x08avc1isom\x00\x07encoder\x02\x00\nLavf57.41.100\x00\x08filesize\x00A\x95\xd1\x9fx\x00\x00\x00\x00\x00\t'
+
+		if audio:
+			return headMetaAV
+
+		return headMetaV
 
 
 
@@ -381,12 +418,10 @@ class YiOnCommand(sublime_plugin.TextCommand):
 		
 
 		muxFlash= KiYi[2]= MuxFLV(SinkFile('D:/yi/restore/stryim/sss+.flv'))
-		muxH264= KiYi[3]= MuxH264(SinkFile('D:/yi/restore/stryim/sss+.h264'))
-		muxAAC= KiYi[4]= MuxAAC(SinkFile('D:/yi/restore/stryim/sss+.aac'))
+		muxAAC= KiYi[3]= MuxAAC(SinkFile('D:/yi/restore/stryim/sss+.aac'))
 
 		def streamRelay(_atom):
 			muxFlash.add(_atom)
-			muxH264.add(_atom)
 			muxAAC.add(_atom)
 
 		mp4Restore= Mp4Recover(streamRelay)
@@ -407,4 +442,3 @@ class YiOffCommand(sublime_plugin.TextCommand):
 
 		KiYi[2].stop()
 		KiYi[3].stop()
-		KiYi[4].stop()
