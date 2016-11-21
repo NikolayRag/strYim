@@ -62,7 +62,7 @@ class SinkRTMP():
 			return
 
 		try:
-			self.tcp.sendall(b'\x00\x00\x00\x01' +_atom.data)
+			self.tcp.sendall(_atom.data)
 		except:
 			kiLog('Socket error')
 			self.tcp= None
