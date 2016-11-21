@@ -128,5 +128,11 @@
 +bytes 102: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\byteTransit.py" user 16/11/21 01:23:24
 	make .add() the single public method
 
+ clean, release 104: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/11/21 08:33:48
+	use 'current' folder for release and hide ffmpeg
 
-Reserved: 104
+ sink, unsure 105: -1 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/11/21 08:35:13
+	hardcode RTMP protocol
+
+
+Reserved: 106
