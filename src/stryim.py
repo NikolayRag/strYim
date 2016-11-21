@@ -122,7 +122,7 @@ class MuxFLV():
 			return
 
 
-		self.useAudio= False
+		self.useAudio= True
 
 		self.sink.add( self.header(audio=self.useAudio) )
 		self.sink.add( self.dataTag(self.flvMeta(self.useAudio)) )
