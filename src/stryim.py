@@ -395,7 +395,7 @@ class YiOnCommand(sublime_plugin.TextCommand):
 		KiYi[0].live(mp4Restore.add, self.cbAir)
 
 
-#ast.literal_eval(aa)
+
 class YiOffCommand(sublime_plugin.TextCommand):
 	def run(self, _edit):
 		if not KiYi[0]:

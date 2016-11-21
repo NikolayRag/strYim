@@ -110,7 +110,7 @@
 =app 94: +2 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/11/19 08:24:30
 	handle start-stops
 
-=bytes 95: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/11/19 08:24:51
++bytes 95: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\mp4RecoverExe.py" user 16/11/21 01:57:58
 	move use of byteTransit inside mp4RecoverExe
 
  flv 98: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/11/20 01:28:54
@@ -129,4 +129,4 @@
 	make .add() the single public method
 
 
-Reserved: 103
+Reserved: 104
