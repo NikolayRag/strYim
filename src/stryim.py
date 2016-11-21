@@ -111,7 +111,7 @@ class SinkRTMP():
 
 
 import sublime, sublime_plugin
-from .mp4RecoverExe import *
+from .mp4Recover import *
 from .muxH264AAC import *
 from .yiListener import *
 from .kiTelnet import *
