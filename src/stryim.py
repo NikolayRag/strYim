@@ -104,18 +104,23 @@ Requires Sink to be specified
 '''
 class MuxFLV():
 # =todo 90 (flv) +0: construct META
+	frameStamp= 0.
+	flvRate= 1001./30
+	microStamp= 0
+
 	sink= None
 
 
-	def __init__(self, _sink):
-		self.flvStamp= 0.
-		self.flvRate= 1001./30
-
+	def __init__(self, _sink, _fps=1001./30):
+		self.frameStamp= 0.
+		self.flvRate= _fps
+		self.microStamp= 0
 
 		self.sink= _sink
 
 		if not self.sink:
 			return
+
 
 		self.useAudio= False
 
@@ -130,13 +135,11 @@ class MuxFLV():
 			return
 
 		if _atom.type!=None: #not sound
-			flvTag= self.videoTag(1,_atom.type=='IDR', _atom.data, int(self.flvStamp))
+			flvTag= self.videoTag(1,_atom.type=='IDR', _atom.data, self.stamp(True))
 			self.sink.add(flvTag)
 
-			self.flvStamp+= self.flvRate
-
 		elif self.useAudio:
-			flvTag= self.audioTag(1, _atom.data, int(self.flvStamp))
+			flvTag= self.audioTag(1, _atom.data, self.stamp())
 			self.sink.add(flvTag)
 
 
@@ -144,7 +147,7 @@ class MuxFLV():
 		if not self.sink:
 			return
 
-		self.sink.add( self.videoTag(2,True,stamp=int(self.flvStamp)) )
+		self.sink.add( self.videoTag(2,True,stamp=self.stamp()) )
 		self.sink.close()
 
 		self.sink= None
@@ -152,6 +155,23 @@ class MuxFLV():
 
 
 	#private
+
+	'''
+	Return miliseconds corresponding to current timestamp, incrementing by one for virtually same stamp.
+	_nextFrame switches to next fps-based value.
+	'''
+	def stamp(self, _nextFrame=False):
+		stampOut= self.microStamp
+
+		self.microStamp+= 1
+		
+		if _nextFrame:
+			self.frameStamp+= self.flvRate
+			self.microStamp= max( self.microStamp, int(self.frameStamp) )
+
+		return stampOut
+
+
 
 	#FLVTAG, size ended
 	def tag(self, _type, _stamp=0, _data=[b'']):
