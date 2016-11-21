@@ -275,8 +275,8 @@ class MuxFLV():
 	def audioTag(self, _type, _data=b'', stamp=0):
 
 		aData= [
-			  bytes([ 10<<4 +3<<2 +1<<1 +1 ])	#4xb=AAC, 2xb=AACSR, 16bit, stereo
-			, bytes([_type])					#AACPacketType
+			  bytes([ (10<<4) +(3<<2) +(1<<1) +1 ])	#af: 4xb=AAC, 2xb=AACSR, 16bit, stereo
+			, bytes([_type])						#AACPacketType
 			, _data
 		]
 
