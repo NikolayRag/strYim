@@ -27,7 +27,7 @@ class YiListener():
 	connectCB= None
 	liveCB= None
 	airCB= None
-	mp4Buffer= False
+	mp4CB= False
 
 
 	def __init__(self):
@@ -72,10 +72,10 @@ class YiListener():
 
 
 	'''
-	attempt to start streaming to byteTransit mp4Buffer.
+	attempt to start streaming to mp4CB.
 
-		mp4Buffer
-			byteTransit object for which to stream mp4 content
+		mp4CB(bytes data, context=None)
+			 function for which to stream mp4 content
 
 		airCB
 			callback, called with
@@ -86,7 +86,7 @@ class YiListener():
 				-1
 					when streaming error occurs
 	'''
-	def live(self, _mp4Buffer, _airCB=None):
+	def live(self, _mp4CB, _airCB=None):
 		if not self.flagRun:
 			kiLog.warn('Listener is currently idle')
 			return
@@ -95,7 +95,7 @@ class YiListener():
 			kiLog.warn('Already live')
 			return
 
-		self.mp4Buffer= _mp4Buffer
+		self.mp4CB= _mp4CB
 		self.airCB= _airCB
 		self.flagLive= True
 
@@ -156,7 +156,7 @@ class YiListener():
 					kiLog.err('BAD AIR')
 					callable(self.airCB) and self.airCB(-1)
 
-				self.mp4Buffer.context(None)
+				self.mp4CB(None,None) #reset
 
 
 			time.sleep(1)
@@ -196,14 +196,14 @@ class YiListener():
 					kiLog.warn("... stop at %d" % fPos)
 					return True #stopped by demand
 
-				self.mp4Buffer.context('%s_%s' % (pad(fParts['dir'],3), pad(fParts['num'],4)))
+				self.mp4CB(None,'%s_%s' % (pad(fParts['dir'],3), pad(fParts['num'],4)))
 				readBytes= self.camReadFile(fName, fPos)
 
 				if readBytes==-1:
 					kiLog.err("... error at %d" % fPos)
 					return False
 
-				if not readBytes:
+				if not readBytes: #no more, move to next
 					break
 
 				fPos+= readBytes
@@ -218,8 +218,9 @@ class YiListener():
 
 			fName= self.buildName(fParts)
 
-			checkCurrent= KiTelnet("ls %s/%s" % (self.camRoot, fName)).result()
-			if not checkCurrent:
+			#current file dried but no next one
+			checkNext= KiTelnet("ls %s/%s" % (self.camRoot, fName)).result()
+			if not checkNext:
 				kiLog.warn("... finish at %d" % fPos)
 #  todo 68 (cam, stability) -1: found other way to forget stopped file as live
 				time.sleep(self.liveOldAge-1) #wait till stopped file will get old to not treat it as live at next cycle
@@ -240,14 +241,8 @@ class YiListener():
 		ddSkipBlocks= int(_start /ddBlock)
 		skipBuffer= _start %ddBlock #bytes to skip, len
 
-		cLen= self.mp4Buffer.len()
-
 		telCmd= "dd bs=%d skip=%d if=%s/%s |tail -c +%d" % (ddBlock, ddSkipBlocks, self.camRoot, _fname, skipBuffer+1)
-		if KiTelnet(telCmd, self.mp4Buffer.add).result()==False:
-			kiLog.err('Telnet error')
-			return -1
-
-		return self.mp4Buffer.len()-cLen
+		return KiTelnet(telCmd, self.mp4CB).result()
 
 
 
@@ -262,7 +257,7 @@ class YiListener():
 	def detectActiveFile(self):
 		telCmd= "cd %s/; ls -e -R -t %s |head -n 1; date" % (self.camRoot, self.camMask)
 		telnetResA= KiTelnet(telCmd).result()
-		if telnetResA==False: #error
+		if telnetResA==-1: #error
 			return False
 		telnetResA= telnetResA.decode('ascii').split("\n") #'file \n date' retured
 

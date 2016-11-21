@@ -1,5 +1,6 @@
 import subprocess, tempfile, os, re
 
+from .byteTransit import *
 from .kiLog import *
 
 
@@ -13,8 +14,8 @@ class Atom():
 
 
 
-
-class mp4RecoverExe():
+# =todo 101 (recover) +2: use native atoms searching: [h264, aac, ...]
+class Mp4Recover():
 	h264Presets= {
 		  (1080,30,0): b'\'M@3\x9ad\x03\xc0\x11?,\x8c\x04\x04\x05\x00\x00\x03\x03\xe9\x00\x00\xea`\xe8`\x00\xb7\x18\x00\x02\xdcl\xbb\xcb\x8d\x0c\x00\x16\xe3\x00\x00[\x8d\x97ypxD"R\xc0'
 		, -1: b'\x28\xee\x38\x80'
@@ -26,16 +27,26 @@ class mp4RecoverExe():
 	cFile= None
 	safePos= 0
 
+	transit= None
+
 	atomCB=None
 
 
 	def __init__(self, _atomCB):
+		self.transit= byteTransit(self.parse, 1000000)
+
+
 		self.atomCB= _atomCB
 
 		if callable(self.atomCB):
 			self.atomCB( Atom('IDR',self.h264Presets[(1080,30,0)]) )
 			self.atomCB( Atom('IDR',self.h264Presets[-1]) )
 		
+
+	def add(self, _data, _ctx=None):
+		self.transit.add(_data, _ctx)
+
+
 
 	'''
 	Provide raw mp4 data to parse.
@@ -69,7 +80,6 @@ class mp4RecoverExe():
 			cFile= open(self.cFile, 'rb')
 
 			for atom in recoverAtoms[firstIDR:]:
-# =todo 79 (mp4) +0: get data from memory, not file
 				preSize= 4 if atom['type'] else 0 #skip ui32 size for 264 atoms
 
 				cFile.seek( int(atom['offset'],16)+preSize )

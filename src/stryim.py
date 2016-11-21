@@ -105,8 +105,6 @@ Requires Sink to be specified
 class MuxFLV():
 # =todo 90 (flv) +0: construct META
 	headMeta= b'\x02\x00\nonMetaData\x08\x00\x00\x00\x0b\x00\x08duration\x00@D=\x91hr\xb0!\x00\x05width\x00@\x9e\x00\x00\x00\x00\x00\x00\x00\x06height\x00@\x90\xe0\x00\x00\x00\x00\x00\x00\rvideodatarate\x00@\xc7\x00\xcd\xe0\x00\x00\x00\x00\tframerate\x00@=\xf6\xff\x825\xd3D\x00\x0cvideocodecid\x00@\x1c\x00\x00\x00\x00\x00\x00\x00\x0bmajor_brand\x02\x00\x04isom\x00\rminor_version\x02\x00\x03512\x00\x11compatible_brands\x02\x00\x10isomiso2avc1mp41\x00\x07encoder\x02\x00\rLavf57.57.100\x00\x08filesize\x00A\x8d5\x11\x10\x00\x00\x00\x00\x00\t'
-# =todo 91 (flv) +0: construct AVCDecoderConfigurationRecord
-	headDCR= b'\x01\x4d\x40\x33\xff\xe1\x00\x34\x27\x4d\x40\x33\x9a\x64\x03\xc0\x11\x3f\x2c\x8c\x04\x04\x05\x00\x00\x03\x03\xe9\x00\x00\xea\x60\xe8\x60\x00\xb7\x18\x00\x02\xdc\x6c\xbb\xcb\x8d\x0c\x00\x16\xe3\x00\x00\x5b\x8d\x97\x79\x70\x78\x44\x22\x52\xc0\x01\x00\x04\x28\xee\x38\x80'
 
 	sink= None
 
@@ -122,8 +120,8 @@ class MuxFLV():
 			return
 
 		self.sink.add(self.header(audio=False))
-		self.sink.add(self.metaTag())
-		self.sink.add(self.videoTag(0,True))
+		self.sink.add(self.dataTag())
+		self.sink.add(self.videoTag(0,True,self.videoDCR()))
 
 
 	def add(self, _atom):
@@ -135,6 +133,9 @@ class MuxFLV():
 			self.sink.add(flvTag)
 
 			self.flvStamp+= self.flvRate
+
+		else:
+			None
 
 
 	def stop(self):
@@ -180,32 +181,29 @@ class MuxFLV():
 	#FLV header: "FLV\x01..."
 	def header(self, video=True, audio=True):
 		video= 1* (video==True)
-		audio= 3* (audio==True)
+		audio= 4* (audio==True)
 
 		return b'\x46\x4c\x56\x01' +bytes([video+audio]) +b'\x00\x00\x00\x09' +b'\x00\x00\x00\x00'
 
 
-	#META tag
-	def metaTag(self):
-		meta= self.tag(18, 0, [self.headMeta])
+	#Data tag
+	def dataTag(self):
+		tagA= self.tag(18, 0, [self.headMeta])
 
-		return b''.join(meta)
+		return b''.join(tagA)
 
 
 	#VIDEODATA
-	def videoTag(self, _type, _key, _data=b'', stamp=0, comptime=0):
-		if _type==0:
-			_data= self.headDCR
-
+	def videoTag(self, _type, _key, _data=b'', stamp=0):
 		dataLen= b''
 		if _type==1:
 			dataLen= len(_data).to_bytes(4, 'big')
 
 
 		avcData= [
-			  bytes([(16 if _key else 32) +7])			#frame type (1=key, 2=not) and codecID (7=avc)
-			, bytes([_type])							#AVCPacketType
-			, (comptime).to_bytes(3, 'big', signed=True)	#Composition time
+			  b'\x17' if _key else b'\x27'	#frame type (1=key, 2=not) and codecID (7=avc)
+			, bytes([_type])				#AVCPacketType
+			, b'\x00\x00\x00'				#Composition time
 			, dataLen
 			, _data
 		]
@@ -216,6 +214,38 @@ class MuxFLV():
 		return b''.join(tagA)
 
 
+
+	#AVCDecoderConfigurationRecord
+	def videoDCR(self):
+		refDCR= b'\x01\x4d\x40\x33\xff\xe1\x00\x34\x27\x4d\x40\x33\x9a\x64\x03\xc0\x11\x3f\x2c\x8c\x04\x04\x05\x00\x00\x03\x03\xe9\x00\x00\xea\x60\xe8\x60\x00\xb7\x18\x00\x02\xdc\x6c\xbb\xcb\x8d\x0c\x00\x16\xe3\x00\x00\x5b\x8d\x97\x79\x70\x78\x44\x22\x52\xc0\x01\x00\x04\x28\xee\x38\x80'
+		
+		nalSz= 4
+		
+#  todo 98 (flv) +0: build SPS and PPS
+		sps= b'\x27\x4d\x40\x33\x9a\x64\x03\xc0\x11\x3f\x2c\x8c\x04\x04\x05\x00\x00\x03\x03\xe9\x00\x00\xea\x60\xe8\x60\x00\xb7\x18\x00\x02\xdc\x6c\xbb\xcb\x8d\x0c\x00\x16\xe3\x00\x00\x5b\x8d\x97\x79\x70\x78\x44\x22\x52\xc0'
+		pps= [b'\x28\xee\x38\x80']
+
+		headDCR= [
+	   		  b'\x01'								#version
+	    	, b'\x4d'								#SPS profile
+	    	, b'\x40'								#SPS compatibility
+	    	, b'\x33'								#SPS level
+	    	, bytes([int('11111100',2) +nalSz-1])	#ff, 6xb reserved, nal-1 size
+	    	, bytes([int('11100000',2) +1])			#e1, 3xb reserved, sps num
+	    	, len(sps).to_bytes(2,'big')			#sps len
+	    	, sps
+			, bytes([ len(pps) ])
+	    ]
+
+		for cPps in pps:
+			headDCR.extend([ len(cPps).to_bytes(2,'big'), cPps ])
+
+
+		dcr= b''.join(headDCR)
+		if dcr!= refDCR:
+			print(dcr, refDCR)
+		
+		return dcr
 
 
 
@@ -277,7 +307,14 @@ class MuxAAC():
 			return
 
 		if not _atom.type: #sound
-			self.sink.add(_atom.data)
+			if len(_atom.data)>2040:
+				kiLog.warn('Too big AAC found, skipped')
+				return
+
+			# -todo 99 (aac) +1: AAC header is reverse-engineered, ensure it is correct
+			aacPre= b'\xff\xf1\x4c\x80' +(len(_atom.data)*32+255).to_bytes(2,'big') +b'\xfc'
+
+			self.sink.add(aacPre +_atom.data)
 
 
 	def stop(self):
@@ -301,7 +338,6 @@ class MuxAAC():
 
 import sublime, sublime_plugin
 from .mp4RecoverExe import *
-from .byteTransit import *
 from .yiListener import *
 from .kiTelnet import *
 from .kiLog import *
@@ -334,7 +370,7 @@ class YiOnCommand(sublime_plugin.TextCommand):
 	def run(self, _edit):
 		kiLog.states(True, True, True)
 		kiLog.states(False, False, True, 'YiListener')
-		kiLog.states(True, True, True, 'mp4RecoverExe')
+		kiLog.states(True, True, True, 'Mp4Recover')
 
 		selfIP= KiTelnet.defaults(address='192.168.42.1')
 
@@ -353,15 +389,13 @@ class YiOnCommand(sublime_plugin.TextCommand):
 			muxH264.add(_atom)
 			muxAAC.add(_atom)
 
-		restoreO= mp4RecoverExe(streamRelay)
-# =todo 95 (bytes) +0: move use of byteTransit inside mp4RecoverExe
-		buffer= byteTransit(restoreO.parse, 1000000)
+		mp4Restore= Mp4Recover(streamRelay)
 		KiYi[0]= YiListener()
 		KiYi[0].start(self.cbConn, self.cbLive)
-		KiYi[0].live(buffer, self.cbAir)
+		KiYi[0].live(mp4Restore.add, self.cbAir)
 
 
-#ast.literal_eval(aa)
+
 class YiOffCommand(sublime_plugin.TextCommand):
 	def run(self, _edit):
 		if not KiYi[0]:
