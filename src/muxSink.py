@@ -1,3 +1,5 @@
+from .kiLog import *
+
 '''
 Mux-suitable sink for sending binary data to file
 '''

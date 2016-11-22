@@ -1,3 +1,5 @@
+from .kiLog import *
+
 '''
 FLV Muxer class
 Requires Sink to be specified
