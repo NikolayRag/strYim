@@ -126,8 +126,8 @@ class Mp4Recover():
 
 
 		matchesA= []
-		lastFrameI= None
-		aacFrame= {}		#interframe aac to collect
+		lastFrameI= None	#Last IDR frame to cut out if not finalize
+		aacFrame= None		#interframe aac to collect
 		for cStr in recoverMeta.decode('ascii').split("\r\n"):
 			mp4Match= self.reMp4Match.match(cStr)
 			if mp4Match:
