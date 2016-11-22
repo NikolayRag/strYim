@@ -143,12 +143,13 @@ class Mp4Recover():
 					if not aacFrame:	#first aac in a row
 						aacFrame= mp4Match
 					else:
-						aacFrame['len']+=  mp4Match['len']
+						aacFrame['len']= hex(int(aacFrame['len'],16)+int(mp4Match['len'],16))
 	
 					continue
 
-				matchesA.append(aacFrame) #flush collected aac prior to h264
-				aacFrame= {}
+				if aacFrame:
+					matchesA.append(aacFrame) #flush collected aac prior to h264
+					aacFrame= None
 
 				matchesA.append(mp4Match)
 
