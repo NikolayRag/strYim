@@ -127,6 +127,7 @@ class Mp4Recover():
 
 		matchesA= []
 		lastFrameI= None
+		aacFrame= {}		#interframe aac to collect
 		for cStr in recoverMeta.decode('ascii').split("\r\n"):
 			mp4Match= self.reMp4Match.match(cStr)
 			if mp4Match:
@@ -137,7 +138,22 @@ class Mp4Recover():
 					self.safePos= mp4Match['offset']
 					lastFrameI= len(matchesA)
 
+# =todo 107 (test, recover) +0: collect all interframe AAC into one
+				if not mp4Match['type']:	#collect aac
+					if not aacFrame:	#first aac in a row
+						aacFrame= mp4Match
+					else:
+						aacFrame['len']+=  mp4Match['len']
+	
+					continue
+
+				matchesA.append(aacFrame) #flush collected aac prior to h264
+				aacFrame= {}
+
 				matchesA.append(mp4Match)
+
+		if aacFrame:
+			matchesA.append(aacFrame) #flush remaining aac after last h264
 
 
 		return matchesA[:lastFrameI]
