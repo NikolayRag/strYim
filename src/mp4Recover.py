@@ -22,7 +22,7 @@ class Mp4Recover():
 	}
 
 
-	reAtom= re.compile('^\s*(?P<atype>H264|AAC):\s+0x(?P<offset>[\dA-F]{8})\s+\[0x\s*(?P<len>[\dA-F]{1,8})\](\s+\{(?P<sign>([\dA-F]{2}\s*)+)\}\s+(?P<type>[A-Z]+)\s+frame)?$')
+	reMp4Match= re.compile('^\s*(?P<atype>H264|AAC):\s+0x(?P<offset>[\dA-F]{8})\s+\[0x\s*(?P<len>[\dA-F]{1,8})\](\s+\{(?P<sign>([\dA-F]{2}\s*)+)\}\s+(?P<type>[A-Z]+)\s+frame)?$')
 	cContext= None
 	cFile= None
 	safePos= 0
@@ -64,28 +64,28 @@ class Mp4Recover():
 	def parse(self, _data, _ctx, _finalize=False):
 		self.checkContext(_ctx)
 		self.holdData(_data)
-		recoverAtoms= self.analyze(_finalize)
+		recoverMatchesA= self.analyze(_finalize)
 
 		firstIDR= 0
-		for atom in recoverAtoms:
-			if atom['type']=='IDR':
+		for match in recoverMatchesA:
+			if match['type']=='IDR':
 				break
 
 			firstIDR+= 1
 
-		kiLog.ok("%d atoms, %d skipped%s" % (len(recoverAtoms)-firstIDR, firstIDR, ', finaly' if _finalize else '') )
+		kiLog.ok("%d matches, %d skipped%s" % (len(recoverMatchesA)-firstIDR, firstIDR, ', finaly' if _finalize else '') )
 
 
 		if callable(self.atomCB):
 			cFile= open(self.cFile, 'rb')
 
-			for atom in recoverAtoms[firstIDR:]:
-				preSize= 4 if atom['type'] else 0 #skip ui32 size for 264 atoms
+			for match in recoverMatchesA[firstIDR:]:
+				preSize= 4 if match['type'] else 0 #skip ui32 size for 264 atoms
 
-				cFile.seek( int(atom['offset'],16)+preSize )
-				restoredData= cFile.read( int(atom['len'],16)-preSize )
+				cFile.seek( int(match['offset'],16)+preSize )
+				restoredData= cFile.read( int(match['len'],16)-preSize )
 
-				self.atomCB( Atom(atom['type'],restoredData) )
+				self.atomCB( Atom(match['type'],restoredData) )
 
 			cFile.close()
 
@@ -125,22 +125,22 @@ class Mp4Recover():
 			recoverMeta= b''
 
 
-		atomsA= []
+		matchesA= []
 		lastFrameI= None
 		for cStr in recoverMeta.decode('ascii').split("\r\n"):
-			mp4Match= self.reAtom.match(cStr)
+			mp4Match= self.reMp4Match.match(cStr)
 			if mp4Match:
 				mp4Match= mp4Match.groupdict()
 
 				#last frame and remaining should be left to next run untill it's not final
 				if not _finalize and mp4Match['type']=='IDR':
 					self.safePos= mp4Match['offset']
-					lastFrameI= len(atomsA)
+					lastFrameI= len(matchesA)
 
-				atomsA.append(mp4Match)
+				matchesA.append(mp4Match)
 
 
-		return atomsA[:lastFrameI]
+		return matchesA[:lastFrameI]
 
 
 
