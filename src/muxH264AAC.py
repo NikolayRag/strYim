@@ -9,10 +9,12 @@ class MuxFLV():
 	flvRate= 1001./30
 	microStamp= 0
 
+	useAudio= True
+
 	sink= None
 
 
-	def __init__(self, _sink, _fps=1001./30):
+	def __init__(self, _sink, fps=1001./30, audio=True):
 		self.frameStamp= 0.
 		self.flvRate= _fps
 		self.microStamp= 0
@@ -23,7 +25,7 @@ class MuxFLV():
 			return
 
 
-		self.useAudio= True
+		self.useAudio= audio
 
 		self.sink.add( self.header(audio=self.useAudio) )
 		self.sink.add( self.dataTag(self.flvMeta(self.useAudio)) )
