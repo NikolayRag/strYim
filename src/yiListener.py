@@ -19,7 +19,8 @@ class YiListener():
 	camMaskRe= re.compile('^(?P<dir>\d\d\d)MEDIA/L(?P<seq>\d\d\d)(?P<num>\d\d\d\d).MP4$')
 
 	liveOldAge= 4 #maximum number of seconds to consider tested file 'live'
-	liveBufferMin= 1000000 #bytes prefetch at file reading start
+	liveTriggerSize= 1000000 #minimum file size to start reading
+	livePrefetch= 15000000 #file shorter than this will be started from 0
 
 	flagLive= False #live switch
 	flagRun= False #global cycle switch
@@ -146,7 +147,7 @@ class YiListener():
 			if (
 				self.flagLive
 				and fileNew
-				and fileNew['size'] > self.liveBufferMin
+				and fileNew['size'] > self.liveTriggerSize
 			):
 				kiLog.ok('ON AIR')
 				callable(self.airCB) and self.airCB(1)
