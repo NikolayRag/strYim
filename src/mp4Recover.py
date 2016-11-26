@@ -49,22 +49,21 @@ class Mp4Recover():
 
 
 	'''
-	Provide raw mp4 data to parse.
+	Provide raw mp4 data to parse in addition to allready provided.
 	Return numer of bytes actually consumed.
 
 		data
 			byte string mp4 data
 
 		context
-			arbitrary identifier of supplied data
+			arbitrary identifier of supplied data to split individual blocks
 
 		final
 			boolean, indicates no more data for this context will be sent (if consumed all).
 	'''
 	def parse(self, _data, _ctx, _finalize=False):
 		self.checkContext(_ctx)
-		self.holdData(_data)
-		recoverMatchesA= self.analyze(_finalize)
+		recoverMatchesA= self.analyze(_data, _finalize)
 
 		firstIDR= 0
 		for match in recoverMatchesA:
@@ -100,7 +99,7 @@ class Mp4Recover():
 
 
 
-
+#  todo 122 (recover, clean) +0: remove after going native
 	def checkContext(self, _ctx):
 		if self.cContext!=_ctx:
 			self.cContext= _ctx
@@ -117,7 +116,9 @@ class Mp4Recover():
 		cFile.close()
 
 
-	def analyze(self, _finalize):
+	def analyze(self, _data, _finalize):
+		self.holdData(_data)
+
 		try:
 			os.chdir('D:/yi/restore/')
 			recoverMeta= subprocess.check_output('recover_mp4_x64.exe "%s" --novideo --noaudio --ambarella --start %s' % (self.cFile, self.safePos), shell=True)
