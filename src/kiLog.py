@@ -6,6 +6,7 @@ class kiLog():
 	#statical collection
 	contexts= {
 		'':{
+			    'verb':[False, 'verb']
 			    'ok':[False, 'log']
 			  , 'warn':[True, 'warning']
 			  , 'err':[True, 'error']
@@ -19,7 +20,8 @@ class kiLog():
 		if not cCtx:
 			defaultCtx= kiLog.contexts['']
 			cCtx= {
-				  'ok': [defaultCtx['ok'][0], str(_ctx)+' '+defaultCtx['ok'][1]]
+				  'verb': [defaultCtx['verb'][0], str(_ctx)+' '+defaultCtx['verb'][1]]
+				, 'ok': [defaultCtx['ok'][0], str(_ctx)+' '+defaultCtx['ok'][1]]
 				, 'warn': [defaultCtx['warn'][0], str(_ctx)+' '+defaultCtx['warn'][1]]
 				, 'err': [defaultCtx['err'][0], str(_ctx)+' '+defaultCtx['err'][1]]
 			}
@@ -31,11 +33,13 @@ class kiLog():
 
 
 	@staticmethod
-	def prefixes(_pfxOk=None, _pfxWarn=None, _pfxErr=None, _prefix=False):
+	def prefixes(_pfxVerb=None, _pfxOk=None, _pfxWarn=None, _pfxErr=None, _prefix=False):
 		if not _prefix:
 			_prefix= kiLog.caller()
 		cCtx= kiLog.getCtx(_prefix, True)
 
+		if _pfxVerb!=None:
+			cCtx['verb'][1]= str(_pfxVerb)
 		if _pfxOk!=None:
 			cCtx['ok'][1]= str(_pfxOk)
 		if _pfxWarn!=None:
@@ -47,11 +51,13 @@ class kiLog():
 
 
 	@staticmethod
-	def states(_stateOk=None, _stateWarn=None, _stateErr=None, _prefix=False):
+	def states(_stateVerb=None, _stateOk=None, _stateWarn=None, _stateErr=None, _prefix=False):
 		if not _prefix:
 			_prefix= kiLog.caller()
 		cCtx= kiLog.getCtx(_prefix, True)
 
+		if _stateVerb!=None:
+			cCtx['verb'][0]= not not _stateVerb
 		if _stateOk!=None:
 			cCtx['ok'][0]= not not _stateOk
 		if _stateWarn!=None:
@@ -62,6 +68,10 @@ class kiLog():
 		return cCtx
 
 
+
+	@staticmethod
+	def verb(_msg):
+		kiLog.printOut('verb', kiLog.caller(), _msg)
 
 	@staticmethod
 	def ok(_msg):
