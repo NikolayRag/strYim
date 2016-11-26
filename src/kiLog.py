@@ -51,19 +51,19 @@ class kiLog():
 
 
 	@staticmethod
-	def states(_stateVerb=None, _stateOk=None, _stateWarn=None, _stateErr=None, _prefix=False):
+	def states(_prefix=False, verb=None, ok=None, warn=None, err=None):
 		if not _prefix:
 			_prefix= kiLog.caller()
 		cCtx= kiLog.getCtx(_prefix, True)
 
-		if _stateVerb!=None:
-			cCtx['verb'][0]= not not _stateVerb
-		if _stateOk!=None:
-			cCtx['ok'][0]= not not _stateOk
-		if _stateWarn!=None:
-			cCtx['warn'][0]= not not _stateWarn
-		if _stateErr!=None:
-			cCtx['err'][0]= not not _stateErr
+		if verb!=None:
+			cCtx['verb'][0]= not not verb
+		if ok!=None:
+			cCtx['ok'][0]= not not ok
+		if warn!=None:
+			cCtx['warn'][0]= not not warn
+		if err!=None:
+			cCtx['err'][0]= not not err
 
 		return cCtx
 

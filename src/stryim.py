@@ -45,7 +45,7 @@ class YiOnCommand(sublime_plugin.TextCommand):
 
 
 	def run(self, _edit):
-		kiLog.states(True, True, True)
+		kiLog.states(verb=True, ok=True)
 
 		selfIP= KiTelnet.defaults(address='192.168.42.1')
 
