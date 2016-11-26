@@ -8,13 +8,14 @@ from .kiTelnet import *
 from .kiLog import *
 
 
-KiYi= [None, None, None, None, None]
+yiApp= [None] #instance of yiListener
+
 
 '''
 YiOn/Off commands are used to test Stryim in Sublime, `coz its lazy to set up running environment.
 '''
 class YiOnCommand(sublime_plugin.TextCommand):
-	
+	muxers= []	
 
 # =todo 94 (app) +2: handle start-stops
 	def cbConn(self, _mode):
@@ -34,32 +35,45 @@ class YiOnCommand(sublime_plugin.TextCommand):
 
 	def run(self, _edit):
 		kiLog.states(True, True, True)
-		kiLog.states(False, False, True, 'YiListener')
-		kiLog.states(True, True, True, 'Mp4Recover')
 
 		selfIP= KiTelnet.defaults(address='192.168.42.1')
 
-		if KiYi[0]:
+		if yiApp[0]:
 			kiLog.warn('Already')
 			return
 
-		
+		self.muxers= []
 
-		muxFlash= KiYi[2]= MuxFLV(SinkRTMP('rtmp://a.rtmp.youtube.com/live2/'))
-		mp4Restore= Mp4Recover(muxFlash.add)
-		KiYi[0]= YiListener()
-		KiYi[0].start(self.cbConn, self.cbLive)
-		KiYi[0].live(mp4Restore.add, self.cbAir)
+#		self.muxers.append( MuxFLV(SinkTCP(1234), audio=False) )
+#		self.muxers.append( MuxAAC(SinkTCP(2345)) )
+		self.muxers.append( MuxFLV(SinkFile('D:\\yi\\restore\\stryim\\L.flv'), fps=30000/1001, audio=True, bps=15200) )
+#		self.muxers.append( MuxAAC(SinkFile('D:\\yi\\restore\\stryim\\L.aac')) )
+
+
+		def muxRelay(data):
+			for cMux in self.muxers:
+				cMux.add(data)
+		mp4Restore= Mp4Recover(muxRelay)
+
+
+		yiApp[0]= YiListener()
+
+		def muxDie():
+			for cMux in self.muxers:
+				cMux.stop()
+
+			kiLog.ok('off')
+
+		yiApp[0].start(self.cbConn, self.cbLive, muxDie)
+		yiApp[0].live(mp4Restore.add, self.cbAir)
 
 
 
 class YiOffCommand(sublime_plugin.TextCommand):
 	def run(self, _edit):
-		if not KiYi[0]:
+		if not yiApp[0]:
 			kiLog.warn('Already')
 			return
 
-		KiYi[0].stop()
-		KiYi[0]= None
-
-		KiYi[2].stop()
+		yiApp[0].stop()
+		yiApp[0]= None
