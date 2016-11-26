@@ -1,3 +1,5 @@
+from .kiLog import *
+
 '''
 Mux-suitable sink for sending binary data to file
 '''
@@ -16,10 +18,44 @@ class SinkFile():
 
 
 
+
+'''
+Mux-suitable sink for sending binary data to TCP
+'''
+# -todo 118 (sink) +0: make SinkTCP nonblocking, stream-based
+class SinkTCP():
+	cSocket= None
+
+	def __init__(self, port, ip='127.0.0.1'):
+		self.cSocket= socket.create_connection((ip,port))
+
+		kiLog.ok('Connected to %s, %d' % (ip,port))
+
+
+	def add(self, _data):
+		if not self.cSocket:
+			return
+
+		try:
+			self.cSocket.sendall(_data)
+
+		except:
+			kiLog.err('Socket error')
+
+
+	def close(self):
+		if self.cSocket:
+			self.cSocket.close()
+			self.cSocket= None
+
+
+
+
 '''
 Mux-suitable sink for sending binary data to RTMP
 '''
 import subprocess, threading, socket
+# -todo 119 (sink) +0: make SinkRTMP nonblocking, stream-based
 class SinkRTMP():
 	rtmp= ''
 
@@ -64,7 +100,7 @@ class SinkRTMP():
 	def serverInit(self, _ffport):
 #  todo 104 (clean, release) +0: use 'current' folder for release and hide ffmpeg
 #  todo 105 (sink, unsure) -1: hardcode RTMP protocol
-		subprocess.call('D:/yi/restore/ff/ffmpeg -re -i tcp://127.0.0.1:%d?listen -c copy -f flv %s' % (_ffport, self.rtmp), shell=False)
+		subprocess.call('D:/yi/restore/ff/ffmpeg =i tcp://127.0.0.1:%d?listen -c copy -f flv %s' % (_ffport, self.rtmp), shell=False)
 
 
 	def tcpInit(self, _ffport):

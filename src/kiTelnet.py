@@ -252,7 +252,7 @@ class KiTelnet():
 #  todo 8 (telnet) +0: check for timeout
 	):
 
-		tcpTimein= threading.Timer(_timeIn, self.tcpSock.close)
+		tcpTimein= threading.Timer(_timeIn, self.tcpSock.close) #this will raise exception for unresponsive tcpSock
 		tcpTimein.start()
 
 		try:

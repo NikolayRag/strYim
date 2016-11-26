@@ -107,7 +107,7 @@
 +flv 93: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/11/19 08:23:59
 	make data flow without overhead
 
-=app 94: +2 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/11/19 08:24:30
++app 94: +2 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/11/26 06:40:45
 	handle start-stops
 
 +bytes 95: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\mp4RecoverExe.py" user 16/11/21 01:57:58
@@ -116,8 +116,8 @@
 -flv 98: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/11/21 06:22:57
 	build SPS and PPS
 
--aac 99: +1 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/11/21 00:50:01
-	AAC header is reverse-engineered, ensure it is correct
+!aac 99: +1 "" user 16/11/23 03:54:25
+	become todo 108
 
 !aac 100: +0 "" user 16/11/20 15:04:38
 	redundant
@@ -134,5 +134,26 @@
  sink, unsure 105: -1 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/11/21 08:35:13
 	hardcode RTMP protocol
 
++test, recover 107: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\mp4Recover.py" user 16/11/26 06:37:00
+	collect all interframe AAC into one
 
-Reserved: 106
+ aac 108: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\muxH264AAC.py" user 16/11/22 22:40:27
+	write (optional) ADTS header
+
+-read, cam 114: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\yiListener.py" user 16/11/25 03:26:03
+	define maximum read block
+
+-mux, flv, bytes, aac 117: +2 "..\..\Application Data\Sublime Text 3\Packages\stryim\muxH264AAC.py" user 16/11/26 06:18:17
+	reveal actual AAC frame length
+
+-sink 118: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\muxSink.py" user 16/11/26 06:20:42
+	make SinkTCP nonblocking, stream-based
+
+-sink 119: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\muxSink.py" user 16/11/26 06:21:34
+	make SinkRTMP nonblocking, stream-based
+
+ ui 120: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/11/26 06:44:04
+	add ui
+
+
+Reserved: 121

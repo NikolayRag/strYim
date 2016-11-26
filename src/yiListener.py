@@ -19,7 +19,8 @@ class YiListener():
 	camMaskRe= re.compile('^(?P<dir>\d\d\d)MEDIA/L(?P<seq>\d\d\d)(?P<num>\d\d\d\d).MP4$')
 
 	liveOldAge= 4 #maximum number of seconds to consider tested file 'live'
-	liveBufferMin= 1000000 #bytes prefetch at file reading start
+	liveTriggerSize= 1000000 #minimum file size to start reading
+	livePrefetch= 15000000 #file shorter than this will be started from 0
 
 	flagLive= False #live switch
 	flagRun= False #global cycle switch
@@ -53,13 +54,14 @@ class YiListener():
 				-1
 					camera stops shooting
 	'''
-	def start(self, _connectCB=None, _liveCB=None):
+	def start(self, _connectCB=None, _liveCB=None, _deadCB= None):
 		if self.flagRun:
 			kiLog.warn('Already running')
 			return
 
 		self.connectCB= _connectCB
 		self.liveCB= _liveCB
+		self.deadCB= _deadCB
 		self.flagRun= True
 
 		threading.Timer(0, self.check).start()
@@ -67,6 +69,7 @@ class YiListener():
 
 	def stop(self):
 		self.dead()
+
 		self.flagRun= False
 
 
@@ -144,7 +147,7 @@ class YiListener():
 			if (
 				self.flagLive
 				and fileNew
-				and fileNew['size'] > self.liveBufferMin
+				and fileNew['size'] > self.liveTriggerSize
 			):
 				kiLog.ok('ON AIR')
 				callable(self.airCB) and self.airCB(1)
@@ -163,6 +166,9 @@ class YiListener():
 
 
 		kiLog.ok('stop')
+
+		callable(self.deadCB) and self.deadCB()
+
 
 
 
@@ -185,13 +191,14 @@ class YiListener():
 
 
 		fName= self.buildName(fParts)
-		fPos= _file['size'] -self.liveBufferMin
+		fPos= max( _file['size']-self.livePrefetch, 0)
 
 #  todo 33 (read, cam) +0: detect buffer overrun
 #  todo 34 (read, cam) +0: detect buffer underrun
 		while True:
 			kiLog.ok('Read %s from %d ...' % (fName, fPos))
 			while True:
+# -todo 114 (read, cam) +0: define maximum read block
 				if not self.flagLive:
 					kiLog.warn("... stop at %d" % fPos)
 					return True #stopped by demand

@@ -50,3 +50,5 @@ stryim.do
 *.sublime-workspace
 *.sublime-commands
 inploy.bat
+gitk.exe
+src/tmp.py
