@@ -198,6 +198,7 @@ class YiListener():
 		while True:
 			kiLog.ok('Read %s from %d ...' % (fName, fPos))
 			while True:
+# -todo 114 (read, cam) +0: define maximum read block
 				if not self.flagLive:
 					kiLog.warn("... stop at %d" % fPos)
 					return True #stopped by demand

@@ -22,6 +22,7 @@ class SinkFile():
 '''
 Mux-suitable sink for sending binary data to TCP
 '''
+# -todo 118 (sink) +0: make SinkTCP nonblocking, stream-based
 class SinkTCP():
 	cSocket= None
 
@@ -54,6 +55,7 @@ class SinkTCP():
 Mux-suitable sink for sending binary data to RTMP
 '''
 import subprocess, threading, socket
+# -todo 119 (sink) +0: make SinkRTMP nonblocking, stream-based
 class SinkRTMP():
 	rtmp= ''
 

@@ -1,3 +1,4 @@
+#  todo 120 (ui) +0: add ui
 
 import sublime, sublime_plugin
 from .muxSink import *
@@ -17,14 +18,16 @@ YiOn/Off commands are used to test Stryim in Sublime, `coz its lazy to set up ru
 class YiOnCommand(sublime_plugin.TextCommand):
 	muxers= []	
 
-# =todo 94 (app) +2: handle start-stops
+
 	def cbConn(self, _mode):
 		kiLog.ok('Connected' if _mode else 'Disconnected')
+
 	def cbLive(self, _mode):
 		if _mode==1:
 			kiLog.ok('Live')
 		if _mode==-1:
 			kiLog.ok('Dead')
+	
 	def cbAir(self, _mode):
 		if _mode==1:
 			kiLog.warn('Air On')

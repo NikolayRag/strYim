@@ -76,7 +76,7 @@ class MuxFLV():
 
 		return int(stampOut)
 
-
+# -todo 117 (mux, flv, bytes, aac) +2: reveal actual AAC frame length
 	def stampA(self, _bytes):
 		if self.stampAudio < self.stampVideo:
 			kiLog.warn('Audio stamp underrun %dsec' % self.stampVideo-self.stampAudio)

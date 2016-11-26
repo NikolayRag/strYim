@@ -138,7 +138,7 @@ class Mp4Recover():
 					self.safePos= mp4Match['offset']
 					lastFrameI= len(matchesA)
 
-# =todo 107 (test, recover) +0: collect all interframe AAC into one
+				#collect interframe AAC as one (to be changed?)
 				if not mp4Match['type']:	#collect aac
 					if not aacFrame:	#first aac in a row
 						aacFrame= mp4Match
