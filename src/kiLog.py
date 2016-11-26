@@ -33,19 +33,19 @@ class kiLog():
 
 
 	@staticmethod
-	def prefixes(_pfxVerb=None, _pfxOk=None, _pfxWarn=None, _pfxErr=None, _prefix=False):
+	def prefixes(_prefix=False, verb=None, ok=None, warn=None, err=None):
 		if not _prefix:
 			_prefix= kiLog.caller()
 		cCtx= kiLog.getCtx(_prefix, True)
 
-		if _pfxVerb!=None:
-			cCtx['verb'][1]= str(_pfxVerb)
-		if _pfxOk!=None:
-			cCtx['ok'][1]= str(_pfxOk)
-		if _pfxWarn!=None:
-			cCtx['warn'][1]= str(_pfxWarn)
-		if _pfxErr!=None:
-			cCtx['err'][1]= str(_pfxErr)
+		if verb!=None:
+			cCtx['verb'][1]= str(verb)
+		if ok!=None:
+			cCtx['ok'][1]= str(ok)
+		if warn!=None:
+			cCtx['warn'][1]= str(warn)
+		if err!=None:
+			cCtx['err'][1]= str(err)
 
 		return cCtx
 
