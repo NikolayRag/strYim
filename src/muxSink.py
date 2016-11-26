@@ -18,6 +18,38 @@ class SinkFile():
 
 
 
+
+'''
+Mux-suitable sink for sending binary data to TCP
+'''
+class SinkTCP():
+	cSocket= None
+
+	def __init__(self, port, ip='127.0.0.1'):
+		self.cSocket= socket.create_connection((ip,port))
+
+		kiLog.ok('Connected to %s, %d' % (ip,port))
+
+
+	def add(self, _data):
+		if not self.cSocket:
+			return
+
+		try:
+			self.cSocket.sendall(_data)
+
+		except:
+			kiLog.err('Socket error')
+
+
+	def close(self):
+		if self.cSocket:
+			self.cSocket.close()
+			self.cSocket= None
+
+
+
+
 '''
 Mux-suitable sink for sending binary data to RTMP
 '''
