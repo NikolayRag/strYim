@@ -98,7 +98,7 @@ class SinkRTMP():
 	def serverInit(self, _ffport):
 #  todo 104 (clean, release) +0: use 'current' folder for release and hide ffmpeg
 #  todo 105 (sink, unsure) -1: hardcode RTMP protocol
-		subprocess.call('D:/yi/restore/ff/ffmpeg -re -i tcp://127.0.0.1:%d?listen -c copy -f flv %s' % (_ffport, self.rtmp), shell=False)
+		subprocess.call('D:/yi/restore/ff/ffmpeg =i tcp://127.0.0.1:%d?listen -c copy -f flv %s' % (_ffport, self.rtmp), shell=False)
 
 
 	def tcpInit(self, _ffport):
