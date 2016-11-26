@@ -33,6 +33,14 @@ class YiOnCommand(sublime_plugin.TextCommand):
 		if _mode==-1:
 			kiLog.err('Air bad')
 
+	def cbDie(self):
+		for cMux in self.muxers:
+			cMux.stop()
+
+		kiLog.ok('off')
+
+
+
 	def run(self, _edit):
 		kiLog.states(True, True, True)
 
@@ -57,14 +65,7 @@ class YiOnCommand(sublime_plugin.TextCommand):
 
 
 		yiApp[0]= YiListener()
-
-		def muxDie():
-			for cMux in self.muxers:
-				cMux.stop()
-
-			kiLog.ok('off')
-
-		yiApp[0].start(self.cbConn, self.cbLive, muxDie)
+		yiApp[0].start(self.cbConn, self.cbLive, self.cbDie)
 		yiApp[0].live(mp4Restore.add, self.cbAir)
 
 
