@@ -53,13 +53,14 @@ class YiListener():
 				-1
 					camera stops shooting
 	'''
-	def start(self, _connectCB=None, _liveCB=None):
+	def start(self, _connectCB=None, _liveCB=None, _deadCB= None):
 		if self.flagRun:
 			kiLog.warn('Already running')
 			return
 
 		self.connectCB= _connectCB
 		self.liveCB= _liveCB
+		self.deadCB= _deadCB
 		self.flagRun= True
 
 		threading.Timer(0, self.check).start()
@@ -67,6 +68,7 @@ class YiListener():
 
 	def stop(self):
 		self.dead()
+
 		self.flagRun= False
 
 
@@ -164,6 +166,9 @@ class YiListener():
 
 		kiLog.ok('stop')
 
+		callable(self.deadCB) and self.deadCB()
+
+
 
 
 
@@ -185,7 +190,7 @@ class YiListener():
 
 
 		fName= self.buildName(fParts)
-		fPos= _file['size'] -self.liveBufferMin
+		fPos= max( _file['size']-self.livePrefetch, 0)
 
 #  todo 33 (read, cam) +0: detect buffer overrun
 #  todo 34 (read, cam) +0: detect buffer underrun
