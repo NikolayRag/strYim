@@ -155,5 +155,8 @@
  ui 120: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/11/26 06:44:04
 	add ui
 
++log 121: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiLog.py" user 16/11/26 15:28:27
+	add 'verb' level and .verb()
 
-Reserved: 121
+
+Reserved: 122
