@@ -5,19 +5,23 @@ FLV Muxer class
 Requires Sink to be specified
 '''
 class MuxFLV():
-	frameStamp= 0.
-	flvRate= 1001./30
-	microStamp= 0
+	stampVideo= 0.
+	rateVideo= 1000./ (30000./1001) #29.97
+	stampAudio= 0
+	rateAudio= 1000./15200
 
 	useAudio= True
 
 	sink= None
 
 
-	def __init__(self, _sink, fps=1001./30, audio=True):
-		self.frameStamp= 0.
-		self.flvRate= _fps
-		self.microStamp= 0
+	def __init__(self, _sink, fps=None, audio=True, bps=None):
+		self.stampVideo= 0.
+		if fps:
+			self.rateVideo= 1000./fps
+		self.stampAudio= 0
+		if bps:
+			self.rateAudio= 1000./bps
 
 		self.sink= _sink
 
@@ -38,11 +42,11 @@ class MuxFLV():
 			return
 
 		if _atom.type!=None: #not sound
-			flvTag= self.videoTag(1,_atom.type=='IDR', _atom.data, self.stamp(True))
+			flvTag= self.videoTag(1,_atom.type=='IDR', _atom.data, self.stampV())
 			self.sink.add(flvTag)
 
 		elif self.useAudio:
-			flvTag= self.audioTag(1, _atom.data, self.stamp())
+			flvTag= self.audioTag(1, _atom.data, self.stampA( len(_atom.data) ))
 			self.sink.add(flvTag)
 
 
@@ -50,7 +54,7 @@ class MuxFLV():
 		if not self.sink:
 			return
 
-		self.sink.add( self.videoTag(2,True,stamp=self.stamp()) )
+		self.sink.add( self.videoTag(2,True,stamp=self.stampV()) )
 		self.sink.close()
 
 		self.sink= None
@@ -61,19 +65,27 @@ class MuxFLV():
 
 	'''
 	Return miliseconds corresponding to current timestamp, incrementing by one for virtually same stamp.
-	_nextFrame switches to next fps-based value.
 	'''
-	def stamp(self, _nextFrame=False):
-		stampOut= self.microStamp
+	def stampV(self):
+		if self.stampVideo < self.stampAudio:
+			kiLog.warn('Video stamp underrun %dsec' % self.stampAudio-self.stampVideo)
 
-		self.microStamp+= 1
-		
-		if _nextFrame:
-			self.frameStamp+= self.flvRate
-			self.microStamp= max( self.microStamp, int(self.frameStamp) )
 
-		return stampOut
+		stampOut= self.stampVideo
+		self.stampVideo+= self.rateVideo
 
+		return int(stampOut)
+
+
+	def stampA(self, _bytes):
+		if self.stampAudio < self.stampVideo:
+			kiLog.warn('Audio stamp underrun %dsec' % self.stampVideo-self.stampAudio)
+
+
+		stampOut= self.stampAudio
+		self.stampAudio+= self.rateAudio *_bytes
+
+		return int(stampOut)
 
 
 	#FLVTAG, size ended
