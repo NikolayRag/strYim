@@ -19,7 +19,7 @@ class MuxFLV():
 		self.stampVideo= 0.
 		if fps:
 			self.rateVideo= 1000./fps
-		self.stampAudio= 0
+		self.stampAudio= 0.
 		if bps:
 			self.rateAudio= 1000./bps
 
