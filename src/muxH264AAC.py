@@ -46,6 +46,10 @@ class MuxFLV():
 			self.sink.add(flvTag)
 
 		elif self.useAudio:
+			if len(_atom.data)>2040:
+				kiLog.warn('Too big AAC found, skipped: %d' % len(_atom.data))
+				return
+
 			flvTag= self.audioTag(1, _atom.data, self.stampA( len(_atom.data) ))
 			self.sink.add(flvTag)
 
