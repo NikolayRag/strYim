@@ -84,16 +84,16 @@ class Mp4Recover():
 	If called subsequently on growing stream, 2nd and next call's data[0] will point to IDR.
 	'''
 	def analyzeMp4(self, _data):
-		searchSignMoov= b'\x6d\x6f\x6f\x76'
-		searchSignA= [b'\x25\xb8\x01\x00', b'\x21\xe0\x10\x11', b'\x21\xe0\x20\x21', b'\x21\xe0\x30\x31', b'\x21\xe0\x40\x41', b'\x21\xe0\x50\x51', b'\x21\xe0\x60\x61', b'\x21\xe0\x70\x71']
-		searchSignI= 0
+		signMoov= b'\x6d\x6f\x6f\x76'
+		signA= [b'\x25\xb8\x01\x00', b'\x21\xe0\x10\x11', b'\x21\xe0\x20\x21', b'\x21\xe0\x30\x31', b'\x21\xe0\x40\x41', b'\x21\xe0\x50\x51', b'\x21\xe0\x60\x61', b'\x21\xe0\x70\x71']
+		signI= 0
 
 		foundPos= 3 #will start at 4, to allow [0:4] bytes be frame size
 		lastKFrame= None	#Last IDR frame to cut out if not finalize
 		matchesA= []
 		while True:
-			#AVC frame first
-			foundPos= _data.find(searchSignA[searchSignI], foundPos+1)
+			#AVC frame first, should end up with AAC or MOOV
+			foundPos= _data.find(signA[signI], foundPos+1)
 			if foundPos==-1:
 				break
 
@@ -107,7 +107,7 @@ class Mp4Recover():
 #				lastKFrame= len(matchesA)
 
 
-			matchesA.append(foundPos)
+			matchesA.append(_data[foundPos+foundLen])
 
 
 
@@ -124,7 +124,7 @@ import sublime, sublime_plugin
 
 class YiTestCommand(sublime_plugin.TextCommand):
 	def run(self, _edit):
-		f= open('D:/yi/restore/stryim/j-L.MP4', 'rb')
+		f= open('e:/yi/L0010840.MP4', 'rb')
 		b= f.read()
 		f.close()
 
