@@ -1,10 +1,11 @@
-import subprocess, tempfile, os, re
+import subprocess, tempfile, re
 
 from .byteTransit import *
 from .kiLog import *
 
 
 class Atom():
+# -todo 124 (recover, mp4) +0: change Atom fields to data plus atom-specific structures
 	type= None
 	data= None
 
@@ -22,29 +23,24 @@ class Mp4Recover():
 	}
 
 
-	reMp4Match= re.compile('^\s*(?P<atype>H264|AAC):\s+0x(?P<offset>[\dA-F]{8})\s+\[0x\s*(?P<len>[\dA-F]{1,8})\](\s+\{(?P<sign>([\dA-F]{2}\s*)+)\}\s+(?P<type>[A-Z]+)\s+frame)?$')
-	cContext= None
-	cFile= None
-	safePos= 0
-
 	transit= None
-
-	atomCB=None
+	atomCB= 	None
 
 
 	def __init__(self, _atomCB):
-		self.transit= byteTransit(self.parse, 1000000)
+		self.transit= byteTransit(self.atomsFromRaw, 500000)
 
 
 		self.atomCB= _atomCB
 
 		if callable(self.atomCB):
-			self.atomCB( Atom('IDR',self.h264Presets[(1080,30,0)]) )
-			self.atomCB( Atom('IDR',self.h264Presets[-1]) )
+			self.atomCB( Atom('IDR', self.h264Presets[(1080,30,0)]) )
+			self.atomCB( Atom('IDR', self.h264Presets[-1]) )
 		
 
 	def add(self, _data, _ctx=None):
 		self.transit.add(_data, _ctx)
+
 
 
 
@@ -53,112 +49,83 @@ class Mp4Recover():
 	Return numer of bytes actually consumed.
 
 		data
-			byte string mp4 data
+			.mp4 byte stream data
 
-		context
-			arbitrary identifier of supplied data to split individual blocks
-
-		final
+		finalize
 			boolean, indicates no more data for this context will be sent (if consumed all).
 	'''
-	def parse(self, _data, _ctx, _finalize=False):
-		self.checkContext(_ctx)
-		recoverMatchesA= self.analyze(_data, _finalize)
+# -todo 123 (clean) +0: remove ctx arg
+	def atomsFromRaw(self, _data, _ctx, _finalize=False):
+		recoverMatchesA= self.analyzeMp4(_data)
 
-		firstIDR= 0
+
+		kiLog.ok("%d matches" % len(recoverMatchesA))
+
+
+		dataCosumed= 0
 		for match in recoverMatchesA:
-			if match['type']=='IDR':
+			restoredData= _data[ match['offset'] : match['len'] ]
+			self.atomCB( Atom(match['type'],restoredData) )
+
+			dataCosumed= match['offset'] +match['len']
+
+
+		return dataCosumed
+
+
+
+	'''
+	Search .mp4 bytes for 264 and aac frames.
+	Return Atom() array.
+	
+	First frame searched is IDR (Key frame).
+	Last frame is the one before last found IDR frame, or before MOOV atom if found.
+
+	If called subsequently on growing stream, 2nd and next call's data[0] will point to IDR.
+	'''
+	def analyzeMp4(self, _data):
+		searchSignMoov= b'\x6d\x6f\x6f\x76'
+		searchSignA= [b'\x25\xb8\x01\x00', b'\x21\xe0\x10\x11', b'\x21\xe0\x20\x21', b'\x21\xe0\x30\x31', b'\x21\xe0\x40\x41', b'\x21\xe0\x50\x51', b'\x21\xe0\x60\x61', b'\x21\xe0\x70\x71']
+		searchSignI= 0
+
+		foundPos= 3 #will start at 4, to allow [0:4] bytes be frame size
+		lastKFrame= None	#Last IDR frame to cut out if not finalize
+		matchesA= []
+		while True:
+			#AVC frame first
+			foundPos= _data.find(searchSignA[searchSignI], foundPos+1)
+			if foundPos==-1:
 				break
 
-			firstIDR+= 1
-
-		kiLog.ok("%d matches, %d skipped%s" % (len(recoverMatchesA)-firstIDR, firstIDR, ', finaly' if _finalize else '') )
-
-
-		if callable(self.atomCB):
-			cFile= open(self.cFile, 'rb')
-
-			for match in recoverMatchesA[firstIDR:]:
-				preSize= 4 if match['type'] else 0 #skip ui32 size for 264 atoms
-
-				cFile.seek( int(match['offset'],16)+preSize )
-				restoredData= cFile.read( int(match['len'],16)-preSize )
-
-				self.atomCB( Atom(match['type'],restoredData) )
-
-			cFile.close()
+			foundLen= int.from_bytes(_data[foundPos-4:foundPos], 'big')
 
 
 
-		#clean
-		if _finalize and self.cFile:
-			os.remove(self.cFile)
+			#last frame and remaining should be left to next run untill it's not final
+#			if not _finalize and mp4Match['type']=='IDR':
+#				self.safePos= mp4Match['offset']
+#				lastKFrame= len(matchesA)
 
 
-		return len(_data) #all been consumed
-
-
-
-#  todo 122 (recover, clean) +0: remove after going native
-	def checkContext(self, _ctx):
-		if self.cContext!=_ctx:
-			self.cContext= _ctx
-			cFile= tempfile.NamedTemporaryFile(delete=False)
-			self.cFile= cFile.name
-			cFile.close()
-
-			self.safePos= '0'
-
-
-	def holdData(self, _data):
-		cFile= open(self.cFile, 'ab')
-		cFile.write(_data)
-		cFile.close()
-
-
-	def analyze(self, _data, _finalize):
-		self.holdData(_data)
-
-		try:
-			os.chdir('D:/yi/restore/')
-			recoverMeta= subprocess.check_output('recover_mp4_x64.exe "%s" --novideo --noaudio --ambarella --start %s' % (self.cFile, self.safePos), shell=True)
-		except:
-			recoverMeta= b''
-
-
-		matchesA= []
-		lastFrameI= None	#Last IDR frame to cut out if not finalize
-		aacFrame= None		#interframe aac to collect
-		for cStr in recoverMeta.decode('ascii').split("\r\n"):
-			mp4Match= self.reMp4Match.match(cStr)
-			if mp4Match:
-				mp4Match= mp4Match.groupdict()
-
-				#last frame and remaining should be left to next run untill it's not final
-				if not _finalize and mp4Match['type']=='IDR':
-					self.safePos= mp4Match['offset']
-					lastFrameI= len(matchesA)
-
-				#collect interframe AAC as one (to be changed?)
-				if not mp4Match['type']:	#collect aac
-					if not aacFrame:	#first aac in a row
-						aacFrame= mp4Match
-					else:
-						aacFrame['len']= hex(int(aacFrame['len'],16)+int(mp4Match['len'],16))
-	
-					continue
-
-				if aacFrame:
-					matchesA.append(aacFrame) #flush collected aac prior to h264
-					aacFrame= None
-
-				matchesA.append(mp4Match)
-
-		if aacFrame:
-			matchesA.append(aacFrame) #flush remaining aac after last h264
-
-
-		return matchesA[:lastFrameI]
+			matchesA.append(foundPos)
 
 
 
+		return matchesA[:lastKFrame]
+
+
+
+
+
+
+
+
+import sublime, sublime_plugin
+
+class YiTestCommand(sublime_plugin.TextCommand):
+	def run(self, _edit):
+		f= open('D:/yi/restore/stryim/j-L.MP4', 'rb')
+		b= f.read()
+		f.close()
+
+		print( Mp4Recover(None).analyzeMp4(b) )
