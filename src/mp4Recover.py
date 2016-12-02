@@ -85,20 +85,45 @@ class Mp4Recover():
 	'''
 	def analyzeMp4(self, _data):
 		signMoov= b'\x6d\x6f\x6f\x76'
+		signAAC= b'21' #aac
 		signA= [b'\x25\xb8\x01\x00', b'\x21\xe0\x10\x11', b'\x21\xe0\x20\x21', b'\x21\xe0\x30\x31', b'\x21\xe0\x40\x41', b'\x21\xe0\x50\x51', b'\x21\xe0\x60\x61', b'\x21\xe0\x70\x71']
 		signI= 0
 
-		foundPos= 3 #will start at 4, to allow [0:4] bytes be frame size
+		foundBegin= 3 #will start at 4, to allow [0:4] bytes be frame size
 		lastKFrame= None	#Last IDR frame to cut out if not finalize
 		matchesA= []
+		'''
+		search: Key AVC, [AVC|AAC|MOOV], ...
+		'''
 		while True:
 			#AVC frame first, should end up with AAC or MOOV
-			foundPos= _data.find(signA[signI], foundPos+1)
-			if foundPos==-1:
+			foundBegin= _data.find(signA[signI], foundBegin+1)
+			if foundBegin==-1:
 				break
 
-			foundLen= int.from_bytes(_data[foundPos-4:foundPos], 'big')
+			foundLen= int.from_bytes(_data[foundBegin-4:foundBegin], 'big')
+			foundEnd= foundBegin+foundLen
+			if foundEnd>len(_data): #false positive
+				continue
 
+
+			nextSignI= signI +1
+			if nextSignI==len(signA):
+				nextSignI= 0
+
+
+			assumeAACNext= _data[foundEnd]==signAAC
+			if not assumeAACNext:	#assumed not AAC found, must be AVC|MOOV then
+				if (
+					_data[foundEnd+4:foundEnd+8]!=signA[nextSignI]
+					and _data[foundEnd+4:foundEnd+8]!= signMoov
+				):
+					continue	#false positive
+
+
+			#AVC was found
+
+			matchesA.append({'in':foundBegin, 'out':foundEnd, 'type':'IDR' if not signA else 'P'})
 
 
 			#last frame and remaining should be left to next run untill it's not final
@@ -107,7 +132,6 @@ class Mp4Recover():
 #				lastKFrame= len(matchesA)
 
 
-			matchesA.append(_data[foundPos+foundLen])
 
 
 
