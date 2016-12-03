@@ -88,54 +88,63 @@ class Mp4Recover():
 		signAAC= b'21' #aac
 		signA= [b'\x25\xb8\x01\x00', b'\x21\xe0\x10\x11', b'\x21\xe0\x20\x21', b'\x21\xe0\x30\x31', b'\x21\xe0\x40\x41', b'\x21\xe0\x50\x51', b'\x21\xe0\x60\x61', b'\x21\xe0\x70\x71']
 		signI= 0
+		nextSignI= 1 #cached version
 
-		foundBegin= 3 #will start at 4, to allow [0:4] bytes be frame size
-		lastKFrame= None	#Last IDR frame to cut out if not finalize
+
+		'''
+		returns Atom, assumed to be started from _in, or None if invalid.
+		_in must be NOT less than 4
+		AVC: 4b:size, size:(signA[x],...), signAAC|(4b,signA[x+1])|(4b,signMoov)
+		AAC: signAAC, ?:..., (4b,signA[x+1])|(4b,signMoov)
+		'''
+		def getAtom(_data, _in, _signCur, _signNext):
+			return None
+
+
+
+		KFrameFirst= None	#First IDR frame to start with
+		KFrameLast= None	#Last IDR frame to cut out if not finalize
 		matchesA= []
-		'''
-		search: Key AVC, [AVC|AAC|MOOV], ...
-		'''
-		while True:
-			#AVC frame first, should end up with AAC or MOOV
-			foundBegin= _data.find(signA[signI], foundBegin+1)
-			if foundBegin==-1:
-				break
 
-			foundLen= int.from_bytes(_data[foundBegin-4:foundBegin], 'big')
-			foundEnd= foundBegin+foundLen
-			if foundEnd>len(_data): #false positive
+		'''
+		search: AVC-Key, ([AAC,AVC|AVC], ...)
+		'''
+		foundStart= 4	#will start at 4, to allow [0:4] bytes be frame size if beginning instantly
+		while foundStart!=-1:
+			atomMatch= getAtom(_data, foundStart, signA[signI], signA[nextSignI])
+
+			if not atomMatch: #retry further
+				foundStart= _data.find(signA[signI], foundStart+1)
 				continue
 
 
-			nextSignI= signI +1
-			if nextSignI==len(signA):
-				nextSignI= 0
+			#Atom found
+			if atomMatch['type']=='MOOV':	#abort limiting
+				KFrameLast= None
+				break
 
 
-			assumeAACNext= _data[foundEnd]==signAAC
-			if not assumeAACNext:	#assumed not AAC found, must be AVC|MOOV then
-				if (
-					_data[foundEnd+4:foundEnd+8]!=signA[nextSignI]
-					and _data[foundEnd+4:foundEnd+8]!= signMoov
-				):
-					continue	#false positive
+			matchesA.append(atomMatch)
+
+			foundStart=	atomMatch['end']	#shortcut for next
 
 
-			#AVC was found
+			if atomMatch['type']=='AVC':
+				signI= nextSignI
 
-			matchesA.append({'in':foundBegin, 'out':foundEnd, 'type':'IDR' if not signA else 'P'})
-
-
-			#last frame and remaining should be left to next run untill it's not final
-#			if not _finalize and mp4Match['type']=='IDR':
-#				self.safePos= mp4Match['offset']
-#				lastKFrame= len(matchesA)
+				nextSignI+= 1
+				if nextSignI==len(signA):
+					nextSignI= 0
 
 
+				if atomMatch['key']:	#limits to keyframes
+					KFrameLast= len(matchesA)-1
+
+					if KFrameFirst==None:
+						KFrameFirst= len(matchesA)-1
 
 
-
-		return matchesA[:lastKFrame]
+		return matchesA[KFrameFirst:KFrameLast]
 
 
 
