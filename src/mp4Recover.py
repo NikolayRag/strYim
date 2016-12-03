@@ -88,7 +88,7 @@ class Mp4Recover():
 		signAAC= b'21' #aac
 		signA= [b'\x25\xb8\x01\x00', b'\x21\xe0\x10\x11', b'\x21\xe0\x20\x21', b'\x21\xe0\x30\x31', b'\x21\xe0\x40\x41', b'\x21\xe0\x50\x51', b'\x21\xe0\x60\x61', b'\x21\xe0\x70\x71']
 		signI= 0
-		nextSignI= 1 #cached version
+		signI1= 1 #cached version
 
 
 		'''
@@ -111,7 +111,7 @@ class Mp4Recover():
 		'''
 		foundStart= 4	#will start at 4, to allow [0:4] bytes be frame size if beginning instantly
 		while foundStart!=-1:
-			atomMatch= getAtom(_data, foundStart, signA[signI], signA[nextSignI])
+			atomMatch= analyzeAtom(_data, foundStart, signA[signI1])
 
 			if not atomMatch: #retry further
 				foundStart= _data.find(signA[signI], foundStart+1)
@@ -130,11 +130,11 @@ class Mp4Recover():
 
 
 			if atomMatch['type']=='AVC':
-				signI= nextSignI
+				signI= signI1
 
-				nextSignI+= 1
-				if nextSignI==len(signA):
-					nextSignI= 0
+				signI1+= 1
+				if signI1==len(signA):
+					signI1= 0
 
 
 				if atomMatch['key']:	#limits to keyframes
