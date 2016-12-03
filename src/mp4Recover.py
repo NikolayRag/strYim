@@ -109,12 +109,15 @@ class Mp4Recover():
 		'''
 		search: AVC-Key, ([AAC,AVC|AVC], ...)
 		'''
-		foundStart= 4	#will start at 4, to allow [0:4] bytes be frame size if beginning instantly
-		while foundStart!=-1:
+		foundStart= -1
+		while True:
 			atomMatch= analyzeAtom(_data, foundStart, signA[signI1])
 
 			if not atomMatch: #retry further
-				foundStart= _data.find(signA[signI], foundStart+1)
+				foundStart= _data.find(signA[signI], foundStart+1+4)-4	#rewind to actual start
+				if foundStart<0:	#dried
+					break
+
 				continue
 
 
