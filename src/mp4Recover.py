@@ -132,9 +132,9 @@ class Mp4Recover():
 
 
 			#AAC
-			if _data[_inPos]==signAAC:
-				foundAVC= _data.find(_signAVC1, _in+4)-4
-				foundMOOV= _data.find(signMoov, _in+4)-4
+			if _data[_inPos]==signAAC[0]:
+				foundAVC= _data.find(_signAVC, _inPos+4)-4
+				foundMOOV= _data.find(signMoov, _inPos+4)-4
 				if foundAVC==-1 and foundMOOV==-1:
 					return None
 
