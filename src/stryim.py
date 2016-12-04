@@ -9,26 +9,27 @@ from .kiTelnet import *
 from .kiLog import *
 
 
-yiApp= [None] #instance of yiListener
-
-
 '''
-YiOn/Off commands are used to test Stryim in Sublime, `coz its lazy to set up running environment.
+main Yi control class
 '''
-class YiOnCommand(sublime_plugin.TextCommand):
+class Stryim():
+	yiApp= None	#instance of yiListener
 	muxers= []	
 
 
-	def cbConn(self, _mode):
+	@staticmethod
+	def cbConn(_mode):
 		kiLog.ok('Connected' if _mode else 'Disconnected')
 
-	def cbLive(self, _mode):
+	@staticmethod
+	def cbLive(_mode):
 		if _mode==1:
 			kiLog.ok('Live')
 		if _mode==-1:
 			kiLog.ok('Dead')
 	
-	def cbAir(self, _mode):
+	@staticmethod
+	def cbAir(_mode):
 		if _mode==1:
 			kiLog.warn('Air On')
 		if _mode==0:
@@ -36,48 +37,45 @@ class YiOnCommand(sublime_plugin.TextCommand):
 		if _mode==-1:
 			kiLog.err('Air bad')
 
-	def cbDie(self):
-		for cMux in self.muxers:
+	@staticmethod
+	def cbDie():
+		for cMux in Stryim.muxers:
 			cMux.stop()
 
-		kiLog.ok('off')
+		kiLog.ok('Exiting')
 
 
 
-	def run(self, _edit):
-		kiLog.states(verb=True, ok=True)
+	@staticmethod
+	def start(_dst):
+		Stryim.selfIP= KiTelnet.defaults(address='192.168.42.1')
 
-		selfIP= KiTelnet.defaults(address='192.168.42.1')
-
-		if yiApp[0]:
-			kiLog.warn('Already')
+		if Stryim.yiApp:
+			kiLog.warn('App already on')
 			return
 
-		self.muxers= []
-
-#		self.muxers.append( MuxFLV(SinkTCP(1234), audio=False) )
-#		self.muxers.append( MuxAAC(SinkTCP(2345)) )
-		self.muxers.append( MuxFLV(SinkFile('D:\\yi\\restore\\stryim\\L.flv'), fps=30000/1001, audio=True, bps=15200) )
-#		self.muxers.append( MuxAAC(SinkFile('D:\\yi\\restore\\stryim\\L.aac')) )
+		Stryim.muxers= [
+			MuxFLV(SinkRTMP(_dst), fps=30000/1001, bps=16000)
+		]
 
 
 		def muxRelay(data):
-			for cMux in self.muxers:
+			for cMux in Stryim.muxers:
 				cMux.add(data)
 		mp4Restore= Mp4Recover(muxRelay)
 
 
-		yiApp[0]= YiListener()
-		yiApp[0].start(self.cbConn, self.cbLive, self.cbDie)
-		yiApp[0].live(mp4Restore.add, self.cbAir)
+		Stryim.yiApp= YiListener()
+		Stryim.yiApp.start(Stryim.cbConn, Stryim.cbLive, Stryim.cbDie)
+		Stryim.yiApp.live(mp4Restore.add, Stryim.cbAir)
 
 
 
-class YiOffCommand(sublime_plugin.TextCommand):
-	def run(self, _edit):
-		if not yiApp[0]:
-			kiLog.warn('Already')
+	@staticmethod
+	def stop():
+		if not Stryim.yiApp:
+			kiLog.warn('App already off')
 			return
 
-		yiApp[0].stop()
-		yiApp[0]= None
+		Stryim.yiApp.stop()
+		Stryim.yiApp= None
