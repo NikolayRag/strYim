@@ -105,9 +105,8 @@ class Mp4Recover():
 		finalize
 			boolean, indicates no more data for this context will be sent (if consumed all).
 	'''
-# -todo 123 (clean) +0: remove ctx arg
-	def atomsFromRaw(self, _data, _ctx, _finalize=False):
-		recoverMatchesA= self.analyzeMp4(_data)
+	def atomsFromRaw(self, _data, _finalize=False):
+		recoverMatchesA= self.analyzeMp4(_data, _finalize)
 
 
 		dataCosumed= 0
@@ -133,7 +132,7 @@ class Mp4Recover():
 
 	If called subsequently on growing stream, 2nd and next call's data[0] will point to IDR.
 	'''
-	def analyzeMp4(self, _data):
+	def analyzeMp4(self, _data, _finalize=False):
 		signI= 0
 		signI1= 1 #cached version
 
@@ -181,7 +180,11 @@ class Mp4Recover():
 
 
 
+		if _finalize:
+			KFrameLast= None
+
 		atomBlock= matchesA[:KFrameLast]
+		
 		
 		if len(atomBlock):
 			kiLog.verb('%d atoms found%s' % (len(atomBlock), ', finaly' if not KFrameLast else ''))
