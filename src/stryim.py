@@ -47,6 +47,34 @@ class Stryim():
 
 
 	@staticmethod
+	def setDest(_dst):
+		_dst= '/'.join(_dst.split('\\'))
+		protocol= _dst.split(':/')
+		ext= _dst.split('.')
+
+
+		muxer= MuxFLV
+		sink= SinkRTMP
+
+		if protocol[0]!='rtmp':
+			if len(protocol)>1 and protocol[0]=='tcp':
+				sink= SinkTCP
+			else:
+				sink= SinkFile
+
+			if len(ext)>1 and (ext[-1]=='264' or ext[-1]=='h264'):
+				muxer= MuxH264
+			if len(ext)>1 and ext[-1]=='aac':
+				muxer= MuxAAC
+
+		Stryim.muxers=[ muxer(sink(_dst)) ]
+
+
+		
+
+
+
+	@staticmethod
 	def start(_dst):
 		MuxFLV.defaults(fps=30000/1001, bps=16000)
 		Stryim.selfIP= KiTelnet.defaults(address='192.168.42.1')
@@ -55,10 +83,7 @@ class Stryim():
 			kiLog.warn('App already on')
 			return
 
-		Stryim.muxers= [
-			MuxFLV(SinkRTMP(_dst), fps=30000/1001, bps=16000)
-		]
-
+		Stryim.setDest(_dst)
 
 		def muxRelay(data):
 			for cMux in Stryim.muxers:
