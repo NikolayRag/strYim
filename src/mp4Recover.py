@@ -9,6 +9,7 @@ class Atom():
 	typeAVC= False
 	typeAAC= False
 	AVCKey= None
+	AVCVisible= None
 	inPos= None
 	outPos= None
 
@@ -30,11 +31,12 @@ class Atom():
 		return self
 
 
-	def setAVC(self, _key=False):
+	def setAVC(self, _key=False, _visible=True):
 		self.typeMoov= False
 		self.typeAVC= True
 		self.typeAAC= False
 		self.AVCKey= _key
+		self.AVCVisible= _visible
 
 		return self
 
@@ -85,8 +87,8 @@ class Mp4Recover():
 		self.atomCB= _atomCB
 
 		if callable(self.atomCB):
-			self.atomCB( Atom(data=self.h264Presets[(1080,30,0)]).setAVC(True) )
-			self.atomCB( Atom(data=self.h264Presets[-1]).setAVC(True) )
+			self.atomCB( Atom(data=self.h264Presets[(1080,30,0)]).setAVC(True,False) )
+			self.atomCB( Atom(data=self.h264Presets[-1]).setAVC(True,False) )
 		
 
 	def add(self, _data, _ctx=None):
