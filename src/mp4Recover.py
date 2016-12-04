@@ -255,12 +255,6 @@ class Mp4Recover():
 
 
 
-import sublime, sublime_plugin
+		return atomBlock
 
-class YiTestCommand(sublime_plugin.TextCommand):
-	def run(self, _edit):
-		f= open('e:/yi/L0010840.MP4', 'rb')
-		b= f.read()
-		f.close()
 
-		print( Mp4Recover(None).analyzeMp4(b) )
