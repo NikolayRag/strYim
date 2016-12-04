@@ -4,6 +4,43 @@ from .byteTransit import *
 from .kiLog import *
 
 
+class AtomMatch():
+	typeMoov= False
+	typeAVC= False
+	typeAAC= False
+	AVCKey= None
+	inPos= None
+	outPos= None
+
+	def __init__(self, _in, _out):
+		self.inPos= _in
+		self.outPos= _out
+
+	def setMOOV(self):
+		self.typeMoov= True
+		self.typeAVC= False
+		self.typeAAC= False
+
+		return self
+
+
+	def setAVC(self, _key=False):
+		self.typeMoov= False
+		self.typeAVC= True
+		self.typeAAC= False
+		self.AVCKey= _key
+
+		return self
+
+
+	def setAAC(self):
+		self.typeMoov= False
+		self.typeAVC= False
+		self.typeAAC= True
+
+		return self
+
+
 class Atom():
 # -todo 124 (recover, mp4) +0: change Atom fields to data plus atom-specific structures
 	type= None
@@ -109,17 +146,18 @@ class Mp4Recover():
 			signThis= _data[_inPos+4:_inPos+8]
 			outPos= _inPos +4 +int.from_bytes(_data[_inPos:_inPos+4], 'big')
 
+
 			if signThis==signMoov:
 				if outPos>len(_data): #Not enough data to test
 					return None
 
-				return {'type':'MOOV'}
+				return AtomMatch(_inPos,outPos).setMOOV()
 
 
 			if signThis==_signAVC:
 				if (outPos+8)>len(_data): #Not enough data to test
 					return None
-				
+
 				signNext= _data[outPos+4:outPos+8]
 				if (
 					   signNext!=_signAVC1
@@ -128,12 +166,13 @@ class Mp4Recover():
 				):
 					return False
 
-				return {'type':'AVC', 'begin':_inPos, 'end':outPos, 'key':signThis==signA[0]}
+				return AtomMatch(_inPos,outPos).setAVC(signThis==signA[0])
 
 
 			#AAC
 			if _data[_inPos]==signAAC[0]:
 				outPos= _data.find(_signAVC, _inPos)-4
+
 
 				moovStop= outPos
 				if outPos<0:
@@ -147,7 +186,7 @@ class Mp4Recover():
 				if outPos<0:	#still nothing found
 					return None
 
-				return {'type':'AAC', 'begin':_inPos, 'end':outPos}
+				return AtomMatch(_inPos,outPos).setAAC()
 
 
 			return False
@@ -179,17 +218,17 @@ class Mp4Recover():
 
 
 			#Atom found
-			if atomMatch['type']=='MOOV':	#abort limiting
+			if atomMatch.typeMoov:	#abort limiting
 				KFrameLast= None
 				break
 
 
 			matchesA.append(atomMatch)
 
-			foundStart=	atomMatch['end']	#shortcut for next
+			foundStart=	atomMatch.outPos	#shortcut for next
 
 
-			if atomMatch['type']=='AVC':
+			if atomMatch.typeAVC:
 				signI= signI1
 
 				signI1+= 1
@@ -197,7 +236,7 @@ class Mp4Recover():
 					signI1= 0
 
 
-				if atomMatch['key']:	#limits to keyframes
+				if atomMatch.AVCKey:	#limits to keyframes
 					KFrameLast= len(matchesA)-1
 
 
