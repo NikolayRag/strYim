@@ -102,9 +102,6 @@ class Mp4Recover():
 		recoverMatchesA= self.analyzeMp4(_data)
 
 
-		kiLog.ok("%d matches" % len(recoverMatchesA))
-
-
 		dataCosumed= 0
 		for match in recoverMatchesA:
 			match.bindData(_data)
@@ -136,6 +133,7 @@ class Mp4Recover():
 		'''
 		search: AVC-Key, ([AAC,AVC|AVC], ...)
 		'''
+		foundFalse= 0
 		foundStart= 0
 		while True:
 			atomMatch= self.analyzeAtom(_data, foundStart, self.signAVC[signI], self.signAVC[signI1])
@@ -143,7 +141,8 @@ class Mp4Recover():
 				break
 
 			if atomMatch==False: #retry further
-				kiLog.warn('Wrong atom, research')
+				foundFalse+= 1
+
 				foundStart= _data.find(self.signAVC[signI], foundStart+1+4)-4	#rewind to actual start
 				if foundStart<0:	#dried while in search
 					break
@@ -175,9 +174,18 @@ class Mp4Recover():
 
 
 
-		kiLog.verb('%d atoms found%s' % (len(matchesA)-(KFrameLast or 0), ', finaly' if not KFrameLast else ''))
+		atomBlock= matchesA[:KFrameLast]
+		
+		if len(atomBlock):
+			kiLog.verb('%d atoms found%s' % (len(atomBlock), ', finaly' if not KFrameLast else ''))
+		if foundFalse:
+			if KFrameLast:
+				kiLog.warn('%d false atoms in %d bytes' % (foundFalse, len(_data)))
+			else:
+				kiLog.verb('%d false atoms in %d bytes' % (foundFalse, len(_data)))
 
-		return matchesA[:KFrameLast]
+
+		return atomBlock
 
 
 
