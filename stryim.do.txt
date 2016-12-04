@@ -80,7 +80,7 @@
 +speed, bytes 61: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\byteTransit.py" user 16/11/08 17:15:04
 	dont use adding bytes
 
- speed, bytes 62: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\byteTransit.py" user 16/11/08 17:25:49
+ speed, bytes 62: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\byteTransit.py" user 16/11/30 19:12:37
 	read more quickly maybe
 
 !general 63: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\mp4RecoverExe.py" kii 16/11/09 10:34:21
@@ -122,7 +122,7 @@
 !aac 100: +0 "" user 16/11/20 15:04:38
 	redundant
 
-=recover 101: +2 "..\..\Application Data\Sublime Text 3\Packages\stryim\mp4RecoverExe.py" user 16/11/20 15:05:06
++recover 101: +2 "..\..\Application Data\Sublime Text 3\Packages\stryim\mp4Recover.py" user 16/12/04 08:37:21
 	use native atoms searching: [h264, aac, ...]
 
 +bytes 102: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\byteTransit.py" user 16/11/21 01:23:24
@@ -143,7 +143,7 @@
 -read, cam 114: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\yiListener.py" user 16/11/25 03:26:03
 	define maximum read block
 
--mux, flv, bytes, aac 117: +2 "..\..\Application Data\Sublime Text 3\Packages\stryim\muxH264AAC.py" user 16/11/26 06:18:17
+-mux, flv, bytes, aac 117: +2 "..\..\Application Data\Sublime Text 3\Packages\stryim\muxH264AAC.py" user 16/12/01 03:44:34
 	reveal actual AAC frame length
 
 -sink 118: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\muxSink.py" user 16/11/26 06:20:42
@@ -155,5 +155,20 @@
  ui 120: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/11/26 06:44:04
 	add ui
 
++log 121: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiLog.py" user 16/11/26 15:28:27
+	add 'verb' level and .verb()
 
-Reserved: 121
++recover, clean 122: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\mp4Recover.py" user 16/11/28 18:41:18
+	remove after going native
+
++clean 123: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\mp4Recover.py" user 16/12/04 23:12:28
+	remove ctx arg
+
+!recover, mp4 124: +0 "" user 16/12/04 08:28:29
+	obsolete
+
+-bytes 128: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\mp4Recover.py" user 16/12/04 08:37:08
+	use memoryview as binded data
+
+
+Reserved: 135

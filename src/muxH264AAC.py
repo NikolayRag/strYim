@@ -8,24 +8,34 @@ class MuxFLV():
 	stampVideo= 0.
 	rateVideo= 1000./ (30000./1001) #29.97
 	stampAudio= 0
-	rateAudio= 1000./15200
+	rateAudio= 1000./16000
 
 	useAudio= True
 
 	sink= None
 
 
+	@staticmethod
+	def defaults(fps=None, bps=None):
+		if fps:
+			MuxFLV.rateVideo= 1000./fps
+		if bps:
+			MuxFLV.rateAudio= 1000./bps
+
+
 	def __init__(self, _sink, fps=None, audio=True, bps=None):
 		self.stampVideo= 0.
 		if fps:
 			self.rateVideo= 1000./fps
-		self.stampAudio= 0
+		self.stampAudio= 0.
 		if bps:
 			self.rateAudio= 1000./bps
+
 
 		self.sink= _sink
 
 		if not self.sink:
+			kiLog.err('Sink not specified')
 			return
 
 
@@ -41,11 +51,15 @@ class MuxFLV():
 		if not self.sink:
 			return
 
-		if _atom.type!=None: #not sound
-			flvTag= self.videoTag(1,_atom.type=='IDR', _atom.data, self.stampV())
+		if _atom.typeAVC:
+			flvTag= self.videoTag(1, _atom.AVCKey, _atom.data, self.stampV(_atom.AVCVisible))
 			self.sink.add(flvTag)
 
-		elif self.useAudio:
+		if self.useAudio and _atom.typeAAC:
+			if len(_atom.data)>2040:
+				kiLog.warn('Too big AAC found, skipped: %d' % len(_atom.data))
+				return
+
 			flvTag= self.audioTag(1, _atom.data, self.stampA( len(_atom.data) ))
 			self.sink.add(flvTag)
 
@@ -54,7 +68,7 @@ class MuxFLV():
 		if not self.sink:
 			return
 
-		self.sink.add( self.videoTag(2,True,stamp=self.stampV()) )
+		self.sink.add( self.videoTag(2,True,stamp=self.stampV(False)) )
 		self.sink.close()
 
 		self.sink= None
@@ -66,24 +80,25 @@ class MuxFLV():
 	'''
 	Return miliseconds corresponding to current timestamp, incrementing by one for virtually same stamp.
 	'''
-	def stampV(self):
-		if self.stampVideo < self.stampAudio:
-			kiLog.warn('Video stamp underrun %dsec' % self.stampAudio-self.stampVideo)
-
-
+	def stampV(self, _visible=True):
 		stampOut= self.stampVideo
-		self.stampVideo+= self.rateVideo
+		if _visible:
+			self.stampVideo+= self.rateVideo
+
+			if self.stampVideo < self.stampAudio:
+				kiLog.warn('Video stamp underrun %dsec' % (self.stampAudio-self.stampVideo))
+				self.stampVideo= self.stampAudio
 
 		return int(stampOut)
 
 # -todo 117 (mux, flv, bytes, aac) +2: reveal actual AAC frame length
 	def stampA(self, _bytes):
-		if self.stampAudio < self.stampVideo:
-			kiLog.warn('Audio stamp underrun %dsec' % self.stampVideo-self.stampAudio)
-
-
 		stampOut= self.stampAudio
 		self.stampAudio+= self.rateAudio *_bytes
+
+		if self.stampAudio < self.stampVideo:
+			kiLog.warn('Audio stamp underrun %dsec' % (self.stampVideo-self.stampAudio))
+			self.stampAudio= self.stampVideo
 
 		return int(stampOut)
 
@@ -154,8 +169,6 @@ class MuxFLV():
 
 	#AVCDecoderConfigurationRecord
 	def videoDCR(self):
-		refDCR= b'\x01\x4d\x40\x33\xff\xe1\x00\x34\x27\x4d\x40\x33\x9a\x64\x03\xc0\x11\x3f\x2c\x8c\x04\x04\x05\x00\x00\x03\x03\xe9\x00\x00\xea\x60\xe8\x60\x00\xb7\x18\x00\x02\xdc\x6c\xbb\xcb\x8d\x0c\x00\x16\xe3\x00\x00\x5b\x8d\x97\x79\x70\x78\x44\x22\x52\xc0\x01\x00\x04\x28\xee\x38\x80'
-		
 		nalSz= 4
 		
 # -todo 98 (flv) +0: build SPS and PPS
@@ -179,8 +192,6 @@ class MuxFLV():
 
 
 		dcr= b''.join(headDCR)
-		if dcr!= refDCR:
-			print(dcr, refDCR)
 		
 		return dcr
 
@@ -252,7 +263,7 @@ class MuxH264():
 		if not self.sink:
 			return
 
-		if _atom.type!=None: #not sound
+		if _atom.typeAVC:
 			self.sink.add(b'\x00\x00\x00\x01' +_atom.data)
 
 
@@ -300,7 +311,7 @@ class MuxAAC():
 		if not self.sink:
 			return
 
-		if not _atom.type: #sound
+		if _atom.typeAAC:
 			if len(_atom.data)>2040:
 				kiLog.warn('Too big AAC found, skipped: %d' % len(_atom.data))
 				return

@@ -96,7 +96,7 @@ class byteTransit():
 		dispatched= False
 
 		if callable(self.dispatchCB):
-			dispatched= self.dispatchCB(dataLeft, self.chunk.context, _force)
+			dispatched= self.dispatchCB(dataLeft, _force)
 
 		if (dispatched or 0)>0:
 			self.chunk.position+= dispatched
