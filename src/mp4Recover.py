@@ -85,7 +85,7 @@ class Mp4Recover():
 	'''
 	def analyzeMp4(self, _data):
 		signMoov= b'\x6d\x6f\x6f\x76'
-		signAAC= b'21' #aac
+		signAAC= b'\x21' #aac
 		signA= [b'\x25\xb8\x01\x00', b'\x21\xe0\x10\x11', b'\x21\xe0\x20\x21', b'\x21\xe0\x30\x31', b'\x21\xe0\x40\x41', b'\x21\xe0\x50\x51', b'\x21\xe0\x60\x61', b'\x21\xe0\x70\x71']
 		signI= 0
 		signI1= 1 #cached version
@@ -124,7 +124,7 @@ class Mp4Recover():
 				if (
 					   signNext!=_signAVC1
 					and signNext!=signMoov
-					and _data[outPos]!=signAAC
+					and _data[outPos]!=signAAC[0]
 				):
 					return False
 
@@ -161,7 +161,7 @@ class Mp4Recover():
 		'''
 		search: AVC-Key, ([AAC,AVC|AVC], ...)
 		'''
-		foundStart= -1
+		foundStart= 0
 		while True:
 			atomMatch= analyzeAtom(_data, foundStart, signA[signI], signA[signI1])
 			if atomMatch==None: #not enough data, stop
