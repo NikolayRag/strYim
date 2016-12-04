@@ -31,9 +31,11 @@ class MuxFLV():
 		if bps:
 			self.rateAudio= 1000./bps
 
+
 		self.sink= _sink
 
 		if not self.sink:
+			kiLog.err('Sink not specified')
 			return
 
 
