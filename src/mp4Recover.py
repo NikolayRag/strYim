@@ -56,6 +56,14 @@ class Atom():
 
 
 
+
+
+
+
+
+
+
+
 class Mp4Recover():
 	h264Presets= {
 		  (1080,30,0): b'\'M@3\x9ad\x03\xc0\x11?,\x8c\x04\x04\x05\x00\x00\x03\x03\xe9\x00\x00\xea`\xe8`\x00\xb7\x18\x00\x02\xdcl\xbb\xcb\x8d\x0c\x00\x16\xe3\x00\x00[\x8d\x97ypxD"R\xc0'
@@ -63,11 +71,11 @@ class Mp4Recover():
 	}
 
 	signMoov= b'\x6d\x6f\x6f\x76'
-	signAAC= b'\x21' #aac
+	signAAC= b'\x21'
 	signAVC= [b'\x25\xb8\x01\x00', b'\x21\xe0\x10\x11', b'\x21\xe0\x20\x21', b'\x21\xe0\x30\x31', b'\x21\xe0\x40\x41', b'\x21\xe0\x50\x51', b'\x21\xe0\x60\x61', b'\x21\xe0\x70\x71']
 
 	transit= None
-	atomCB= 	None
+	atomCB= None
 
 
 	def __init__(self, _atomCB):
@@ -114,6 +122,8 @@ class Mp4Recover():
 
 
 
+
+
 	'''
 	Search .mp4 bytes for 264 and aac frames.
 	Return Atom() array.
@@ -130,9 +140,6 @@ class Mp4Recover():
 		KFrameLast= None	#Last IDR frame to cut out if not finalize
 		matchesA= []
 
-		'''
-		search: AVC-Key, ([AAC,AVC|AVC], ...)
-		'''
 		foundFalse= 0
 		foundStart= 0
 		while True:
