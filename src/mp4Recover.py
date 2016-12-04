@@ -154,7 +154,6 @@ class Mp4Recover():
 
 
 
-		KFrameFirst= None	#First IDR frame to start with
 		KFrameLast= None	#Last IDR frame to cut out if not finalize
 		matchesA= []
 
@@ -197,11 +196,9 @@ class Mp4Recover():
 				if atomMatch['key']:	#limits to keyframes
 					KFrameLast= len(matchesA)-1
 
-					if KFrameFirst==None:
-						KFrameFirst= len(matchesA)-1
 
 
-		return matchesA[KFrameFirst:KFrameLast]
+		return matchesA[:KFrameLast]
 
 
 
