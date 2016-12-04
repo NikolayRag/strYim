@@ -4,7 +4,7 @@ from .byteTransit import *
 from .kiLog import *
 
 
-class AtomMatch():
+class Atom():
 	typeMoov= False
 	typeAVC= False
 	typeAAC= False
@@ -12,9 +12,15 @@ class AtomMatch():
 	inPos= None
 	outPos= None
 
-	def __init__(self, _in, _out):
+	data= None
+
+
+	def __init__(self, _in=None, _out=None, data=None):
 		self.inPos= _in
 		self.outPos= _out
+		if data:
+			self.data= data[_in:_out]
+
 
 	def setMOOV(self):
 		self.typeMoov= True
@@ -41,18 +47,15 @@ class AtomMatch():
 		return self
 
 
-class Atom():
-# -todo 124 (recover, mp4) +0: change Atom fields to data plus atom-specific structures
-	type= None
-	data= None
+# -todo 128 (bytes) +0: use memoryview as binded data
+	def bindData(self, _data):
+		self.data= _data[self.inPos:self.outPos]
 
-	def __init__(self, _type=None, _data=b''):
-		self.type= _type
-		self.data= _data
+		return self
 
 
 
-# =todo 101 (recover) +2: use native atoms searching: [h264, aac, ...]
+
 class Mp4Recover():
 	h264Presets= {
 		  (1080,30,0): b'\'M@3\x9ad\x03\xc0\x11?,\x8c\x04\x04\x05\x00\x00\x03\x03\xe9\x00\x00\xea`\xe8`\x00\xb7\x18\x00\x02\xdcl\xbb\xcb\x8d\x0c\x00\x16\xe3\x00\x00[\x8d\x97ypxD"R\xc0'
@@ -71,8 +74,8 @@ class Mp4Recover():
 		self.atomCB= _atomCB
 
 		if callable(self.atomCB):
-			self.atomCB( Atom('IDR', self.h264Presets[(1080,30,0)]) )
-			self.atomCB( Atom('IDR', self.h264Presets[-1]) )
+			self.atomCB( Atom(data=self.h264Presets[(1080,30,0)]).setAVC(True) )
+			self.atomCB( Atom(data=self.h264Presets[-1]).setAVC(True) )
 		
 
 	def add(self, _data, _ctx=None):
@@ -101,10 +104,10 @@ class Mp4Recover():
 
 		dataCosumed= 0
 		for match in recoverMatchesA:
-			restoredData= _data[ match['offset'] : match['len'] ]
-			self.atomCB( Atom(match['type'],restoredData) )
+			match.bindData(_data)
+			self.atomCB(match)
 
-			dataCosumed= match['offset'] +match['len']
+			dataCosumed= match.inPos +match.outPos
 
 
 		return dataCosumed
@@ -151,7 +154,7 @@ class Mp4Recover():
 				if outPos>len(_data): #Not enough data to test
 					return None
 
-				return AtomMatch(_inPos,outPos).setMOOV()
+				return Atom(_inPos,outPos).setMOOV()
 
 
 			if signThis==_signAVC:
@@ -166,7 +169,7 @@ class Mp4Recover():
 				):
 					return False
 
-				return AtomMatch(_inPos,outPos).setAVC(signThis==signA[0])
+				return Atom(_inPos,outPos).setAVC(signThis==signA[0])
 
 
 			#AAC
@@ -186,7 +189,7 @@ class Mp4Recover():
 				if outPos<0:	#still nothing found
 					return None
 
-				return AtomMatch(_inPos,outPos).setAAC()
+				return Atom(_inPos,outPos).setAAC()
 
 
 			return False
