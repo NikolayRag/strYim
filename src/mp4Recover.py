@@ -170,8 +170,9 @@ class Mp4Recover():
 				break
 
 			if atomMatch==False: #retry further
+				kiLog.warn('Wrong atom, research')
 				foundStart= _data.find(signA[signI], foundStart+1+4)-4	#rewind to actual start
-				if foundStart<0:	#dried
+				if foundStart<0:	#dried while in search
 					break
 
 				continue
@@ -200,6 +201,8 @@ class Mp4Recover():
 					KFrameLast= len(matchesA)-1
 
 
+
+		kiLog.verb('%d atoms found%s' % (len(matchesA)-(KFrameLast or 0), ', finaly' if not KFrameLast else ''))
 
 		return matchesA[:KFrameLast]
 
