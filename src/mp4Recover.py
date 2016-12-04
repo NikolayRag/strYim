@@ -107,7 +107,7 @@ class Mp4Recover():
 			match.bindData(_data)
 			self.atomCB(match)
 
-			dataCosumed= match.inPos +match.outPos
+			dataCosumed= match.outPos
 
 
 		return dataCosumed
