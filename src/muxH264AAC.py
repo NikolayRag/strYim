@@ -79,24 +79,23 @@ class MuxFLV():
 	Return miliseconds corresponding to current timestamp, incrementing by one for virtually same stamp.
 	'''
 	def stampV(self):
-#		if self.stampVideo < self.stampAudio:
-#			kiLog.warn('Video stamp underrun %dsec' % (self.stampAudio-self.stampVideo))
-#			self.stampVideo= self.stampAudio
-
 		stampOut= self.stampVideo
 		self.stampVideo+= self.rateVideo
+
+		if self.stampVideo < self.stampAudio:
+			kiLog.warn('Video stamp underrun %dsec' % (self.stampAudio-self.stampVideo))
+			self.stampVideo= self.stampAudio
 
 		return int(stampOut)
 
 # -todo 117 (mux, flv, bytes, aac) +2: reveal actual AAC frame length
 	def stampA(self, _bytes):
-#		if self.stampAudio < self.stampVideo:
-#			kiLog.warn('Audio stamp underrun %dsec' % (self.stampVideo-self.stampAudio))
-#			self.stampAudio= self.stampVideo
-
-
 		stampOut= self.stampAudio
 		self.stampAudio+= self.rateAudio *_bytes
+
+		if self.stampAudio < self.stampVideo:
+			kiLog.warn('Audio stamp underrun %dsec' % (self.stampVideo-self.stampAudio))
+			self.stampAudio= self.stampVideo
 
 		return int(stampOut)
 
