@@ -5,7 +5,7 @@ from .kiSupport import *
 class kiLog():
 	#statical collection
 	contexts= {
-		'':{
+		False:{	#all unspecified
 			    'verb':[False, 'verb']
 			  , 'ok':[False, 'log']
 			  , 'warn':[True, 'warning']
@@ -18,12 +18,12 @@ class kiLog():
 	def getCtx(_ctx, _create=False):
 		cCtx= getA(kiLog.contexts, _ctx)
 		if not cCtx:
-			defaultCtx= kiLog.contexts['']
+			defaultCtx= kiLog.contexts[False]
 			cCtx= {
-				  'verb': [defaultCtx['verb'][0], str(_ctx)+' '+defaultCtx['verb'][1]]
-				, 'ok': [defaultCtx['ok'][0], str(_ctx)+' '+defaultCtx['ok'][1]]
-				, 'warn': [defaultCtx['warn'][0], str(_ctx)+' '+defaultCtx['warn'][1]]
-				, 'err': [defaultCtx['err'][0], str(_ctx)+' '+defaultCtx['err'][1]]
+				  'verb': [defaultCtx['verb'][0], str(_ctx)+(' ' if _ctx else '')+defaultCtx['verb'][1]]
+				, 'ok': [defaultCtx['ok'][0], str(_ctx)+(' ' if _ctx else '')+defaultCtx['ok'][1]]
+				, 'warn': [defaultCtx['warn'][0], str(_ctx)+(' ' if _ctx else '')+defaultCtx['warn'][1]]
+				, 'err': [defaultCtx['err'][0], str(_ctx)+(' ' if _ctx else '')+defaultCtx['err'][1]]
 			}
 
 			if _create:
@@ -33,8 +33,8 @@ class kiLog():
 
 
 	@staticmethod
-	def prefixes(_prefix=False, verb=None, ok=None, warn=None, err=None):
-		if not _prefix:
+	def prefixes(_prefix=None, verb=None, ok=None, warn=None, err=None):
+		if _prefix==None:
 			_prefix= kiLog.caller()
 		cCtx= kiLog.getCtx(_prefix, True)
 
@@ -51,8 +51,8 @@ class kiLog():
 
 
 	@staticmethod
-	def states(_prefix=False, verb=None, ok=None, warn=None, err=None):
-		if not _prefix:
+	def states(_prefix=None, verb=None, ok=None, warn=None, err=None):
+		if _prefix==None:
 			_prefix= kiLog.caller()
 		cCtx= kiLog.getCtx(_prefix, True)
 
