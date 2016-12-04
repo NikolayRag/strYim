@@ -8,11 +8,19 @@ class MuxFLV():
 	stampVideo= 0.
 	rateVideo= 1000./ (30000./1001) #29.97
 	stampAudio= 0
-	rateAudio= 1000./15200
+	rateAudio= 1000./16000
 
 	useAudio= True
 
 	sink= None
+
+
+	@staticmethod
+	def defaults(fps=None, bps=None):
+		if fps:
+			MuxFLV.rateVideo= 1000./fps
+		if bps:
+			MuxFLV.rateAudio= 1000./bps
 
 
 	def __init__(self, _sink, fps=None, audio=True, bps=None):

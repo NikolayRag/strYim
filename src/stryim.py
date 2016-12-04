@@ -48,6 +48,7 @@ class Stryim():
 
 	@staticmethod
 	def start(_dst):
+		MuxFLV.defaults(fps=30000/1001, bps=16000)
 		Stryim.selfIP= KiTelnet.defaults(address='192.168.42.1')
 
 		if Stryim.yiApp:
