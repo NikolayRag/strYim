@@ -62,6 +62,9 @@ class Mp4Recover():
 		, -1: b'\x28\xee\x38\x80'
 	}
 
+	signMoov= b'\x6d\x6f\x6f\x76'
+	signAAC= b'\x21' #aac
+	signAVC= [b'\x25\xb8\x01\x00', b'\x21\xe0\x10\x11', b'\x21\xe0\x20\x21', b'\x21\xe0\x30\x31', b'\x21\xe0\x40\x41', b'\x21\xe0\x50\x51', b'\x21\xe0\x60\x61', b'\x21\xe0\x70\x71']
 
 	transit= None
 	atomCB= 	None
@@ -124,80 +127,8 @@ class Mp4Recover():
 	If called subsequently on growing stream, 2nd and next call's data[0] will point to IDR.
 	'''
 	def analyzeMp4(self, _data):
-		signMoov= b'\x6d\x6f\x6f\x76'
-		signAAC= b'\x21' #aac
-		signA= [b'\x25\xb8\x01\x00', b'\x21\xe0\x10\x11', b'\x21\xe0\x20\x21', b'\x21\xe0\x30\x31', b'\x21\xe0\x40\x41', b'\x21\xe0\x50\x51', b'\x21\xe0\x60\x61', b'\x21\xe0\x70\x71']
 		signI= 0
 		signI1= 1 #cached version
-
-
-		'''
-		Detects Atom assumed to be started from _in.
-		Return: Atom if detected, False if not, or None if insufficient data.
-		_in must be not less than 4.
-		
-		AVC: 4b:size, size:(signA[x],...), signAAC|(4b,signA[x+1])|(4b,signMoov)
-		AAC: signAAC, ?:..., (4b,signA[x+1])|(4b,signMoov)
-		MOOV: 4b:size, signMoov
-		'''
-		def analyzeAtom(_data, _inPos, _signAVC, _signAVC1):
-			if (_inPos+8)>len(_data):	#too short for anything
-				return None
-
-
-			#AVC/MOOV
-			signThis= _data[_inPos+4:_inPos+8]
-			outPos= _inPos +4 +int.from_bytes(_data[_inPos:_inPos+4], 'big')
-
-
-			if signThis==signMoov:
-				if outPos>len(_data): #Not enough data to test
-					return None
-
-				return Atom(_inPos,outPos).setMOOV()
-
-
-			if signThis==_signAVC:
-				if (outPos+8)>len(_data): #Not enough data to test
-					return None
-
-				signNext= _data[outPos+4:outPos+8]
-				if (
-					   signNext!=_signAVC1
-					and signNext!=signMoov
-					and _data[outPos]!=signAAC[0]
-				):
-					return False
-
-				return Atom(_inPos+4,outPos).setAVC(signThis==signA[0])
-
-
-			#AAC
-			if _data[_inPos]==signAAC[0]:
-				outPos= _data.find(_signAVC, _inPos)-4
-
-
-				moovStop= outPos
-				if outPos<0:
-					moovStop= len(_data)
-
-				moovPos= _data[_inPos:moovStop].find(signMoov)
-				if moovPos>=0:	#MOOV found ahead
-					outPos= _inPos+moovPos-4
-
-
-				if outPos<0:	#still nothing found
-					return None
-
-				return Atom(_inPos,outPos).setAAC()
-
-
-			return False
-
-
-
-
-
 
 		KFrameLast= None	#Last IDR frame to cut out if not finalize
 		matchesA= []
@@ -207,13 +138,13 @@ class Mp4Recover():
 		'''
 		foundStart= 0
 		while True:
-			atomMatch= analyzeAtom(_data, foundStart, signA[signI], signA[signI1])
+			atomMatch= self.analyzeAtom(_data, foundStart, self.signAVC[signI], self.signAVC[signI1])
 			if atomMatch==None: #not enough data, stop
 				break
 
 			if atomMatch==False: #retry further
 				kiLog.warn('Wrong atom, research')
-				foundStart= _data.find(signA[signI], foundStart+1+4)-4	#rewind to actual start
+				foundStart= _data.find(self.signAVC[signI], foundStart+1+4)-4	#rewind to actual start
 				if foundStart<0:	#dried while in search
 					break
 
@@ -235,7 +166,7 @@ class Mp4Recover():
 				signI= signI1
 
 				signI1+= 1
-				if signI1==len(signA):
+				if signI1==len(self.signAVC):
 					signI1= 0
 
 
@@ -252,9 +183,65 @@ class Mp4Recover():
 
 
 
+	'''
+	Detects Atom assumed to be started from _in.
+	Return: Atom if detected, False if not, or None if insufficient data.
+	_in must be not less than 4.
+	
+	AVC: 4b:size, size:(signAVC[x],...), signAAC|(4b,signAVC[x+1])|(4b,signMoov)
+	AAC: signAAC, ?:..., (4b,signAVC[x+1])|(4b,signMoov)
+	MOOV: 4b:size, signMoov
+	'''
+	def analyzeAtom(self, _data, _inPos, _signAVC, _signAVC1):
+		if (_inPos+8)>len(_data):	#too short for anything
+			return None
 
 
+		#AVC/MOOV
+		signThis= _data[_inPos+4:_inPos+8]
+		outPos= _inPos +4 +int.from_bytes(_data[_inPos:_inPos+4], 'big')
 
-		return atomBlock
+
+		if signThis==self.signMoov:
+			if outPos>len(_data): #Not enough data to test
+				return None
+
+			return Atom(_inPos,outPos).setMOOV()
 
 
+		if signThis==_signAVC:
+			if (outPos+8)>len(_data): #Not enough data to test
+				return None
+
+			signNext= _data[outPos+4:outPos+8]
+			if (
+				   signNext!=_signAVC1
+				and signNext!=self.signMoov
+				and _data[outPos]!=self.signAAC[0]
+			):
+				return False
+
+			return Atom(_inPos+4,outPos).setAVC(signThis==self.signAVC[0])
+
+
+		#AAC
+		if _data[_inPos]==self.signAAC[0]:
+			outPos= _data.find(_signAVC, _inPos)-4
+
+
+			moovStop= outPos
+			if outPos<0:
+				moovStop= len(_data)
+
+			moovPos= _data[_inPos:moovStop].find(self.signMoov)
+			if moovPos>=0:	#MOOV found ahead
+				outPos= _inPos+moovPos-4
+
+
+			if outPos<0:	#still nothing found
+				return None
+
+			return Atom(_inPos,outPos).setAAC()
+
+
+		return False
