@@ -41,11 +41,11 @@ class MuxFLV():
 		if not self.sink:
 			return
 
-		if _atom.type!=None: #not sound
-			flvTag= self.videoTag(1,_atom.type=='IDR', _atom.data, self.stampV())
+		if _atom.typeAVC:
+			flvTag= self.videoTag(1, _atom.AVCKey, _atom.data, self.stampV())
 			self.sink.add(flvTag)
 
-		elif self.useAudio:
+		if self.useAudio and _atom.typeAAC:
 			if len(_atom.data)>2040:
 				kiLog.warn('Too big AAC found, skipped: %d' % len(_atom.data))
 				return
@@ -257,7 +257,7 @@ class MuxH264():
 		if not self.sink:
 			return
 
-		if _atom.type!=None: #not sound
+		if _atom.typeAVC:
 			self.sink.add(b'\x00\x00\x00\x01' +_atom.data)
 
 
@@ -305,7 +305,7 @@ class MuxAAC():
 		if not self.sink:
 			return
 
-		if not _atom.type: #sound
+		if _atom.typeAAC:
 			if len(_atom.data)>2040:
 				kiLog.warn('Too big AAC found, skipped: %d' % len(_atom.data))
 				return
