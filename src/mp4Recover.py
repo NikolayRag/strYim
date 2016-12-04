@@ -92,13 +92,65 @@ class Mp4Recover():
 
 
 		'''
-		returns Atom, assumed to be started from _in, or None if invalid.
-		_in must be NOT less than 4
+		Detects Atom assumed to be started from _in.
+		Return: Atom if detected, False if not, or None if insufficient data.
+		_in must be not less than 4.
+		
 		AVC: 4b:size, size:(signA[x],...), signAAC|(4b,signA[x+1])|(4b,signMoov)
 		AAC: signAAC, ?:..., (4b,signA[x+1])|(4b,signMoov)
+		MOOV: 4b:size, signMoov
 		'''
-		def getAtom(_data, _in, _signCur, _signNext):
-			return None
+		def analyzeAtom(_data, _inPos, _signAVC, _signAVC1):
+			if (_inPos+8)>len(_data):	#too short for anything
+				return None
+
+
+			#AVC/MOOV
+			signThis= _data[_inPos+4:_inPos+8]
+			outPos= _inPos +4 +int.from_bytes(_data[_inPos:_inPos+4], 'big')
+
+			if signThis==signMoov:
+				if outPos>len(_data): #Not enough data to test
+					return None
+
+				return {'type':'MOOV'}
+
+
+			if signThis==_signAVC:
+				if (outPos+8)>len(_data): #Not enough data to test
+					return None
+				
+				signNext= _data[outPos+4:outPos+8]
+				if (
+					   signNext!=_signAVC1
+					and signNext!=signMoov
+					and _data[outPos]!=signAAC
+				):
+					return False
+
+				return {'type':'AVC', 'begin':_inPos, 'end':outPos, 'key':signThis==signA[0]}
+
+
+			#AAC
+			if _data[_inPos]==signAAC:
+				foundAVC= _data.find(_signAVC1, _in+4)-4
+				foundMOOV= _data.find(signMoov, _in+4)-4
+				if foundAVC==-1 and foundMOOV==-1:
+					return None
+
+				outPos= min(foundAVC,foundMOOV)
+				if foundAVC==-1:
+					outPos= foundMOOV
+				if foundMOOV==-1:
+					outPos= foundAVC
+
+				return {'type':'AAC', 'begin':_inPos, 'end':outPos}
+
+
+			return False
+
+
+
 
 
 
@@ -111,9 +163,11 @@ class Mp4Recover():
 		'''
 		foundStart= -1
 		while True:
-			atomMatch= analyzeAtom(_data, foundStart, signA[signI1])
+			atomMatch= analyzeAtom(_data, foundStart, signA[signI], signA[signI1])
+			if atomMatch==None: #not enough data, stop
+				break
 
-			if not atomMatch: #retry further
+			if atomMatch==False: #retry further
 				foundStart= _data.find(signA[signI], foundStart+1+4)-4	#rewind to actual start
 				if foundStart<0:	#dried
 					break
