@@ -70,7 +70,6 @@ class SinkRTMP():
 		threading.Timer(0, lambda: self.serverInit(ffport)).start()
 		self.tcp= self.tcpInit(ffport)
 
-		print('inited')
 
 
 
