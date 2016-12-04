@@ -169,7 +169,7 @@ class Mp4Recover():
 				):
 					return False
 
-				return Atom(_inPos,outPos).setAVC(signThis==signA[0])
+				return Atom(_inPos+4,outPos).setAVC(signThis==signA[0])
 
 
 			#AAC
