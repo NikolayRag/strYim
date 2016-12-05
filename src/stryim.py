@@ -4,6 +4,7 @@ import sublime, sublime_plugin
 from .muxSink import *
 from .muxH264AAC import *
 from .mp4Recover import *
+from .mp4RecoverExe import *
 from .yiListener import *
 from .kiTelnet import *
 from .kiLog import *
@@ -88,7 +89,7 @@ class Stryim():
 		def muxRelay(data):
 			for cMux in Stryim.muxers:
 				cMux.add(data)
-		mp4Restore= Mp4Recover(muxRelay)
+		mp4Restore= Mp4RecoverExe(muxRelay)
 
 
 		Stryim.yiApp= YiListener()
