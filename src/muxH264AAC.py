@@ -51,8 +51,8 @@ class MuxFLV():
 		if not self.sink:
 			return
 
-		if _atom.typeAVC:
-			flvTag= self.videoTag(1, _atom.AVCKey, _atom.data, self.stampV(_atom.AVCVisible))
+		if _atom.typeAVC and _atom.AVCVisible:
+			flvTag= self.videoTag(1, _atom.AVCKey, _atom.data, self.stampV())
 			self.sink.add(flvTag)
 
 		if self.useAudio and _atom.typeAAC:
@@ -68,7 +68,7 @@ class MuxFLV():
 		if not self.sink:
 			return
 
-		self.sink.add( self.videoTag(2,True,stamp=self.stampV(False)) )
+		self.sink.add( self.videoTag(2,True,stamp=self.stampV()) )
 		self.sink.close()
 
 		self.sink= None
@@ -80,14 +80,13 @@ class MuxFLV():
 	'''
 	Return miliseconds corresponding to current timestamp, incrementing by one for virtually same stamp.
 	'''
-	def stampV(self, _visible=True):
+	def stampV(self):
 		stampOut= self.stampVideo
-		if _visible:
-			self.stampVideo+= self.rateVideo
+		self.stampVideo+= self.rateVideo
 
-			if self.stampVideo < self.stampAudio:
-				kiLog.warn('Video stamp underrun %dsec' % (self.stampAudio-self.stampVideo))
-				self.stampVideo= self.stampAudio
+		if stampOut < self.stampAudio:
+			kiLog.warn('Video stamp underrun %ssec' % float(self.stampAudio-stampOut))
+#			self.stampAudio = self.stampVideo
 
 		return int(stampOut)
 
