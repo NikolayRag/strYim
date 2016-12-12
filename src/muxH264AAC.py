@@ -1,3 +1,4 @@
+from .kiSupport import *
 from .kiLog import *
 
 '''
@@ -8,7 +9,7 @@ class MuxFLV():
 	stampVideo= 0.
 	rateVideo= 1000./ (30000./1001) #29.97
 	stampAudio= 0
-	rateAudio= 1000./16000
+	rateAudio= 1000. /(48000./1024) #each AAC packet is 1024 samples
 
 	useAudio= True
 
@@ -93,11 +94,11 @@ class MuxFLV():
 # -todo 117 (mux, flv, bytes, aac) +2: reveal actual AAC frame length
 	def stampA(self, _bytes):
 		stampOut= self.stampAudio
-		self.stampAudio+= self.rateAudio *_bytes
+		self.stampAudio+= self.rateAudio
 
-		if self.stampAudio < self.stampVideo:
-			kiLog.warn('Audio stamp underrun %dsec' % (self.stampVideo-self.stampAudio))
-			self.stampAudio= self.stampVideo
+		if stampOut < self.stampVideo:
+			kiLog.warn('Audio stamp underrun %ssec' % float(self.stampVideo-stampOut))
+#			self.stampAudio= self.stampVideo
 
 		return int(stampOut)
 
