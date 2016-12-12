@@ -290,10 +290,28 @@ AAC test Muxer class
 Requires Sink to be specified
 '''
 class MuxAAC():
-
 	sink= None
 
 	doADTS= True
+	adts= bitsCollect([
+		  (12, 0b111111111111)	#fff first 8 bits
+		, (1, 0)				#version, mpeg4=0
+		, (2, 0)				#layer(0)
+		, (1, 1)				#no protection
+		, (2, 1)				#profile, AAC LC
+		, (4, 3)				#freq index, 3=48000
+		, (1, 0)				#private
+		, (3, 2)				#chanCFG, 2=L+R
+		, (1, 0)
+		, (1, 0)				#home
+		, (1, 0)				#(c)
+		, (1, 0)				#(c)
+		, (13, 0)				#len
+		, (11, 0b11111111111)	#fill
+		, (2, 1-1)				#frames-1
+	], True)
+	adtsLen= 7
+
 
 	def __init__(self, _sink, adts=True):
 		self.sink= _sink
@@ -312,39 +330,15 @@ class MuxAAC():
 			return
 
 		if _atom.typeAAC:
-			if len(_atom.data)>2040:
+			if len(_atom.data)>(0b1111111111111):
 				kiLog.warn('Too big AAC found, skipped: %d' % len(_atom.data))
 				return
 
-
-
-#  todo 108 (aac) +0: write (optional) ADTS header
-			'''
-A 	12 	syncword 0xFFF, all bits must be 1
-B 	1 	MPEG Version: 0 for MPEG-4, 1 for MPEG-2
-C 	2 	Layer: always 0
-D 	1 	protection absent, Warning, set to 1 if there is no CRC and 0 if there is CRC
-E 	2 	profile, the MPEG-4 Audio Object Type minus 1
-F 	4 	MPEG-4 Sampling Frequency Index (15 is forbidden)
-G 	1 	private bit, guaranteed never to be used by MPEG, set to 0 when encoding, ignore when decoding
-H 	3 	MPEG-4 Channel Configuration (in the case of 0, the channel configuration is sent via an inband PCE)
-I 	1 	originality, set to 0 when encoding, ignore when decoding
-J 	1 	home, set to 0 when encoding, ignore when decoding
-K 	1 	copyrighted id bit, the next bit of a centrally registered copyright identifier, set to 0 when encoding, ignore when decoding
-L 	1 	copyright id start, signals that this frame's copyright id bit is the first bit of the copyright id, set to 0 when encoding, ignore when decoding
-M 	13 	frame length, this value must include 7 or 9 bytes of header length: FrameLength = (ProtectionAbsent == 1 ? 7 : 9) + size(AACFrame)
-O 	11 	Buffer fullness
-P 	2 	Number of AAC frames (RDBs) in ADTS frame minus 1, for maximum compatibility always use 1 AAC frame per ADTS frame
-Q 	16 	CRC if protection absent is 0 
-			'''
-
-		
-
 			if self.doADTS:
-				adts= b'\xff\xf1\x4c\x80' +(len(_atom.data)*32+255).to_bytes(2,'big') +b'\xfc'
-				self.sink.add(adts +_atom.data)
-			else:
-				self.sink.add(_atom.data)
+				adtsHead= self.adts +(len(_atom.data)+self.adtsLen<<13)	#-13 bit pos
+				self.sink.add(adtsHead.to_bytes(self.adtsLen, 'big'))
+
+			self.sink.add(_atom.data)
 
 
 	def stop(self):
