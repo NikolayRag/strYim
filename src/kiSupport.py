@@ -25,3 +25,26 @@ def bitsCollect(_bitPairs, _int=False):
 		return result
 
 	return result.to_bytes(int(rlen/8)+(rlen%8>0), 'big')
+
+#  todo 140 (optimize) +0: OPTIMIZE
+def bitsGet(_data, _len, _pos):
+	startByte= _pos[0]
+	startBit= _pos[1]
+	endBit= (startByte<<3) +startBit +_len
+	endByte= (endBit>>3) +(endBit%8>0)
+	endBit-= (endByte-1)<<3
+
+	d= _data[startByte:endByte]
+	if len(d) < endByte-startByte:	#underflow
+		d+= b'\x00'*(endByte-startByte-len(d))
+
+	res= int.from_bytes(d,'big')
+	res&= (1<<(endByte-startByte)*8-startBit)-1
+	res>>= 8-endBit
+
+	_pos[0]= endByte-1
+	_pos[1]= endBit
+
+	return res
+
+
