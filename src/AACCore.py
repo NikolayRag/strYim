@@ -35,8 +35,6 @@ class AACCore():
 	sampling_index=3	#(48000)
 	sampling_rate=None
 
-	pos=None	#[byte,bit] position
-
 
 	def __init__ (self, sampling_index=3):
 		self.sampling_index= sampling_index
@@ -52,27 +50,28 @@ class AACCore():
 	'''
 	decode provided packet, assumed being raw AAC
 	'''
-	def decodeAAC(self, _data, _offset=0):
-		self.pos= [_offset,0]
-		elem_type= bitsGet(_data, 3, self.pos)
+	def decodeAAC(self, _data):
+		bits= Bits(_data)
+
+		elem_type= bits.get(3)
 		if elem_type !=1:	#only CPE so far
 			return -1
 
-		aac_id= bitsGet(_data, 4, self.pos)
+		aac_id= bits.get(4)
 		if aac_id>0:	#didnt saw other, used to tighten detection
 			return -2
 
 		#+decode_cpe()
-		common_window= bitsGet(_data, 1, self.pos)
+		common_window= bits.get(1)
 		if not common_window:	#not used too
 			return -3
 
 		#+decode_ics_info()
-		if bitsGet(_data, 1, self.pos):	#reserved bit
+		if bits.get(1):	#reserved bit
 			return -4
 
-		packet_windows_sequence= bitsGet(_data, 2, self.pos)
-		packet_use_kb_window= bitsGet(_data, 1, self.pos)
+		packet_windows_sequence= bits.get(2)
+		packet_use_kb_window= bits.get(1)
 		packet_group_len= 1
 		num_window_groups= 1
 		group_len= [1]+[0]*7
@@ -81,10 +80,10 @@ class AACCore():
 			num_windows= 8
 			predictor_present= 0
 
-			max_sfb= bitsGet(_data, 4, self.pos)
+			max_sfb= bits.get(4)
 			
 			for i in range(0,7):
-				if bitsGet(_data, 1, self.pos):
+				if bits.get(1):
 					group_len[num_window_groups -1]+= 1
 				else:
 					num_window_groups+= 1;
@@ -97,13 +96,13 @@ class AACCore():
 
 		else:
 			num_windows= 1
-			max_sfb= bitsGet(_data, 6, self.pos)
+			max_sfb= bits.get(6)
 
 			swb_offset= self.ff_swb_offset_1024[self.sampling_index]
 			num_swb= self.ff_aac_num_swb_1024[self.sampling_index]
 			tns_max_bands= self.ff_tns_max_bands_1024[self.sampling_index]
 
-			predictor_present= bitsGet(_data, 1, self.pos)
+			predictor_present= bits.get(1)
 			if predictor_present:	#not allowed
 				return -5
 
@@ -114,7 +113,7 @@ class AACCore():
 		#-decode_ics_info()
 
 
-		ms_present= bitsGet(_data, 2, self.pos)
+		ms_present= bits.get(2)
 		if ms_present==3:	#reserved MS
 			return -7
 
@@ -124,11 +123,11 @@ class AACCore():
 
 		if ms_present==1:
 			for idx in range(0,num_window_groups*max_sfb):
-				ms_mask[idx]= bitsGet(_data, 1, self.pos)
+				ms_mask[idx]= bits.get(1)
 
 
 		#+decode_ics()
-		global_gain= bitsGet(_data, 8, self.pos)
+		global_gain= bits.get(8)
 
 
 		band_type= [0]*120
@@ -141,13 +140,13 @@ class AACCore():
 
 			while k < max_sfb:
 				sect_end = k
-				sect_band_type = bitsGet(_data, 4, self.pos)
+				sect_band_type = bits.get(4)
 				if sect_band_type == 12:	#invalid
 					return -8
 
 				while True:
-					sect_len_incr= bitsGet(_data, section_bits, self.pos)
-					if self.pos>len(_data):
+					sect_len_incr= bits.get(section_bits)
+					if not bits.left:	#underflow
 						return -9
 
 					sect_end += sect_len_incr
