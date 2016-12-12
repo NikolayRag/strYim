@@ -55,7 +55,7 @@ class Mp4RecoverExe():
 	'''
 	def parse(self, _data, _finalize=False):
 		self.holdData(_data)
-		recoverMatchesA= self.analyze(_finalize)
+		recoverMatchesA= self.analyze(_finalize, self.cFile, self.safePos)
 
 		firstIDR= 0
 		for match in recoverMatchesA:
@@ -115,10 +115,10 @@ class Mp4RecoverExe():
 		cFile.close()
 
 
-	def analyze(self, _finalize):
+	def analyze(self, _finalize, _file, _start):
 		try:
 			os.chdir('D:/yi/restore/')
-			recoverMeta= subprocess.check_output('recover_mp4_x64.exe "%s" --novideo --noaudio --ambarella --start %s' % (self.cFile, self.safePos), shell=True)
+			recoverMeta= subprocess.check_output('recover_mp4_x64.exe "%s" --novideo --noaudio --ambarella --aacmin 0x100 --start %s' % (_file, _start), shell=True)
 		except:
 			recoverMeta= b''
 
