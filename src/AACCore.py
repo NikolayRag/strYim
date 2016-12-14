@@ -3,15 +3,15 @@ from .kiSupport import *
 
 
 '''
-AAC decoder suitable for detecting {AOT_AAC_MAIN, L+R, CPE} stream.
+AAC decoder suitable for detecting particular {AOT_AAC_LC, L+R, CPE} stream.
 Indeed it's a very bit of FFMPEG's aac_decode_frame() and further in.
-It's far from being a complete decoder and is made to play with AAC.
+It's far from being a complete decoder and is intended to be an AAC playground.
 '''
 class AACCore():
-	#Assumed audio properties, overriden by decodeADTS()
+	#Assumed audio properties, overriden by ADTS
 	crc_absent= 1
 	num_aac_frames= 1;
-	object_type= AACStatic.AOT_AAC_MAIN
+	object_type= AACStatic.AOT_AAC_LC
 	chan_config= 2	#(L+R)
 	sampling_index= 3
 
@@ -49,17 +49,20 @@ class AACCore():
 
 	'''
 	original arguments are stored as object variables instead of being passed recursively:
-		avctx (AACContext: same as ac->avctx)
+		avctx (AVCodecContext: same as ac->avctx)
 			codec context, inited at constructor
 
-		ac_m4ac (MPEG4AudioConfig: avctx->priv_data->oc[1].m4ac AKA ac->oc[1].m4ac)
+		ac (AACContext: avctx->priv_data)
+			members have shortcuts, see below
+
+		ac_m4ac (MPEG4AudioConfig: ac->oc[1].m4ac)
 			inited at constructor
 
-		ac_frame (AVFrame: avctx->priv_data->frame AKA ac->frame AKA data)
+		ac_frame (AVFrame: ac->frame AKA data)
 			frame data filled back
 
-		got_frame (boolean)
-			result
+		(unused) got_frame (boolean)
+			result. Used .error instead
 
 		bits (Bits)
 			gb bit context

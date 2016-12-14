@@ -298,7 +298,7 @@ class MuxAAC():
 		, (1, 0)				#version, mpeg4=0
 		, (2, 0)				#layer(0)
 		, (1, 1)				#no protection
-		, (2, 1)				#profile, AAC LC
+		, (2, 2-1)				#profile-1, AAC LC
 		, (4, 3)				#freq index, 3=48000
 		, (1, 0)				#private
 		, (3, 2)				#chanCFG, 2=L+R
