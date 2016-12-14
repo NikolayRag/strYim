@@ -176,9 +176,53 @@ class AACCore():
 					band_type_run_end[idx] = sect_end
 					idx+= 1
 
-		return True
+
+		#+decode_scalefactors
+		offset= [global_gain, global_gain - 90, 0]
+		sf= [0] *120
+		idx= 0
+		noise_flag= 1
+
+		for g in range(0,num_window_groups):
+			for i in range(0,max_sfb):
+				run_end= band_type_run_end[idx]
+				if band_type[idx] == 0:	#ZERO_BT
+					while i<run_end:
+						sf[idx]= 0.
+
+						i+= 1
+						idx+= 1
+
+				elif band_type[idx] == 14 or band_type[idx] == 15:	#INTENSITY_BT, INTENSITY_BT2
+					while i<run_end:
+						offset[2]+= 0
+						sf[idx]= 1
+
+						i+= 1
+						idx+= 1
+
+				elif band_type[idx] == 13:	#NOISE_BT
+					while i<run_end:
+						noise_flag-= 1
+						if noise_flag> 0:
+							offset[1]+= bits.get(9) -256
+						else:
+							offset[1]+= 0
+
+						i+= 1
+						idx+= 1
+				else:
+					while i<run_end:
+						offset[0]+= 0
+						sf[idx]= 0.
+
+						i+= 1
+						idx+= 1
+
+		#-decode_scalefactors
 
 
+		return self
 		#-decode_ics()
 
 
