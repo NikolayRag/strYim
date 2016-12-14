@@ -8,20 +8,39 @@ Indeed it's a very bit of FFMPEG's aac_decode_frame_int(), shortcut where possib
 It's far from being a complete decoder and is made to detect Yi4k MP4's AAC.
 '''
 class AACCore():
+	#Assumed audio properties, overriden by decodeADTS()
 	crc_absent= 1
 	num_aac_frames= 1;
-	object_type=2	#(AOT_AAC_LC)
-	chan_config=2	#(L+R)
-	samples= num_aac_frames *1024;
+	object_type= AACStatic.AOT_AAC_MAIN
+	chan_config= 2	#(L+R)
+	sampling_index= 3
 
-	sampling_index=3	#(48000)
-	sampling_rate=None
+
+	#runtimes
+	sampling_rate= None
+	samples= None
+
+
+	#custom breakpoints
+	restrictId= 0
+	restrictType= AACStatic.TYPE_CPE
+
+
+	#AAC decoded
 	error= 0
 
 
-	def __init__ (self, sampling_index=3):
-		self.sampling_index= sampling_index
-		self.sampling_rate= self.sample_ratesA[self.sampling_index]
+	'''
+	init AAC decoder for subsequental calls.
+	Provided audio parameters will be overriden for ADTS frame
+	'''
+	def __init__ (self, samplingIndex=3, wantedId=0):	#(48000)
+		self.sampling_index= samplingIndex
+		self.sampling_rate= AACStatic.sample_rates[self.sampling_index]
+		self.samples= self.num_aac_frames *1024
+
+		self.restrictId= wantedId
+
 
 
 	'''
@@ -39,12 +58,12 @@ class AACCore():
 		bits= Bits(_data)
 
 		elem_type= bits.get(3)
-		if elem_type !=1:	#only CPE so far
+		if self.restrictType>=0 and elem_type != self.restrictType:
 			self.error= -1
 			return self
 
 		aac_id= bits.get(4)
-		if aac_id>0:	#didnt saw other, used to tighten detection
+		if self.restrictId>=0 and aac_id != self.restrictId:
 			self.error= -2
 			return self
 
