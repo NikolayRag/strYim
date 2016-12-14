@@ -3,9 +3,10 @@ from .kiSupport import *
 
 
 '''
-AAC decoder suitable for AOT_AAC_LC L+R CPE.
-Indeed it's a very bit of FFMPEG's aac_decode_frame_int(), shortcut where possible.
-It's far from being a complete decoder and is made to detect Yi4k MP4's AAC.
+AAC decoder suitable for {AOT_AAC_MAIN, L+R, CPE} stream.
+Indeed it's a very bit of FFMPEG's aac_decode_frame() and further in.
+It's far from being a complete decoder and is made to play with AAC.
+
 '''
 class AACCore():
 	#Assumed audio properties, overriden by decodeADTS()
@@ -47,6 +48,7 @@ class AACCore():
 	decode provided packet, assumed being ADTS
 	'''
 	def decodeADTS(self, _data):
+#  todo 177 (feature) -1: decode ATDS AAC
 		None
 
 	'''
@@ -141,6 +143,7 @@ class AACCore():
 		global_gain= bits.get(8)
 
 
+		#+decode_band_types
 		band_type= [0]*120
 		band_type_run_end= [0]*120
 
@@ -175,6 +178,7 @@ class AACCore():
 					band_type[idx] = sect_band_type
 					band_type_run_end[idx] = sect_end
 					idx+= 1
+		#-decode_band_types
 
 
 		#+decode_scalefactors
@@ -287,6 +291,9 @@ class AACCore():
 			return self
 
 		#-decode_ics()
+
+
+
 
 
 
