@@ -222,6 +222,36 @@ class AACCore():
 		#-decode_scalefactors
 
 
+		pulse_present= bits.get(1)
+		if pulse_present:
+			if packet_windows_sequence==2:
+				self.error= -11
+				return self
+
+			#+decode_pulses
+			num_pulse= bits.get(2) +1
+			pulse_swb= bits.get(6)
+			if pulse_swb>=num_swb:
+				self.error= -12
+				return self
+
+			pos= [0,0,0,0]
+			pos[0]= swb_offset[pulse_swb] +bits.get(5)
+			if pos[0]>1023:
+				self.error= -13
+				return self
+
+			amp= [0,0,0,0]
+			amp[0]= bits.get(4)
+			for i in range(1,num_pulse):
+				pos[i]= bits.get(5) +pos[i-1]
+				if pos[i]>1023:
+					self.error= -14
+					return self
+				amp[i]= bits.get(4)
+			#-decode_pulses
+
+
 		return self
 		#-decode_ics()
 
