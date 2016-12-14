@@ -1,3 +1,4 @@
+from .AACStatic import *
 from .kiSupport import *
 
 
@@ -7,25 +8,6 @@ Indeed it's a very bit of FFMPEG's aac_decode_frame_int(), shortcut where possib
 It's far from being a complete decoder and is made to detect Yi4k MP4's AAC.
 '''
 class AACCore():
-	sample_ratesA= [96000, 88200, 64000, 48000, 44100, 32000, 24000, 22050, 16000, 12000, 11025, 8000, 7350]
-	ff_aac_num_swb_128= [12, 12, 12, 14, 14, 14, 15, 15, 15, 15, 15, 15, 15]
-	ff_tns_max_bands_128= [9, 9, 10, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14]
-	ff_swb_offset_128= [
-		0,
-		0,
-		0,
-		[0, 4, 8, 12, 16, 20, 28, 36, 44, 56, 68, 80, 96, 112, 128]
-	]
-
-	ff_aac_num_swb_1024= [41, 41, 47, 49, 49, 51, 47, 47, 43, 43, 43, 40, 40]
-	ff_tns_max_bands_1024= [31, 31, 34, 40, 42, 51, 46, 46, 42, 42, 42, 39, 39]
-	ff_swb_offset_1024= [
-		0,
-		0,
-		0,
-		[0,   4,   8,  12,  16,  20,  24,  28, 32,  36,  40,  48,  56,  64,  72,  80, 88,  96, 108, 120, 132, 144, 160, 176, 196, 216, 240, 264, 292, 320, 352, 384, 416, 448, 480, 512, 544, 576, 608, 640, 672, 704, 736, 768, 800, 832, 864, 896, 928, 1024]
-	]
-
 	crc_absent= 1
 	num_aac_frames= 1;
 	object_type=2	#(AOT_AAC_LC)
@@ -90,17 +72,17 @@ class AACCore():
 					group_len[num_window_groups -1]= 1
 
 			
-			swb_offset= self.ff_swb_offset_128[self.sampling_index]
-			num_swb= self.ff_aac_num_swb_128[self.sampling_index]
-			tns_max_bands= self.ff_tns_max_bands_128[self.sampling_index]
+			swb_offset= AACStatic.ff_swb_offset_128[self.sampling_index]
+			num_swb= AACStatic.ff_aac_num_swb_128[self.sampling_index]
+			tns_max_bands= AACStatic.ff_tns_max_bands_128[self.sampling_index]
 
 		else:
 			num_windows= 1
 			max_sfb= bits.get(6)
 
-			swb_offset= self.ff_swb_offset_1024[self.sampling_index]
-			num_swb= self.ff_aac_num_swb_1024[self.sampling_index]
-			tns_max_bands= self.ff_tns_max_bands_1024[self.sampling_index]
+			swb_offset= AACStatic.ff_swb_offset_1024[self.sampling_index]
+			num_swb= AACStatic.ff_aac_num_swb_1024[self.sampling_index]
+			tns_max_bands= AACStatic.ff_tns_max_bands_1024[self.sampling_index]
 
 			predictor_present= bits.get(1)
 			if predictor_present:	#not allowed
