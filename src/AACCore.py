@@ -3,10 +3,9 @@ from .kiSupport import *
 
 
 '''
-AAC decoder suitable for {AOT_AAC_MAIN, L+R, CPE} stream.
+AAC decoder suitable for detecting {AOT_AAC_MAIN, L+R, CPE} stream.
 Indeed it's a very bit of FFMPEG's aac_decode_frame() and further in.
 It's far from being a complete decoder and is made to play with AAC.
-
 '''
 class AACCore():
 	#Assumed audio properties, overriden by decodeADTS()
@@ -21,10 +20,13 @@ class AACCore():
 	sampling_rate= None
 	samples= None
 
+	bits= None
+
 
 	#custom breakpoints
 	restrictId= 0
 	restrictType= AACStatic.TYPE_CPE
+	restrictOnce= True
 
 
 	#AAC decoded
@@ -35,12 +37,48 @@ class AACCore():
 	init AAC decoder for subsequental calls.
 	Provided audio parameters will be overriden for ADTS frame
 	'''
-	def __init__ (self, samplingIndex=3, wantedId=0):	#(48000)
+	def __init__ (self, samplingIndex=3, restrictId=0, restrictOnce=True):	#(48000)
 		self.sampling_index= samplingIndex
 		self.sampling_rate= AACStatic.sample_rates[self.sampling_index]
 		self.samples= self.num_aac_frames *1024
 
-		self.restrictId= wantedId
+		self.restrictId= restrictId
+		self.restrictOnce= restrictOnce
+
+
+
+	'''
+	original arguments are stored as object variables instead of being passed recursively:
+		avctx (AACContext: same as ac->avctx)
+			codec context, inited at constructor
+
+		ac_m4ac (MPEG4AudioConfig: avctx->priv_data->oc[1].m4ac AKA ac->oc[1].m4ac)
+			inited at constructor
+
+		ac_frame (AVFrame: avctx->priv_data->frame AKA ac->frame AKA data)
+			frame data filled back
+
+		got_frame (boolean)
+			result
+
+		bits (Bits)
+			gb bit context
+
+	'''
+	def aac_decode_frame(self, _data):
+		self.bits= Bits(_data)
+
+		self.decodeAAC()
+
+		return self
+
+
+
+	
+
+
+
+
 
 
 
@@ -54,34 +92,32 @@ class AACCore():
 	'''
 	decode provided packet, assumed being raw AAC
 	'''
-	def decodeAAC(self, _data):
+	def decodeAAC(self):
 		self.error= 0
 
-		bits= Bits(_data)
-
-		elem_type= bits.get(3)
+		elem_type= self.bits.get(3)
 		if self.restrictType>=0 and elem_type != self.restrictType:
 			self.error= -1
 			return self
 
-		aac_id= bits.get(4)
+		aac_id= self.bits.get(4)
 		if self.restrictId>=0 and aac_id != self.restrictId:
 			self.error= -2
 			return self
 
 		#+decode_cpe()
-		common_window= bits.get(1)
+		common_window= self.bits.get(1)
 		if not common_window:	#not used too
 			self.error= -3
 			return self
 
 		#+decode_ics_info()
-		if bits.get(1):	#reserved bit
+		if self.bits.get(1):	#reserved bit
 			self.error= -4
 			return self
 
-		packet_windows_sequence= bits.get(2)
-		packet_use_kb_window= bits.get(1)
+		packet_windows_sequence= self.bits.get(2)
+		packet_use_kb_window= self.bits.get(1)
 		packet_group_len= 1
 		num_window_groups= 1
 		group_len= [1]+[0]*7
@@ -90,10 +126,10 @@ class AACCore():
 			num_windows= 8
 			predictor_present= 0
 
-			max_sfb= bits.get(4)
+			max_sfb= self.bits.get(4)
 			
 			for i in range(0,7):
-				if bits.get(1):
+				if self.bits.get(1):
 					group_len[num_window_groups -1]+= 1
 				else:
 					num_window_groups+= 1;
@@ -106,13 +142,13 @@ class AACCore():
 
 		else:
 			num_windows= 1
-			max_sfb= bits.get(6)
+			max_sfb= self.bits.get(6)
 
 			swb_offset= AACStatic.ff_swb_offset_1024[self.sampling_index]
 			num_swb= AACStatic.ff_aac_num_swb_1024[self.sampling_index]
 			tns_max_bands= AACStatic.ff_tns_max_bands_1024[self.sampling_index]
 
-			predictor_present= bits.get(1)
+			predictor_present= self.bits.get(1)
 			if predictor_present:	#not allowed
 				self.error= -5
 				return self
@@ -125,7 +161,7 @@ class AACCore():
 		#-decode_ics_info()
 
 
-		ms_present= bits.get(2)
+		ms_present= self.bits.get(2)
 		if ms_present==3:	#reserved MS
 			self.error= -7
 			return self
@@ -136,11 +172,11 @@ class AACCore():
 
 		if ms_present==1:
 			for idx in range(0,num_window_groups*max_sfb):
-				ms_mask[idx]= bits.get(1)
+				ms_mask[idx]= self.bits.get(1)
 
 
 		#+decode_ics()
-		global_gain= bits.get(8)
+		global_gain= self.bits.get(8)
 
 
 		#+decode_band_types
@@ -154,14 +190,14 @@ class AACCore():
 
 			while k < max_sfb:
 				sect_end = k
-				sect_band_type = bits.get(4)
+				sect_band_type = self.bits.get(4)
 				if sect_band_type == 12:	#invalid
 					self.error= -8
 					return self
 
 				while True:
-					sect_len_incr= bits.get(section_bits)
-					if not bits.left:	#underflow
+					sect_len_incr= self.bits.get(section_bits)
+					if not self.bits.left:	#underflow
 						self.error= -9
 						return self
 
@@ -209,7 +245,7 @@ class AACCore():
 					while i<run_end:
 						noise_flag-= 1
 						if noise_flag> 0:
-							offset[1]+= bits.get(9) -256
+							offset[1]+= self.bits.get(9) -256
 						else:
 							offset[1]+= 0
 
@@ -226,67 +262,67 @@ class AACCore():
 		#-decode_scalefactors
 
 
-		pulse_present= bits.get(1)
+		pulse_present= self.bits.get(1)
 		if pulse_present:
 			if packet_windows_sequence==2:
 				self.error= -11
 				return self
 
 			#+decode_pulses
-			num_pulse= bits.get(2) +1
-			pulse_swb= bits.get(6)
+			num_pulse= self.bits.get(2) +1
+			pulse_swb= self.bits.get(6)
 			if pulse_swb>=num_swb:
 				self.error= -12
 				return self
 
 			pos= [0,0,0,0]
-			pos[0]= swb_offset[pulse_swb] +bits.get(5)
+			pos[0]= swb_offset[pulse_swb] +self.bits.get(5)
 			if pos[0]>1023:
 				self.error= -13
 				return self
 
 			amp= [0,0,0,0]
-			amp[0]= bits.get(4)
+			amp[0]= self.bits.get(4)
 			for i in range(1,num_pulse):
-				pos[i]= bits.get(5) +pos[i-1]
+				pos[i]= self.bits.get(5) +pos[i-1]
 				if pos[i]>1023:
 					self.error= -14
 					return self
-				amp[i]= bits.get(4)
+				amp[i]= self.bits.get(4)
 			#-decode_pulses
 
 
 		return self
 
 
-		tns_present= bits.get(1)
+		tns_present= self.bits.get(1)
 		if tns_present:
 		#+decode_tns	
 			is8= packet_windows_sequence==2	#eight_short_seq
 			tns_max_order= 7 if is8 else 12 #not AOT_AAC_MAIN, else 20
 
 			for w in range(0,num_windows):
-				n_filt= bits.get(2 -is8)
+				n_filt= self.bits.get(2 -is8)
 				if n_filt:
-					coef_res= bits.get(1)
+					coef_res= self.bits.get(1)
 
 					for filt in range(0,n_filt):
-						length= bits.get(6 -2*is8)
-						order= bits.get(5 -2*is8)
+						length= self.bits.get(6 -2*is8)
+						order= self.bits.get(5 -2*is8)
 						if (order >tns_max_order):
 							self.error= -15
 							return self
 
 						if order:
-							direction= bits.get(1)
-							coeff_compress= bits.get(1)
+							direction= self.bits.get(1)
+							coeff_compress= self.bits.get(1)
 							coef_len= 3+ coef_res -coeff_compress
 
 							for i in range(0,order):
-								bits.get(coef_len)
+								self.bits.get(coef_len)
 		#-decode_tns
 
-		if bits.get(1):
+		if self.bits.get(1):
 			self.error= -16
 			return self
 
