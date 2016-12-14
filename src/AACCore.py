@@ -16,6 +16,7 @@ class AACCore():
 
 	sampling_index=3	#(48000)
 	sampling_rate=None
+	error= 0
 
 
 	def __init__ (self, sampling_index=3):
@@ -33,24 +34,30 @@ class AACCore():
 	decode provided packet, assumed being raw AAC
 	'''
 	def decodeAAC(self, _data):
+		self.error= 0
+
 		bits= Bits(_data)
 
 		elem_type= bits.get(3)
 		if elem_type !=1:	#only CPE so far
-			return -1
+			self.error= -1
+			return self
 
 		aac_id= bits.get(4)
 		if aac_id>0:	#didnt saw other, used to tighten detection
-			return -2
+			self.error= -2
+			return self
 
 		#+decode_cpe()
 		common_window= bits.get(1)
 		if not common_window:	#not used too
-			return -3
+			self.error= -3
+			return self
 
 		#+decode_ics_info()
 		if bits.get(1):	#reserved bit
-			return -4
+			self.error= -4
+			return self
 
 		packet_windows_sequence= bits.get(2)
 		packet_use_kb_window= bits.get(1)
@@ -86,18 +93,21 @@ class AACCore():
 
 			predictor_present= bits.get(1)
 			if predictor_present:	#not allowed
-				return -5
+				self.error= -5
+				return self
 
 
 		if max_sfb>num_swb: #scalefactor exceed limit
-			return -6
+			self.error= -6
+			return self
 
 		#-decode_ics_info()
 
 
 		ms_present= bits.get(2)
 		if ms_present==3:	#reserved MS
-			return -7
+			self.error= -7
+			return self
 
 		ms_mask= [0] *num_window_groups*max_sfb
 		if ms_present==2:	#all 1
@@ -124,16 +134,19 @@ class AACCore():
 				sect_end = k
 				sect_band_type = bits.get(4)
 				if sect_band_type == 12:	#invalid
-					return -8
+					self.error= -8
+					return self
 
 				while True:
 					sect_len_incr= bits.get(section_bits)
 					if not bits.left:	#underflow
-						return -9
+						self.error= -9
+						return self
 
 					sect_end += sect_len_incr
 					if sect_end > max_sfb:	#bands exceed limit
-						return -10
+						self.error= -10
+						return self
 
 					if sect_len_incr != (1<<section_bits) -1:
 						break
