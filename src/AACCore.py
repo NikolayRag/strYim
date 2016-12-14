@@ -253,6 +253,39 @@ class AACCore():
 
 
 		return self
+
+
+		tns_present= bits.get(1)
+		if tns_present:
+		#+decode_tns	
+			is8= packet_windows_sequence==2	#eight_short_seq
+			tns_max_order= 7 if is8 else 12 #not AOT_AAC_MAIN, else 20
+
+			for w in range(0,num_windows):
+				n_filt= bits.get(2 -is8)
+				if n_filt:
+					coef_res= bits.get(1)
+
+					for filt in range(0,n_filt):
+						length= bits.get(6 -2*is8)
+						order= bits.get(5 -2*is8)
+						if (order >tns_max_order):
+							self.error= -15
+							return self
+
+						if order:
+							direction= bits.get(1)
+							coeff_compress= bits.get(1)
+							coef_len= 3+ coef_res -coeff_compress
+
+							for i in range(0,order):
+								bits.get(coef_len)
+		#-decode_tns
+
+		if bits.get(1):
+			self.error= -16
+			return self
+
 		#-decode_ics()
 
 
