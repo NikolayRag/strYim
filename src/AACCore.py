@@ -1,4 +1,4 @@
-from .AACStatic import *
+from .AACSupport import *
 from .kiSupport import *
 
 
@@ -8,19 +8,14 @@ Indeed it's a very bit of FFMPEG's aac_decode_frame() and further in.
 It's far from being a complete decoder and is intended to be an AAC playground.
 '''
 class AACCore():
-	#Assumed audio properties, overriden by ADTS
-	crc_absent= 1
-	num_aac_frames= 1;
-	object_type= AACStatic.AOT_AAC_LC
-	chan_config= 2	#(L+R)
-	sampling_index= 3
-
-
 	#runtimes
-	sampling_rate= None
-	samples= None
+	avctx= AVCodecContext()	#codec context, shortcut for ac->avctx
+	ac= AACContext() #shortcut for avctx->priv_data
+	ac_frame= AVFrame() #frame data filled back, shortcut for ac->frame AKA data
+	ac_m4ac= None #active audion config, shortcut for ac->oc[1].m4ac
+	m4ac= MPEG4AudioConfig() #template audion config for ac_m4ac
 
-	bits= None
+	bits= None	#gb bit context
 
 
 	#custom breakpoints
@@ -38,38 +33,26 @@ class AACCore():
 	Provided audio parameters will be overriden for ADTS frame
 	'''
 	def __init__ (self, samplingIndex=3, restrictId=0, restrictOnce=True):	#(48000)
-		self.sampling_index= samplingIndex
-		self.sampling_rate= AACStatic.sample_rates[self.sampling_index]
-		self.samples= self.num_aac_frames *1024
+		self.m4ac.set(
+			  object_type= AACStatic.AOT_AAC_LC
+			, chan_config= 2	#(L+R)
+			, sampling_index= 3
+		)
 
 		self.restrictId= restrictId
 		self.restrictOnce= restrictOnce
 
 
 
+
 	'''
-	original arguments are stored as object variables instead of being passed recursively:
-		avctx (AVCodecContext: same as ac->avctx)
-			codec context, inited at constructor
-
-		ac (AACContext: avctx->priv_data)
-			members have shortcuts, see below
-
-		ac_m4ac (MPEG4AudioConfig: ac->oc[1].m4ac)
-			inited at constructor
-
-		ac_frame (AVFrame: ac->frame AKA data)
-			frame data filled back
-
-		(unused) got_frame (boolean)
-			result. Used .error instead
-
-		bits (Bits)
-			gb bit context
-
+	Main entry point. Decode provided (bytes)_data and fills back frame characteristics.
+	Original arguments are stored as object variables instead of being passed recursively
 	'''
 	def aac_decode_frame(self, _data):
 		self.bits= Bits(_data)
+
+		self.ac_m4ac= MPEG4AudioConfig(m4ac)
 
 		self.decodeAAC()
 
@@ -139,17 +122,17 @@ class AACCore():
 					group_len[num_window_groups -1]= 1
 
 			
-			swb_offset= AACStatic.ff_swb_offset_128[self.sampling_index]
-			num_swb= AACStatic.ff_aac_num_swb_128[self.sampling_index]
-			tns_max_bands= AACStatic.ff_tns_max_bands_128[self.sampling_index]
+			swb_offset= AACStatic.ff_swb_offset_128[self.ac_m4ac.sampling_index]
+			num_swb= AACStatic.ff_aac_num_swb_128[self.ac_m4ac.sampling_index]
+			tns_max_bands= AACStatic.ff_tns_max_bands_128[self.ac_m4ac.sampling_index]
 
 		else:
 			num_windows= 1
 			max_sfb= self.bits.get(6)
 
-			swb_offset= AACStatic.ff_swb_offset_1024[self.sampling_index]
-			num_swb= AACStatic.ff_aac_num_swb_1024[self.sampling_index]
-			tns_max_bands= AACStatic.ff_tns_max_bands_1024[self.sampling_index]
+			swb_offset= AACStatic.ff_swb_offset_1024[self.ac_m4ac.sampling_index]
+			num_swb= AACStatic.ff_aac_num_swb_1024[self.ac_m4ac.sampling_index]
+			tns_max_bands= AACStatic.ff_tns_max_bands_1024[self.ac_m4ac.sampling_index]
 
 			predictor_present= self.bits.get(1)
 			if predictor_present:	#not allowed

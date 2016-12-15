@@ -1,4 +1,3 @@
-@@ -1,193 +0,0 @@
 class AACStatic():
 	#consts
 
@@ -192,3 +191,47 @@ class AACStatic():
 		19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19,
 		19, 19, 19, 19, 19, 19, 19, 19, 19
 	]
+
+
+class MPEG4AudioConfig():
+	object_type=	None
+	sampling_index=	None
+	sample_rate=	None
+	chan_config=	None
+
+	channels=	None
+	sbr=	None
+	ps=	None
+	frame_length_short=	None
+
+	ext_object_type=	None
+	ext_sampling_index=	None
+	ext_sample_rate=	None
+	ext_chan_config=	None
+
+	def __init__(self, _m4ac=None):
+		if _m4ac:
+			self.set(
+				  object_type= _m4ac.object_type
+				, chan_config= _m4ac.chan_config
+				, sampling_index= _m4ac.sampling_index
+			)
+
+
+	def set(self, object_type=None, chan_config=None, sampling_index=None):
+		self.object_type= object_type
+		self.chan_config= chan_config
+		self.sampling_index= sampling_index
+
+		self.sampling_rate= AACStatic.sample_rates[self.sampling_index]
+
+
+
+class AACContext():
+	None
+
+class AVCodecContext():
+	None
+
+class AVFrame():
+	None
