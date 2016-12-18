@@ -9,19 +9,14 @@ It's far from being a complete decoder and is intended to be an AAC playground.
 '''
 class AACCore():
 	#runtimes
-	avctx= AVCodecContext()	#codec context, shortcut for ac->avctx
-	ac= AACContext() #shortcut for avctx->priv_data
-	ac_frame= AVFrame() #frame data filled back, shortcut for ac->frame AKA data
+#	avctx= AVCodecContext()	#codec context, shortcut for ac->avctx
+#	ac= AACContext() #shortcut for avctx->priv_data
+#	ac_frame= AVFrame() #frame data filled back, shortcut for ac->frame AKA data
 	ac_m4ac= None #active audion config, shortcut for ac->oc[1].m4ac
 	m4ac= MPEG4AudioConfig() #template audion config for ac_m4ac
+	che= None #ChannelElement
 
 	bits= None	#gb bit context
-
-
-	#custom breakpoints
-	restrictId= 0
-	restrictType= AACStatic.TYPE_CPE
-	restrictOnce= True
 
 
 	#AAC decoded
@@ -32,15 +27,13 @@ class AACCore():
 	init AAC decoder for subsequental calls.
 	Provided audio parameters will be overriden for ADTS frame
 	'''
-	def __init__ (self, samplingIndex=3, restrictId=0, restrictOnce=True):	#(48000)
+	def __init__ (self, samplingIndex=3):
 		self.m4ac.set(
 			  object_type= AACStatic.AOT_AAC_LC
 			, chan_config= 2	#(L+R)
-			, sampling_index= 3
+			, sampling_index= samplingIndex	#reference AACStatic.sample_rates (3=48000)
 		)
 
-		self.restrictId= restrictId
-		self.restrictOnce= restrictOnce
 
 
 
@@ -48,13 +41,51 @@ class AACCore():
 	'''
 	Main entry point. Decode provided (bytes)_data and fills back frame characteristics.
 	Original arguments are stored as object variables instead of being passed recursively
+
+
 	'''
-	def aac_decode_frame(self, _data):
+	def aac_decode_frame(self, _data, _once=True):
 		self.bits= Bits(_data)
+		self.error= 0
 
-		self.ac_m4ac= MPEG4AudioConfig(m4ac)
+		self.ac_m4ac= MPEG4AudioConfig(self.m4ac)
 
-		self.decodeAAC()
+
+		#aac_decode_frame_int() inlined
+
+#  todo 178 (feature) -1: read ADTS header, bitstream seek() must be implemented
+#		if self.bits.get(12) == 0xfff:
+#			self.readADTS(self.ac_m4ac)
+#		else:
+#			self.bits.seek(0)
+
+
+		while True:
+			elem_type= self.bits.get(3)
+			if elem_type==AACStatic.TYPE_END:
+				break
+
+			aac_id= self.bits.get(4)
+
+			self.ac_che= ChannelElement()
+
+			#TYPE_CPE is only one supported indeed
+			if elem_type == AACStatic.TYPE_CPE:
+
+				self.decode_cpe()
+
+			else:
+				self.error= -2
+
+
+			if self.error:
+				break
+
+
+			if _once:
+				break #only one AAC block atm, sorry
+
+
 
 		return self
 
@@ -63,44 +94,24 @@ class AACCore():
 	
 
 
-
-
-
-
-
-	'''
-	decode provided packet, assumed being ADTS
-	'''
-	def decodeADTS(self, _data):
-#  todo 177 (feature) -1: decode ATDS AAC
+	def decode_cpe(self):
 		None
+
+
+
 
 	'''
 	decode provided packet, assumed being raw AAC
 	'''
 	def decodeAAC(self):
-		self.error= 0
-
-		elem_type= self.bits.get(3)
-		if self.restrictType>=0 and elem_type != self.restrictType:
-			self.error= -1
-			return self
-
-		aac_id= self.bits.get(4)
-		if self.restrictId>=0 and aac_id != self.restrictId:
-			self.error= -2
-			return self
-
 		#+decode_cpe()
 		common_window= self.bits.get(1)
 		if not common_window:	#not used too
-			self.error= -3
-			return self
+			return -3
 
 		#+decode_ics_info()
 		if self.bits.get(1):	#reserved bit
-			self.error= -4
-			return self
+			return -4
 
 		packet_windows_sequence= self.bits.get(2)
 		packet_use_kb_window= self.bits.get(1)
@@ -136,21 +147,18 @@ class AACCore():
 
 			predictor_present= self.bits.get(1)
 			if predictor_present:	#not allowed
-				self.error= -5
-				return self
+				return -5
 
 
 		if max_sfb>num_swb: #scalefactor exceed limit
-			self.error= -6
-			return self
+			return -6
 
 		#-decode_ics_info()
 
 
 		ms_present= self.bits.get(2)
 		if ms_present==3:	#reserved MS
-			self.error= -7
-			return self
+			return -7
 
 		ms_mask= [0] *num_window_groups*max_sfb
 		if ms_present==2:	#all 1
@@ -178,19 +186,16 @@ class AACCore():
 				sect_end = k
 				sect_band_type = self.bits.get(4)
 				if sect_band_type == 12:	#invalid
-					self.error= -8
-					return self
+					return -8
 
 				while True:
 					sect_len_incr= self.bits.get(section_bits)
 					if not self.bits.left:	#underflow
-						self.error= -9
-						return self
+						return -9
 
 					sect_end += sect_len_incr
 					if sect_end > max_sfb:	#bands exceed limit
-						self.error= -10
-						return self
+						return -10
 
 					if sect_len_incr != (1<<section_bits) -1:
 						break
@@ -251,29 +256,25 @@ class AACCore():
 		pulse_present= self.bits.get(1)
 		if pulse_present:
 			if packet_windows_sequence==2:
-				self.error= -11
-				return self
+				return -11
 
 			#+decode_pulses
 			num_pulse= self.bits.get(2) +1
 			pulse_swb= self.bits.get(6)
 			if pulse_swb>=num_swb:
-				self.error= -12
-				return self
+				return -12
 
 			pos= [0,0,0,0]
 			pos[0]= swb_offset[pulse_swb] +self.bits.get(5)
 			if pos[0]>1023:
-				self.error= -13
-				return self
+				return -13
 
 			amp= [0,0,0,0]
 			amp[0]= self.bits.get(4)
 			for i in range(1,num_pulse):
 				pos[i]= self.bits.get(5) +pos[i-1]
 				if pos[i]>1023:
-					self.error= -14
-					return self
+					return -14
 				amp[i]= self.bits.get(4)
 			#-decode_pulses
 
@@ -296,8 +297,7 @@ class AACCore():
 						length= self.bits.get(6 -2*is8)
 						order= self.bits.get(5 -2*is8)
 						if (order >tns_max_order):
-							self.error= -15
-							return self
+							return -15
 
 						if order:
 							direction= self.bits.get(1)
@@ -309,8 +309,7 @@ class AACCore():
 		#-decode_tns
 
 		if self.bits.get(1):
-			self.error= -16
-			return self
+			return -16
 
 		#-decode_ics()
 

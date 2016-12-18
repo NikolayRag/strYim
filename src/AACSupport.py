@@ -54,7 +54,7 @@ class AACStatic():
 #	TYPE_DSE=	4
 #	TYPE_PCE=	5
 #	TYPE_FIL=	6
-#	TYPE_END=	7
+	TYPE_END=	7
 
 #	EXT_FILL=	0
 #	EXT_FILL_DATA=	1
@@ -62,6 +62,7 @@ class AACStatic():
 #	EXT_DYNAMIC_RANGE = 0xb
 #	EXT_SBR_DATA      = 0xd
 #	EXT_SBR_DATA_CRC  = 0xe
+
 
 	ONLY_LONG_SEQUENCE=	0
 	LONG_START_SEQUENCE=	1
@@ -199,15 +200,15 @@ class MPEG4AudioConfig():
 	sample_rate=	None
 	chan_config=	None
 
-	channels=	None
-	sbr=	None
-	ps=	None
-	frame_length_short=	None
+#	channels=	None
+#	sbr=	None
+#	ps=	None
+#	frame_length_short=	None
 
-	ext_object_type=	None
-	ext_sampling_index=	None
-	ext_sample_rate=	None
-	ext_chan_config=	None
+#	ext_object_type=	None
+#	ext_sampling_index=	None
+#	ext_sample_rate=	None
+#	ext_chan_config=	None
 
 	def __init__(self, _m4ac=None):
 		if _m4ac:
@@ -224,6 +225,22 @@ class MPEG4AudioConfig():
 		self.sampling_index= sampling_index
 
 		self.sampling_rate= AACStatic.sample_rates[self.sampling_index]
+
+
+
+class ChannelElement():
+#	present= None
+
+#	common_window= None
+#	ms_mode= None
+#	is_mode= None
+#	ms_mask= [None] *128
+#	is_mask= [None] *128
+
+#	ch= [None] *2 #SingleChannelElement
+
+#	ChannelCoupling coup
+#	SpectralBandReplication sbr
 
 
 
