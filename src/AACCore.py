@@ -14,7 +14,9 @@ class AACCore():
 #	ac_frame= AVFrame() #frame data filled back, shortcut for ac->frame AKA data
 	ac_m4ac= None #active audion config, shortcut for ac->oc[1].m4ac
 	m4ac= MPEG4AudioConfig() #template audion config for ac_m4ac
-	che= None #ChannelElement
+	ac_che= None #ChannelElement
+	sce_ics0= None
+	sce_ics1= None
 
 	bits= None	#gb bit context
 
@@ -68,23 +70,22 @@ class AACCore():
 			aac_id= self.bits.get(4)
 
 			self.ac_che= ChannelElement()
+			self.sce_ics0= SCE_ICS()
+
 
 			#TYPE_CPE is only one supported indeed
 			if elem_type == AACStatic.TYPE_CPE:
-
 				self.decode_cpe()
 
 			else:
-				self.error= -2
+				self.error= -1
 
 
 			if self.error:
 				break
 
-
-			if _once:
-				break #only one AAC block atm, sorry
-
+			if _once or 1: #only one AAC block atm, sorry
+				break
 
 
 		return self
@@ -95,6 +96,142 @@ class AACCore():
 
 
 	def decode_cpe(self):
+		ics= self.sce_ics0
+
+		common_window= self.bits.get(1)
+	
+#  todo 179 (feature) -1: not-common_window
+		if True:	#common_window:
+			self.decode_ics_info(ics)
+			if self.error:
+				return
+
+			self.sce_ics1= SCE_ICS(ics)
+
+			if False:	#ics.predictor_present && self.ac_m4ac.object_type != AOT_AAC_MAIN
+				None
+				'''
+				ics.ltp.present = self.bits.get(1)
+				if ics.ltp.present:
+					decode_ltp(self.sce_ics1)	#decode other channel
+				'''
+
+
+			ms_present= self.bits.get(2)
+			if ms_present==3:	#reserved MS
+				self.result= -7
+				return
+
+			#+decode_mid_side_stereo
+			if ms_present==2:	#all 1
+				self.ac_che.ms_mask= [1] *ics.num_window_groups*ics.max_sfb
+
+			if ms_present==1:
+				for idx in range(0,ics.num_window_groups*ics.max_sfb):
+					self.ac_che.ms_mask[idx]= self.bits.get(1)
+			#-decode_mid_side_stereo
+
+
+
+
+	def decode_ics_info(self, _ics):
+		if True:	#(m4ac.object_type != AOT_ER_AAC_ELD):
+			if self.bits.get(1):	#reserved bit
+				self.error= -3
+				return
+
+			_ics.windows_sequence[1]= _ics.windows_sequence[0]
+			_ics.windows_sequence[0]= self.bits.get(2)
+			_ics.is8= _ics.windows_sequence[0]==AACStatic.EIGHT_SHORT_SEQUENCE
+
+			if False:	#(aot == AOT_ER_AAC_LD && _ics->window_sequence[0] != ONLY_LONG_SEQUENCE)
+				None
+				'''
+				_ics.window_sequence[0] = AACStatic.ONLY_LONG_SEQUENCE
+				self.error= -4
+				return
+				'''
+
+			_ics.use_kb_window[1]= _ics.use_kb_window[0]
+			_ics.use_kb_window[0]= self.bits.get(1)
+
+
+		_ics.num_window_groups= 1
+		_ics.group_len[0]= 1
+
+		if _ics.is8:
+			_ics.max_sfb= self.bits.get(4)
+			
+			for i in range(0,7):
+				if self.bits.get(1):
+					_ics.group_len[_ics.num_window_groups -1]+= 1
+				else:
+					_ics.num_window_groups+= 1;
+					_ics.group_len[_ics.num_window_groups -1]= 1
+
+			_ics.swb_offset= AACStatic.ff_swb_offset_128[self.ac_m4ac.sampling_index]
+			_ics.num_swb= AACStatic.ff_aac_num_swb_128[self.ac_m4ac.sampling_index]
+			_ics.tns_max_bands= AACStatic.ff_tns_max_bands_128[self.ac_m4ac.sampling_index]
+
+			_ics.num_windows= 8
+			_ics.predictor_present= 0
+
+		else:
+			_ics.num_windows= 1
+			_ics.max_sfb= self.bits.get(6)
+
+			if False:	#(aot == AOT_ER_AAC_LD || aot == AOT_ER_AAC_ELD)
+				None
+				'''
+				if (m4ac->frame_length_short):
+					_ics->swb_offset    =     ff_swb_offset_480[sampling_index];
+					_ics->num_swb       =    ff_aac_num_swb_480[sampling_index];
+					_ics->tns_max_bands =  ff_tns_max_bands_480[sampling_index];
+				else:
+					_ics->swb_offset    =     ff_swb_offset_512[sampling_index];
+					_ics->num_swb       =    ff_aac_num_swb_512[sampling_index];
+					_ics->tns_max_bands =  ff_tns_max_bands_512[sampling_index];
+
+				if (!_ics->num_swb || !_ics->swb_offset)
+					return AVERROR_BUG;
+				'''
+			else:
+				_ics.swb_offset= AACStatic.ff_swb_offset_1024[self.ac_m4ac.sampling_index]
+				_ics.num_swb= AACStatic.ff_aac_num_swb_1024[self.ac_m4ac.sampling_index]
+				_ics.tns_max_bands= AACStatic.ff_tns_max_bands_1024[self.ac_m4ac.sampling_index]
+
+			if True:	#(aot != AOT_ER_AAC_ELD)
+				_ics.predictor_present= self.bits.get(1)
+				_ics.predictor_reset_group= 0
+
+			if _ics.predictor_present:	#not allowed
+				if True:	#if (aot == AOT_AAC_LC || aot == AOT_ER_AAC_LC)
+					self.error= -5
+					return
+
+				'''
+				if (aot == AOT_AAC_MAIN)
+					decode_prediction()
+					
+				else:
+					if (aot == AOT_ER_AAC_LD):
+						self.error= -5
+						return
+
+					_ics.ltp.present = self.bits.get(1)
+					if _ics.ltp.present:
+						decode_ltp(_ics)
+				'''
+
+
+		if _ics.max_sfb>_ics.num_swb: #scalefactor bands exceed limit
+			self.error= -6
+			return
+
+
+
+
+	def decode_ics(self, _ics, _common_window):
 		None
 
 
@@ -104,70 +241,6 @@ class AACCore():
 	decode provided packet, assumed being raw AAC
 	'''
 	def decodeAAC(self):
-		#+decode_cpe()
-		common_window= self.bits.get(1)
-		if not common_window:	#not used too
-			return -3
-
-		#+decode_ics_info()
-		if self.bits.get(1):	#reserved bit
-			return -4
-
-		packet_windows_sequence= self.bits.get(2)
-		packet_use_kb_window= self.bits.get(1)
-		packet_group_len= 1
-		num_window_groups= 1
-		group_len= [1]+[0]*7
-
-		if packet_windows_sequence==2: #eight_short_seq
-			num_windows= 8
-			predictor_present= 0
-
-			max_sfb= self.bits.get(4)
-			
-			for i in range(0,7):
-				if self.bits.get(1):
-					group_len[num_window_groups -1]+= 1
-				else:
-					num_window_groups+= 1;
-					group_len[num_window_groups -1]= 1
-
-			
-			swb_offset= AACStatic.ff_swb_offset_128[self.ac_m4ac.sampling_index]
-			num_swb= AACStatic.ff_aac_num_swb_128[self.ac_m4ac.sampling_index]
-			tns_max_bands= AACStatic.ff_tns_max_bands_128[self.ac_m4ac.sampling_index]
-
-		else:
-			num_windows= 1
-			max_sfb= self.bits.get(6)
-
-			swb_offset= AACStatic.ff_swb_offset_1024[self.ac_m4ac.sampling_index]
-			num_swb= AACStatic.ff_aac_num_swb_1024[self.ac_m4ac.sampling_index]
-			tns_max_bands= AACStatic.ff_tns_max_bands_1024[self.ac_m4ac.sampling_index]
-
-			predictor_present= self.bits.get(1)
-			if predictor_present:	#not allowed
-				return -5
-
-
-		if max_sfb>num_swb: #scalefactor exceed limit
-			return -6
-
-		#-decode_ics_info()
-
-
-		ms_present= self.bits.get(2)
-		if ms_present==3:	#reserved MS
-			return -7
-
-		ms_mask= [0] *num_window_groups*max_sfb
-		if ms_present==2:	#all 1
-			ms_mask= [1] *num_window_groups*max_sfb
-
-		if ms_present==1:
-			for idx in range(0,num_window_groups*max_sfb):
-				ms_mask[idx]= self.bits.get(1)
-
 
 		#+decode_ics()
 		global_gain= self.bits.get(8)
@@ -179,10 +252,10 @@ class AACCore():
 
 		idx= 0
 		section_bits= 3 if packet_windows_sequence==2 else 5
-		for g in range(0,num_window_groups):
+		for g in range(0,ics.num_window_groups):
 			k=0
 
-			while k < max_sfb:
+			while k < ics.max_sfb:
 				sect_end = k
 				sect_band_type = self.bits.get(4)
 				if sect_band_type == 12:	#invalid
@@ -194,7 +267,7 @@ class AACCore():
 						return -9
 
 					sect_end += sect_len_incr
-					if sect_end > max_sfb:	#bands exceed limit
+					if sect_end > ics.max_sfb:	#bands exceed limit
 						return -10
 
 					if sect_len_incr != (1<<section_bits) -1:
@@ -214,8 +287,8 @@ class AACCore():
 		idx= 0
 		noise_flag= 1
 
-		for g in range(0,num_window_groups):
-			for i in range(0,max_sfb):
+		for g in range(0,ics.num_window_groups):
+			for i in range(0,ics.max_sfb):
 				run_end= band_type_run_end[idx]
 				if band_type[idx] == 0:	#ZERO_BT
 					while i<run_end:
@@ -261,11 +334,11 @@ class AACCore():
 			#+decode_pulses
 			num_pulse= self.bits.get(2) +1
 			pulse_swb= self.bits.get(6)
-			if pulse_swb>=num_swb:
+			if pulse_swb>=ics.num_swb:
 				return -12
 
 			pos= [0,0,0,0]
-			pos[0]= swb_offset[pulse_swb] +self.bits.get(5)
+			pos[0]= ics.swb_offset[pulse_swb] +self.bits.get(5)
 			if pos[0]>1023:
 				return -13
 
@@ -288,7 +361,7 @@ class AACCore():
 			is8= packet_windows_sequence==2	#eight_short_seq
 			tns_max_order= 7 if is8 else 12 #not AOT_AAC_MAIN, else 20
 
-			for w in range(0,num_windows):
+			for w in range(0,ics.num_windows):
 				n_filt= self.bits.get(2 -is8)
 				if n_filt:
 					coef_res= self.bits.get(1)
