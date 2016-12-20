@@ -84,11 +84,11 @@ class Mp4Recover():
 		foundFalse= 0
 		foundStart= 0
 		while True:
-			atomMatch= self.analyzeAtom(_data, foundStart, self.signAVC[signI], self.signAVC[signI1])
-			if atomMatch==None: #not enough data, stop
+			atomMatchA= self.analyzeAtom(_data, foundStart, self.signAVC[signI], self.signAVC[signI1])
+			if atomMatchA==None: #not enough data, stop
 				break
 
-			if atomMatch==False: #retry further
+			if atomMatchA==False: #retry further
 				foundFalse+= 1
 
 				foundStart= _data.find(self.signAVC[signI], foundStart+1+4)-4	#rewind to actual start
@@ -99,26 +99,30 @@ class Mp4Recover():
 
 
 			#Atom found
-			if atomMatch.typeMoov:	#abort limiting
-				KFrameLast= None
+			for atomMatch in atomMatchA:
+				if atomMatch.typeMoov:	#abort limiting
+					KFrameLast= None
+					break
+
+
+				matchesA.append(atomMatch)
+
+				foundStart=	atomMatch.outPos	#shortcut for next
+
+
+				if atomMatch.typeAVC:
+					signI= signI1
+
+					signI1+= 1
+					if signI1==len(self.signAVC):
+						signI1= 0
+
+
+					if atomMatch.AVCKey:	#limits to keyframes
+						KFrameLast= len(matchesA)-1
+
+			if KFrameLast= None:	#MOOV was detected
 				break
-
-
-			matchesA.append(atomMatch)
-
-			foundStart=	atomMatch.outPos	#shortcut for next
-
-
-			if atomMatch.typeAVC:
-				signI= signI1
-
-				signI1+= 1
-				if signI1==len(self.signAVC):
-					signI1= 0
-
-
-				if atomMatch.AVCKey:	#limits to keyframes
-					KFrameLast= len(matchesA)-1
 
 
 
@@ -166,7 +170,7 @@ class Mp4Recover():
 			if outPos>len(_data): #Not enough data to test
 				return None
 
-			return Atom(_inPos,outPos).setMOOV()
+			return [Atom(_inPos,outPos).setMOOV()]
 
 
 		if signThis==_signAVC:
@@ -181,7 +185,7 @@ class Mp4Recover():
 			):
 				return False
 
-			return Atom(_inPos+4,outPos).setAVC(signThis==self.signAVC[0])
+			return [Atom(_inPos+4,outPos).setAVC(signThis==self.signAVC[0])]
 
 
 		#AAC
@@ -201,7 +205,7 @@ class Mp4Recover():
 			if outPos<0:	#still nothing found
 				return None
 
-			return Atom(_inPos,outPos).setAAC()
+			return [Atom(_inPos,outPos).setAAC()]
 
 
 		return False
