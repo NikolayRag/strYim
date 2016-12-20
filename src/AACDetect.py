@@ -8,19 +8,16 @@ It should be completely replaced by native AAC decoder. Eventually.
 class AACDetect():
 	#allowed max_sfb's
 	sfb8= 12
-	sfb1= 40
-	sfb0= 0
+	sfb1= [0,40]
 
-	cSfb= 0
-	inChain= False
+	started= False
 
 	def __init__(self):
 		self.reset()
 
 
 	def reset(self):
-		self.cSfb= self.sfb0
-		self.inChain= False
+		self.started= False
 
 
 	def detect(self, _data):
@@ -43,9 +40,9 @@ class AACDetect():
 			aac= AACCore().aac_decode_frame(_data[aacPos:])
 			if (
 				aac.error
-				or (aac.sce_ics0.max_sfb!= (self.sfb8 if aac.sce_ics0.is8 else self.cSfb)) #predefined Maxsfb
+				or (aac.sce_ics0.max_sfb!= (self.sfb8 if aac.sce_ics0.is8 else self.sfb1[self.started])) #predefined Maxsfb
 				or (	#non-first must be masked
-					self.cSfb
+					self.sfb1[self.started]
 					and aac.ac_che.ms_present != 1
 					and aac.ac_che.ms_present != 2
 				)
@@ -67,11 +64,11 @@ class AACDetect():
 
 			aacStartA.append(aacPos)
 
-			self.cSfb= self.sfb1
 			if aac.sce_ics0.windows_sequence[0]==1:
 				self.inChain= True
 			if aac.sce_ics0.windows_sequence[0]==3:
 				self.inChain= False
+			self.started= True
 
 
 		aacEndA= aacStartA[1:] +[len(_data)]
