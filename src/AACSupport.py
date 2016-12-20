@@ -221,17 +221,15 @@ class AACStatic():
 
 
 	#unfinished (unstarted indeed)
-	def buildVLC():
+	def buildVLC(codes, bits):
 		nb_bits= 7
-		nb_codes= len(AACStatic.ff_aac_scalefactor_code)
-		bits= AACStatic.ff_aac_scalefactor_bits
-		codes= AACStatic.ff_aac_scalefactor_code
+		nb_codes= len(codes)
 		
 		table= [[0,0]] *352
 
 		return table
 
-	VLCTable= buildVLC()
+	VLCTable= buildVLC(ff_aac_scalefactor_code, ff_aac_scalefactor_bits)
 
 
 
