@@ -2,6 +2,7 @@ import subprocess, tempfile, re
 
 from .byteTransit import *
 from .mp4Atom import *
+from .AACDetect import *
 from .kiLog import *
 
 
@@ -20,7 +21,12 @@ class Mp4Recover():
 	atomCB= None
 
 
+	detectHelper= None
+
+
 	def __init__(self, _atomCB):
+		self.detectHelper= AACDetect()
+	
 		self.transit= byteTransit(self.atomsFromRaw, 500000)
 
 
@@ -121,13 +127,16 @@ class Mp4Recover():
 					if atomMatch.AVCKey:	#limits to keyframes
 						KFrameLast= len(matchesA)-1
 
-			if KFrameLast= None:	#MOOV was detected
+			if KFrameLast== None:	#MOOV was detected
 				break
 
 
 
 		if _finalize:
 			KFrameLast= None
+
+			self.detectHelper.reset()
+
 
 		atomBlock= matchesA[:KFrameLast]
 		
@@ -205,7 +214,11 @@ class Mp4Recover():
 			if outPos<0:	#still nothing found
 				return None
 
-			return [Atom(_inPos,outPos).setAAC()]
+			AACA= []
+			for aac in self.detectHelper.detect(_data[_inPos:outPos]):
+				AACA.append(Atom(_inPos+aac[0],_inPos+aac[1]).setAAC())
+
+			return AACA
 
 
 		return False
