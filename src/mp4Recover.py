@@ -78,7 +78,7 @@ class Mp4Recover():
 		signI= 0
 		signI1= 1 #cached version
 
-		KFrameLast= None	#Last IDR frame to cut out if not finalize
+		KFrameLast= 0	#Last IDR frame to cut out if not finalize
 		matchesA= []
 
 		foundFalse= 0
