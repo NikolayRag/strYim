@@ -148,9 +148,8 @@ class Mp4Recover():
 
 
 	'''
-	Detects Atom assumed to be started from _in.
+	Detects Atom assumed to be started from _inPos.
 	Return: Atom if detected, False if not, or None if insufficient data.
-	_in must be not less than 4.
 	
 	AVC: 4b:size, size:(signAVC[x],...), signAAC|(4b,signAVC[x+1])|(4b,signMoov)
 	AAC: signAAC, ?:..., (4b,signAVC[x+1])|(4b,signMoov)
@@ -189,6 +188,7 @@ class Mp4Recover():
 
 
 		#AAC
+# -todo 180 (feature, aac) +0: detect AAC length by native decoding
 		if _data[_inPos]==self.signAAC[0]:
 			outPos= _data.find(_signAVC, _inPos)-4
 
