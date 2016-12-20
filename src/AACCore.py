@@ -89,6 +89,7 @@ class AACCore():
 
 
 			#TYPE_CPE is only one supported indeed
+#  todo 182 (feature, aac) -1: add different aac types
 			if elem_type == AACStatic.TYPE_CPE:
 				self.decode_cpe()
 
@@ -309,7 +310,12 @@ class AACCore():
 
 		return
 
-		#no road beyond this point
+
+#!!!! DANGER !!!!
+#no road beyond this point
+#!!!! DANGER !!!!
+
+
 		#+decode_scalefactors()
 		idx= 0
 		offset= [global_gain, global_gain-AACStatic.NOISE_OFFSET, 0]
@@ -369,22 +375,6 @@ class AACCore():
 
 
 
-	def get_vlc2(self): #precoded bits=7, depth=3
-		None
-
-
-
-
-
-
-
-	'''
-	proto
-	'''
-	def decode(self):
-
-
-
 		pulse_present= self.bits.get(1)
 		if pulse_present:
 			if packet_windows_sequence==2:
@@ -410,8 +400,6 @@ class AACCore():
 				amp[i]= self.bits.get(4)
 			#-decode_pulses
 
-
-		return self
 
 
 		tns_present= self.bits.get(1)
@@ -444,3 +432,8 @@ class AACCore():
 			return -16
 
 
+
+
+
+	def get_vlc2(self): #precoded bits=7, depth=3
+		None

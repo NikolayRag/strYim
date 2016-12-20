@@ -221,6 +221,7 @@ class AACStatic():
 
 
 	#unfinished (unstarted indeed)
+#  todo 183 (aac) +0: fill VLC table
 	def buildVLC(codes, bits):
 		nb_bits= 7
 		nb_codes= len(codes)
