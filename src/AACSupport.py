@@ -86,7 +86,20 @@ class AACStatic():
 
 
 
+#	MAX_PREDICTORS= 672
 
+#	SCALE_DIV_512=    36
+#	SCALE_ONE_POS=   140
+#	SCALE_MAX_POS=   255
+#	SCALE_MAX_DIFF=   60
+	SCALE_DIFF_ZERO=  60
+
+#	POW_SF2_ZERO=    200
+
+	NOISE_PRE=       256
+	NOISE_PRE_BITS=    9
+	NOISE_OFFSET=     90
+  
 
 	sample_rates= [96000, 88200, 64000, 48000, 44100, 32000, 24000, 22050, 16000, 12000, 11025, 8000, 7350]
 
@@ -205,6 +218,23 @@ class AACStatic():
 	]
 
 
+
+
+	#unfinished (unstarted indeed)
+	def buildVLC():
+		nb_bits= 7
+		nb_codes= len(AACStatic.ff_aac_scalefactor_code)
+		bits= AACStatic.ff_aac_scalefactor_bits
+		codes= AACStatic.ff_aac_scalefactor_code
+		
+		table= [[0,0]] *352
+
+		return table
+
+	VLCTable= buildVLC()
+
+
+
 class MPEG4AudioConfig():
 	object_type=	None
 	sampling_index=	None
@@ -243,6 +273,7 @@ class SCE_ICS(): #IndividualChannelStream & SingleChannelElement
 	is8= 0
 
 	#ICS
+	ms_present= 0
 	max_sfb= 0
 	windows_sequence= [0] *2
 	use_kb_window= [0] *2
@@ -269,18 +300,27 @@ class SCE_ICS(): #IndividualChannelStream & SingleChannelElement
 	band_type= [0] *128
 	band_type_run_end= [0] *120
 	sf= [0] *120
-	can_pns= [0] *128
+#	can_pns= [0] *128
+#	pcoeffs= [0] *1024
+	coeffs= [0] *1024
+#	saved= [0] *1536
+#	ret_buf= [0] *2048
+#	ltp_state= [0] *3072
+#	predictor_state[MAX_PREDICTORS];
 
+	#TNS
 
 	def __init__(self, _ref=None):
 		if _ref:
 #			self.ics_use_kb_window= ref.ics_use_kb_window
 			None
 
+
 class ChannelElement():
 #	present= None
 
-#	common_window= None
+	common_window= 0
+	ms_present= 0
 #	ms_mode= None
 #	is_mode= None
 	ms_mask= [0] *128
@@ -289,6 +329,12 @@ class ChannelElement():
 #	ChannelCoupling coup
 #	SpectralBandReplication sbr
 
+
+class Pulse():
+	num_pulse= 0
+	start= 0
+	pos= [0] *4
+	amp= [0] *4
 
 
 class AACContext():

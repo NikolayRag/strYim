@@ -62,6 +62,14 @@ class AACCore():
 #			self.bits.seek(0)
 
 
+		#other profiles not supported (yet?)
+		if (
+			self.ac_m4ac.object_type != AACStatic.AOT_AAC_LC
+		):
+			self.error= -1
+			return self
+
+
 		while True:
 			elem_type= self.bits.get(3)
 			if elem_type==AACStatic.TYPE_END:
@@ -78,7 +86,7 @@ class AACCore():
 				self.decode_cpe()
 
 			else:
-				self.error= -1
+				self.error= -2
 
 
 			if self.error:
@@ -98,8 +106,8 @@ class AACCore():
 	def decode_cpe(self):
 		ics= self.sce_ics0
 
-		common_window= self.bits.get(1)
-	
+		self.ac_che.common_window= self.bits.get(1)
+
 #  todo 179 (feature) -1: not-common_window
 		if True:	#common_window:
 			self.decode_ics_info(ics)
@@ -117,19 +125,24 @@ class AACCore():
 				'''
 
 
-			ms_present= self.bits.get(2)
-			if ms_present==3:	#reserved MS
-				self.result= -7
+			self.ac_che.ms_present= self.bits.get(2)
+			if self.ac_che.ms_present==3:	#reserved MS
+				self.result= -3
 				return
 
 			#+decode_mid_side_stereo
-			if ms_present==2:	#all 1
+			if self.ac_che.ms_present==2:	#all 1
 				self.ac_che.ms_mask= [1] *ics.num_window_groups*ics.max_sfb
 
-			if ms_present==1:
+			if self.ac_che.ms_present==1:
 				for idx in range(0,ics.num_window_groups*ics.max_sfb):
 					self.ac_che.ms_mask[idx]= self.bits.get(1)
 			#-decode_mid_side_stereo
+
+
+		self.decode_ics(ics)
+		if self.error:
+			return
 
 
 
@@ -137,7 +150,7 @@ class AACCore():
 	def decode_ics_info(self, _ics):
 		if True:	#(m4ac.object_type != AOT_ER_AAC_ELD):
 			if self.bits.get(1):	#reserved bit
-				self.error= -3
+				self.error= -4
 				return
 
 			_ics.windows_sequence[1]= _ics.windows_sequence[0]
@@ -148,7 +161,7 @@ class AACCore():
 				None
 				'''
 				_ics.window_sequence[0] = AACStatic.ONLY_LONG_SEQUENCE
-				self.error= -4
+				self.error= 
 				return
 				'''
 
@@ -231,99 +244,131 @@ class AACCore():
 
 
 
-	def decode_ics(self, _ics, _common_window):
-		None
-
-
-
-
-	'''
-	decode provided packet, assumed being raw AAC
-	'''
-	def decodeAAC(self):
-
-		#+decode_ics()
+	def decode_ics(self, _ics):
 		global_gain= self.bits.get(8)
 
 
-		#+decode_band_types
-		band_type= [0]*120
-		band_type_run_end= [0]*120
+		if False:	#!common_window && !scale_flag
+			None
+			'''
+			decode_ics_info(_ics)
+			if self.error:
+				return
+			'''
 
+
+		#+decode_band_types()
 		idx= 0
-		section_bits= 3 if packet_windows_sequence==2 else 5
-		for g in range(0,ics.num_window_groups):
+		bits= 3 if _ics.is8 else 5
+		bitsMax= 0b111 if _ics.is8 else 0b11111
+		for g in range(0,_ics.num_window_groups):
 			k=0
-
-			while k < ics.max_sfb:
+			while k < _ics.max_sfb:
 				sect_end = k
 				sect_band_type = self.bits.get(4)
-				if sect_band_type == 12:	#invalid
-					return -8
+				if sect_band_type == AACStatic.RESERVED_BT:
+					self.result= -8
+					return
 
 				while True:
-					sect_len_incr= self.bits.get(section_bits)
+					sect_len_incr= self.bits.get(bits)
 					if not self.bits.left:	#underflow
-						return -9
+						self.result= -9
+						return
 
 					sect_end += sect_len_incr
-					if sect_end > ics.max_sfb:	#bands exceed limit
-						return -10
+					if sect_end > _ics.max_sfb:	#bands exceed limit
+						self.result= -10
+						return
 
-					if sect_len_incr != (1<<section_bits) -1:
+					if sect_len_incr != bitsMax:
 						break
 
 				while k < sect_end:
-					k+= 1
-					band_type[idx] = sect_band_type
-					band_type_run_end[idx] = sect_end
+					_ics.band_type[idx] = sect_band_type
+					_ics.band_type_run_end[idx] = sect_end
 					idx+= 1
-		#-decode_band_types
+
+					k+= 1
+		#-decode_band_types()
 
 
-		#+decode_scalefactors
-		offset= [global_gain, global_gain - 90, 0]
-		sf= [0] *120
+		return
+
+		#no road beyond this point
+		#+decode_scalefactors()
 		idx= 0
-		noise_flag= 1
+		offset= [global_gain, global_gain-AACStatic.NOISE_OFFSET, 0]
+		noise_flag= True
 
-		for g in range(0,ics.num_window_groups):
-			for i in range(0,ics.max_sfb):
-				run_end= band_type_run_end[idx]
-				if band_type[idx] == 0:	#ZERO_BT
+		for g in range(0,_ics.num_window_groups):
+			for i in range(0,_ics.max_sfb):
+				run_end= _ics.band_type_run_end[idx]
+				if _ics.band_type[idx] == AACStatic.ZERO_BT:
 					while i<run_end:
-						sf[idx]= 0.
+						_ics.sf[idx]= 0
 
 						i+= 1
 						idx+= 1
 
-				elif band_type[idx] == 14 or band_type[idx] == 15:	#INTENSITY_BT, INTENSITY_BT2
+				elif _ics.band_type[idx] == AACStatic.INTENSITY_BT or _ics.band_type[idx] == AACStatic.INTENSITY_BT2:
 					while i<run_end:
-						offset[2]+= 0
-						sf[idx]= 1
+						offset[2]+= self.get_vlc2() -AACStatic.SCALE_DIFF_ZERO
+						_ics.sf[idx]= 100 -clip(offset[2], -155, 100)
 
 						i+= 1
 						idx+= 1
 
-				elif band_type[idx] == 13:	#NOISE_BT
+				elif _ics.band_type[idx] == AACStatic.NOISE_BT:
 					while i<run_end:
-						noise_flag-= 1
-						if noise_flag> 0:
-							offset[1]+= self.bits.get(9) -256
+						if noise_flag:
+							offset[1]+= self.bits.get(AACStatic.NOISE_PRE_BITS) -AACStatic.NOISE_PRE
+							noise_flag= False
 						else:
-							offset[1]+= 0
+							offset[1]+= self.get_vlc2() -AACStatic.SCALE_DIFF_ZERO
+
+						_ics.sf[idx]= -clip(offset[1], -100, 155)
 
 						i+= 1
 						idx+= 1
 				else:
 					while i<run_end:
-						offset[0]+= 0
-						sf[idx]= 0.
+						offset[0]+= self.get_vlc2() -AACStatic.SCALE_DIFF_ZERO
+						if offset[0]>255:
+							self.error= -11
+							return
+
+						_ics.sf[idx]= -offset[0]
 
 						i+= 1
 						idx+= 1
 
-		#-decode_scalefactors
+		#-decode_scalefactors()
+
+
+		out= _ics.coeffs
+		pulse= Pulse()
+		pulse_present= 0
+		eld_syntax= False	#ac_m4ac.object_type == AOT_ER_AAC_ELD
+		er_syntax= False	#ac_m4ac.object_type == AOT_ER_AAC_LC || AOT_ER_AAC_LTP || AOT_ER_AAC_LD || AOT_ER_AAC_ELD
+
+
+
+
+	def get_vlc2(self): #precoded bits=7, depth=3
+		None
+
+
+
+
+
+
+
+	'''
+	proto
+	'''
+	def decode(self):
+
 
 
 		pulse_present= self.bits.get(1)
@@ -384,88 +429,4 @@ class AACCore():
 		if self.bits.get(1):
 			return -16
 
-		#-decode_ics()
-
-
-
-
-
-
-
-'''
-0 8  s max_sfb 0 ms ms_mask                                       gain      
-0 00 1 1010|00 0 01 111|11111111|11111111|11111111|01111111|11111 100|00001
-101|0 01011 01|10 10000 1|000 00011| 0110 0001
-
-
-
-simple
- 
-1A 08	0 00 1 1010|00 0 01 000
-1A 0A	0 00 1 1010|00 0 01 010
-1A 0B	0 00 1 1010|00 0 01 011
-1A 0C	0 00 1 1010|00 0 01 100
-1A 0D	0 00 1 1010|00 0 01 101
-1A 0E	0 00 1 1010|00 0 01 110
-1A 0F	0 00 1 1010|00 0 01 111
-
-1A 13	0 00 1 1010|00 0 10 011
-1A 14	0 00 1 1010|00 0 10 100
-1A 15	0 00 1 1010|00 0 10 101
- 
-
-00 0E	0 00 0 0000|00 0 01 110
-06 0F	0 00 0 0110|00 0 01 111
-20 8E	0 01 0 0000|10 0 01 110
-20 0A	0 01 0 0000|00 0 01 010
-22 88	0 01 0 0010|10 0 01 000
-4E 03	0 10 0 1110 | 0000001 1
-4E 49	0 10 0 1110 | 0100100 1
-4E 7A	0 10 0 1110 | 0111101 0
-61 88	0 11 0 0001|10 0 01 000
-
-
-
-complex
-
-
-in
-2A 0D	0 01 0 1010|00 0 01 101
-2A 0E	0 01 0 1010|00 0 01 110
-2A 0F	0 01 0 1010|00 0 01 111
-2A 14	0 01 0 1010|00 0 10 100
-
-mid
-4C 36	0 10 0 1100 | 0011011 0
-4C 37	0 10 0 1100 | 0011011 1
-4C 6C	0 10 0 1100 | 0110110 0
-4C 6D	0 10 0 1100 | 0110110 1
-4C 9A	0 10 0 1100 | 1001101 0
-4C C6	0 10 0 1100 | 1100011 0
-4C CC	0 10 0 1100 | 1100110 0
-4C D2	0 10 0 1100 | 1101001 0
-4C D8	0 10 0 1100 | 1101100 0
-4C D9	0 10 0 1100 | 1101110 1
-4C DA	0 10 0 1100 | 1101101 0
-4C DB	0 10 0 1100 | 1101101 1
-
-out
-7A 0D	0 11 1 1010|00 0 01 101
-7A 0E	0 11 1 1010|00 0 01 110
-7A 0F	0 11 1 1010|00 0 01 111
-7A 14	0 11 1 1010|00 0 10 100
-
-
-
-unique
-
-20 05	0 01 0 0000|00 0 00 101
-4C 6C	0 10 0 1100 | 01101100
-7A 0F	0 11 1 1010|00 0 01 111
-
-2A 0D	0 01 0 1010|00 0 01 101
-67 CA	0 11 0 0111|11 0 01 010
-4C 6C	0 10 0 1100 | 01101100
-7A 14	0 11 1 1010|00 0 10 100
-'''
 

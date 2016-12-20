@@ -28,6 +28,17 @@ def bitsCollect(_bitPairs, _int=False):
 
 
 
+def clip(_val, _from, _to):
+	if _val<_from:
+		return _from
+
+	if _val>_to:
+		return _to
+
+	return _val
+
+
+
 class Bits():
 	gen= None
 
