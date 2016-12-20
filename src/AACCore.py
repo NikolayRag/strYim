@@ -25,6 +25,10 @@ class AACCore():
 	error= None
 
 
+	limitSequence= None
+	limitOnce= None
+
+
 	'''
 	init AAC decoder for subsequental calls.
 	Provided audio parameters will be overriden for ADTS frame
@@ -46,7 +50,10 @@ class AACCore():
 
 
 	'''
-	def aac_decode_frame(self, _data, _once=True):
+	def aac_decode_frame(self, _data, limitOnce=True, limitSequence=-1):
+		self.limitSequence= limitSequence
+		self.limitOnce= limitOnce
+
 		self.bits= Bits(_data)
 		self.error= 0
 
@@ -91,8 +98,8 @@ class AACCore():
 
 			if self.error:
 				break
-
-			if _once or 1: #only one AAC block atm, sorry
+#  todo 181 (feature, aac, clean) +0: remove after full decoding done
+			if self.limitOnce or 1: #only one AAC block atm, sorry
 				break
 
 
@@ -156,6 +163,12 @@ class AACCore():
 			_ics.windows_sequence[1]= _ics.windows_sequence[0]
 			_ics.windows_sequence[0]= self.bits.get(2)
 			_ics.is8= _ics.windows_sequence[0]==AACStatic.EIGHT_SHORT_SEQUENCE
+
+			if self.limitSequence!=-1:
+				if _ics.windows_sequence[0]>1 != self.limitSequence:	#short/long sequence switching order
+					self.error= -22
+					return
+
 
 			if False:	#(aot == AOT_ER_AAC_LD && _ics->window_sequence[0] != ONLY_LONG_SEQUENCE)
 				None
