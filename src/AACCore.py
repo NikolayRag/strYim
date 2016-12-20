@@ -22,7 +22,7 @@ class AACCore():
 
 
 	#AAC decoded
-	error= 0
+	error= None
 
 
 	'''
@@ -127,7 +127,7 @@ class AACCore():
 
 			self.ac_che.ms_present= self.bits.get(2)
 			if self.ac_che.ms_present==3:	#reserved MS
-				self.result= -3
+				self.error= -11
 				return
 
 			#+decode_mid_side_stereo
@@ -150,7 +150,7 @@ class AACCore():
 	def decode_ics_info(self, _ics):
 		if True:	#(m4ac.object_type != AOT_ER_AAC_ELD):
 			if self.bits.get(1):	#reserved bit
-				self.error= -4
+				self.error= -21
 				return
 
 			_ics.windows_sequence[1]= _ics.windows_sequence[0]
@@ -161,7 +161,7 @@ class AACCore():
 				None
 				'''
 				_ics.window_sequence[0] = AACStatic.ONLY_LONG_SEQUENCE
-				self.error= 
+				self.error= 23
 				return
 				'''
 
@@ -219,7 +219,7 @@ class AACCore():
 
 			if _ics.predictor_present:	#not allowed
 				if True:	#if (aot == AOT_AAC_LC || aot == AOT_ER_AAC_LC)
-					self.error= -5
+					self.error= -24
 					return
 
 				'''
@@ -228,7 +228,7 @@ class AACCore():
 					
 				else:
 					if (aot == AOT_ER_AAC_LD):
-						self.error= -5
+						self.error= -25
 						return
 
 					_ics.ltp.present = self.bits.get(1)
@@ -238,7 +238,7 @@ class AACCore():
 
 
 		if _ics.max_sfb>_ics.num_swb: #scalefactor bands exceed limit
-			self.error= -6
+			self.error= -26
 			return
 
 
@@ -253,6 +253,7 @@ class AACCore():
 			'''
 			decode_ics_info(_ics)
 			if self.error:
+				self.error= -31
 				return
 			'''
 
@@ -267,18 +268,18 @@ class AACCore():
 				sect_end = k
 				sect_band_type = self.bits.get(4)
 				if sect_band_type == AACStatic.RESERVED_BT:
-					self.result= -8
+					self.error= -32
 					return
 
 				while True:
 					sect_len_incr= self.bits.get(bits)
 					if not self.bits.left:	#underflow
-						self.result= -9
+						self.error= -33
 						return
 
 					sect_end += sect_len_incr
 					if sect_end > _ics.max_sfb:	#bands exceed limit
-						self.result= -10
+						self.error= -34
 						return
 
 					if sect_len_incr != bitsMax:
@@ -335,7 +336,7 @@ class AACCore():
 					while i<run_end:
 						offset[0]+= self.get_vlc2() -AACStatic.SCALE_DIFF_ZERO
 						if offset[0]>255:
-							self.error= -11
+							self.error= -35
 							return
 
 						_ics.sf[idx]= -offset[0]
