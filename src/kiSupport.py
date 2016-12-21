@@ -1,3 +1,6 @@
+'''
+get dict value, using provided fallback
+'''
 def getA(_var, _field, _default=False):
 	if not isinstance(_var, dict):
 		return _default
@@ -8,12 +11,22 @@ def getA(_var, _field, _default=False):
 	return _var[_field]
 
 
+
+'''
+integer to string with padding zeroes
+'''
 def pad(_val, _pad=4):
 	_val= str(_val)
 	valLen= min(len(_val),_pad)
 
 	return '0'*(_pad-valLen) +_val[-valLen:]
 
+
+
+
+'''
+Construct Int or Bytes from list of [(bits,value),..] pairs
+'''
 def bitsCollect(_bitPairs, _int=False):
 	rlen= 0
 	result= 0
@@ -28,6 +41,9 @@ def bitsCollect(_bitPairs, _int=False):
 
 
 
+'''
+Clip value to min-max
+'''
 def clip(_val, _from, _to):
 	if _val<_from:
 		return _from
@@ -39,6 +55,9 @@ def clip(_val, _from, _to):
 
 
 
+'''
+Bits one-by-one streaming
+'''
 class Bits():
 	gen= None
 
