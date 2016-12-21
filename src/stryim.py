@@ -4,20 +4,23 @@ import sublime, sublime_plugin
 from .muxSink import *
 from .muxH264AAC import *
 from .mp4Recover import *
-from .mp4RecoverExe import *
 from .yiListener import *
 from .kiTelnet import *
 from .kiLog import *
 
 
 '''
-main Yi control class
+main Yi4k stream control class
 '''
 class Stryim():
 	yiApp= None	#instance of yiListener
 	muxers= []	
 
 
+	'''
+	Callback called when camera is connected/disconnected over WiFi(TCP).
+	In case of very week sygnal it can be fired 'disconnected', 
+	'''
 	@staticmethod
 	def cbConn(_mode):
 		kiLog.ok('Connected' if _mode else 'Disconnected')
@@ -89,7 +92,7 @@ class Stryim():
 		def muxRelay(data):
 			for cMux in Stryim.muxers:
 				cMux.add(data)
-		mp4Restore= Mp4RecoverExe(muxRelay)
+		mp4Restore= Mp4Recover(muxRelay)
 
 
 		Stryim.yiApp= YiListener()
