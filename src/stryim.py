@@ -23,9 +23,10 @@ class Stryim():
 	'''
 	@staticmethod
 	def start():
-		KiLog.states('', verb=True, ok=True)
-		KiLog.states('Mp4Recover', verb=True, ok=True)
-#		KiLog.states('MuxFLV', warn=False)
+		kiLog.states(verb=True, ok=True)
+		kiLog.states('', verb=True, ok=True)
+		kiLog.states('Mp4Recover', verb=True, ok=True)
+#		kiLog.states('MuxFLV', warn=False)
 
 		#Yi4k camera constants
 		MuxFLV.defaults(srate=48000)
