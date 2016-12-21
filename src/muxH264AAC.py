@@ -45,7 +45,8 @@ class MuxFLV():
 		self.sink.add( self.header(audio=self.useAudio) )
 		self.sink.add( self.dataTag(self.flvMeta(self.useAudio)) )
 		self.sink.add( self.videoTag(0,True,self.videoDCR()) )
-		self.sink.add( self.audioTag(0,self.audioSC()) )
+		if self.useAudio:
+			self.sink.add( self.audioTag(0,self.audioSC()) )
 
 
 	def add(self, _atom):
