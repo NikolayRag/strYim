@@ -25,7 +25,7 @@ class Mp4RecoverExe():
 
 	def __init__(self, _atomCB):
 		self.setContext()
-		self.transit= byteTransit(self.parse, 1000000)
+		self.transit= ByteTransit(self.parse, 1000000)
 
 
 		self.atomCB= _atomCB

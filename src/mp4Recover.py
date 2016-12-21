@@ -27,7 +27,7 @@ class Mp4Recover():
 	def __init__(self, _atomCB):
 		self.detectHelper= AACDetect()
 	
-		self.transit= byteTransit(self.atomsFromRaw, 500000)
+		self.transit= ByteTransit(self.atomsFromRaw, 500000)
 
 
 		self.atomCB= _atomCB
