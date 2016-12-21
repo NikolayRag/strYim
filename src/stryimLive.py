@@ -71,12 +71,12 @@ class StryimLive():
 
 
 	def start(self, _dst):
+		if self.listener:
+			kiLog.warn('Listener already on')
+			return
+
 		MuxFLV.defaults(fps=30000./1001, bps=48000./1024)
 		self.selfIP= KiTelnet.defaults(address='192.168.42.1')
-
-		if self.listener:
-			kiLog.warn('App already on')
-			return
 
 		self.setDest(_dst)
 
@@ -94,7 +94,7 @@ class StryimLive():
 
 	def stop(self):
 		if not self.listener:
-			kiLog.warn('App already off')
+			kiLog.warn('Listener already off')
 			return
 
 		self.listener.stop()
