@@ -14,6 +14,8 @@ Links three flows:
 3. UI
 '''
 class Stryim():
+	flagRun= False
+
 	live= None
 	selfIP= None
 
@@ -23,6 +25,12 @@ class Stryim():
 	'''
 	@staticmethod
 	def start():
+		if Stryim.flagRun:
+			kiLog.err('Duplicated init')
+			return
+		Stryim.flagRun= True
+
+
 		kiLog.states(verb=True, ok=True)
 		kiLog.states('', verb=True, ok=True)
 		kiLog.states('Mp4Recover', verb=True, ok=True)
@@ -34,9 +42,6 @@ class Stryim():
 
 
 #  todo 200 (feature, ui) +0: call from UI
-		if Stryim.live:
-			kiLog.err('Duplicated init')
-			return
 
 		Stryim.live= StryimLive(
 			  cbConn=Stryim.cbConn
@@ -99,5 +104,5 @@ class Stryim():
 	def cbDie():
 		kiLog.ok('Exiting')
 
-		Stryim.live= None
+		Stryim.flagRun= False
 
