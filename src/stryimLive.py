@@ -72,7 +72,8 @@ class StryimLive():
 			for cMux in self.muxers:
 				cMux.stop()
 
-			self.cbDie()
+			callable(self.cbDie) and self.cbDie()
+
 
 		self.listener= YiListener()
 		self.listener.start(self.cbConn, self.cbLive, listenerDie)

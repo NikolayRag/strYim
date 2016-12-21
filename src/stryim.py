@@ -22,7 +22,7 @@ class Stryim():
 	App entry point, should be called once.
 	'''
 	@staticmethod
-	def start(_dst):
+	def start():
 		KiLog.states('', verb=True, ok=True)
 		KiLog.states('Mp4Recover', verb=True, ok=True)
 #		KiLog.states('MuxFLV', warn=False)
@@ -54,12 +54,13 @@ class Stryim():
 
 
 
-
+	#callbacks
 
 	'''
 	Callback fired when camera is connected/disconnected over WiFi(TCP).
 	In case of very weak sygnal it can be fired 'disconnected', just ensure camera is close to PC.
 	'''
+	@staticmethod
 	def cbConn(_mode):
 		kiLog.ok('Connected' if _mode else 'Disconnected')
 
@@ -67,6 +68,7 @@ class Stryim():
 	Callback fired when camera starts/stops recording apropriate file.
 	There's nothing special to do with it, 'cause data is flown through YiListener.live() callback.
 	'''
+	@staticmethod
 	def cbLive(_mode):
 		if _mode==1:
 			kiLog.ok('Live')
@@ -78,6 +80,7 @@ class Stryim():
 	'''
 	Callback fired when data flows to recoverer.
 	'''
+	@staticmethod
 	def cbAir(_mode):
 		if _mode==1:
 			kiLog.warn('Air On')
@@ -87,5 +90,9 @@ class Stryim():
 			kiLog.err('Air bad')
 
 
-	def cbDie(self):
+	@staticmethod
+	def cbDie():
 		kiLog.ok('Exiting')
+
+		Stryim.live= None
+
