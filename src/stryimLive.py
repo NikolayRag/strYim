@@ -74,8 +74,6 @@ class StryimLive():
 			kiLog.warn('Listener already on')
 			return
 
-		self.selfIP= KiTelnet.defaults(address='192.168.42.1')
-
 		self.setDest(_dst, fps)
 
 		def muxRelay(data):

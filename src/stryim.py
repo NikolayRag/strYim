@@ -1,6 +1,9 @@
 #  todo 120 (ui) +0: add ui
 
 from .stryimLive import *
+from .muxH264AAC import *
+from .kiTelnet import *
+from .kiLog import *
 
 
 '''
@@ -13,6 +16,7 @@ Links three flows:
 class Stryim():
 	live= StryimLive()
 
+	selfIP= None
 
 
 	@staticmethod
