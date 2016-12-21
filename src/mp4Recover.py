@@ -214,11 +214,15 @@ class Mp4Recover():
 			if outPos<0:	#still nothing found
 				return None
 
+
 			AACA= []
 			for aac in self.detectHelper.detect(_data[_inPos:outPos]):
 				AACA.append(Atom(_inPos+aac[0],_inPos+aac[1]).setAAC())
 
-			return AACA
+			if len(AACA):
+				return AACA
+
+			return [Atom(_inPos,outPos).setAAC()]	#fallback if all AACs are "bad"
 
 
 		return False
