@@ -7,7 +7,7 @@ Requires Sink to be specified
 '''
 class MuxFLV():
 	stampVideo= 0.
-	rateVideo= 1000./ (30000./1001) #29.97
+	rateVideo= 1000./ (30000./1001) #29.97fps frame duration
 	stampAudio= 0
 	rateAudio= 1000. /(48000./1024) #each AAC packet is 1024 samples
 
@@ -79,7 +79,7 @@ class MuxFLV():
 	#private
 
 	'''
-	Return miliseconds corresponding to current timestamp, incrementing by one for virtually same stamp.
+	Return miliseconds corresponding to current timestamp.
 	'''
 	def stampV(self):
 		stampOut= self.stampVideo
@@ -244,7 +244,7 @@ class MuxFLV():
 
 
 '''
-h264 test Muxer class
+h264 Muxer class
 Requires Sink to be specified
 '''
 class MuxH264():
@@ -286,7 +286,7 @@ class MuxH264():
 
 
 '''
-AAC test Muxer class
+AAC Muxer class
 Requires Sink to be specified
 '''
 class MuxAAC():
