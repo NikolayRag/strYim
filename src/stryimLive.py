@@ -41,14 +41,13 @@ class StryimLive():
 
 		kiLog.ok('Exiting')
 
-
-
-	def setDest(self, _dst):
+	def setDest(self, _dst, _fps):
 		_dst= '/'.join(_dst.split('\\'))
 		protocol= _dst.split(':/')
 		ext= _dst.split('.')
 
 
+		MuxFLV.defaults(fps=_fps)
 		muxer= MuxFLV
 		sink= SinkRTMP
 
@@ -70,17 +69,14 @@ class StryimLive():
 
 
 
-	def start(self, _dst):
+	def start(self, _dst, fps=30000./1001):
 		if self.listener:
 			kiLog.warn('Listener already on')
 			return
 
-		#Yi4k camera constants
-		MuxFLV.defaults(fps=30000./1001, srate=48000)
 		self.selfIP= KiTelnet.defaults(address='192.168.42.1')
 
-
-		self.setDest(_dst)
+		self.setDest(_dst, fps)
 
 		def muxRelay(data):
 			for cMux in self.muxers:

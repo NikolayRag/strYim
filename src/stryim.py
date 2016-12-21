@@ -21,10 +21,11 @@ class Stryim():
 		KiLog.states('Mp4Recover', verb=True, ok=True)
 #		KiLog.states('MuxFLV', warn=False)
 
-		MuxFLV.defaults(fps=30000./1001, bps=48000./1024)
+		#Yi4k camera constants
+		MuxFLV.defaults(srate=48000)
 		Stryim.selfIP= KiTelnet.defaults(address='192.168.42.1')
 
-		Stryim.live.start('D:/yi/restore/stryim/L.flv')
+		Stryim.live.start('D:/yi/restore/stryim/L.flv', 30000./1001)
 
 
 
