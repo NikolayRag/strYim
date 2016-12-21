@@ -29,7 +29,7 @@
 !telnet 23: +0 "" user 16/10/31 03:58:52
 	add timeout for blankNone
 
-=read, cam 31: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiYiListener.py" user 16/11/10 02:16:05
+=read, cam 31: +1 "..\..\Application Data\Sublime Text 3\Packages\stryim\yiListener.py" user 16/12/21 18:19:51
 	check 999+ file switch
 
  read, cam 33: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiYiListener.py" user 16/11/04 20:21:34
@@ -137,7 +137,7 @@
 +test, recover 107: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\mp4Recover.py" user 16/11/26 06:37:00
 	collect all interframe AAC into one
 
- aac 108: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\muxH264AAC.py" user 16/11/22 22:40:27
++aac 108: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\muxH264AAC.py" user 16/12/11 00:24:15
 	write (optional) ADTS header
 
 -read, cam 114: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\yiListener.py" user 16/11/25 03:26:03
@@ -170,5 +170,32 @@
 -bytes 128: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\mp4Recover.py" user 16/12/04 08:37:08
 	use memoryview as binded data
 
++optimize 140: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiSupport.py" user 16/12/13 01:45:34
+	OPTIMIZE
 
-Reserved: 135
+!feature 177: -1 "..\..\Application Data\Sublime Text 3\Packages\stryim\AACCore.py" user 16/12/18 19:23:51
+	decode ATDS AAC
+
+ feature 178: -1 "..\..\Application Data\Sublime Text 3\Packages\stryim\AACCore.py" user 16/12/19 00:48:53
+	read ADTS header, bitstream seek() must be implemented
+
+ feature 179: -1 "..\..\Application Data\Sublime Text 3\Packages\stryim\AACCore.py" user 16/12/19 04:24:45
+	not-common_window
+
+ feature, aac 180: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\mp4Recover.py" user 16/12/21 04:59:20
+	detect AAC length by native decoding
+
+ feature, aac, clean 181: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\AACCore.py" user 16/12/20 17:15:58
+	remove after full decoding done
+
+ feature, aac 182: -1 "..\..\Application Data\Sublime Text 3\Packages\stryim\AACCore.py" user 16/12/20 17:16:33
+	add different aac types
+
+ aac 183: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\AACSupport.py" user 16/12/20 17:33:11
+	fill VLC table
+
+ feature, ui 200: +0 "src\stryim.py" user 16/12/21 19:18:11
+	call from UI
+
+
+Reserved: 201

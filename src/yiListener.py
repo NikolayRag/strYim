@@ -53,6 +53,12 @@ class YiListener():
 					camera continue to shoot seamlessly (in loop mode)
 				-1
 					camera stops shooting
+
+		deadCB
+			called when listener loop is finally over.
+			This is done eventually after calling .stop(),
+				delayed for read stream to fe flushed down to the recoverer.
+			YiListener object instance is no more usable after that.
 	'''
 	def start(self, _connectCB=None, _liveCB=None, _deadCB= None):
 		if self.flagRun:
@@ -218,7 +224,7 @@ class YiListener():
 				time.sleep(.5)
 
 
-# =todo 31 (read, cam) +0: check 999+ file switch
+# =todo 31 (read, cam) +1: check 999+ file switch
 			fParts['num']= (fParts['num'] +1) %1000
 			if fParts['num']==0:
 				fParts['dir']+= 1
