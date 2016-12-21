@@ -1,5 +1,3 @@
-import subprocess, tempfile, re
-
 from .byteTransit import *
 from .mp4Atom import *
 from .AACDetect import *
@@ -7,12 +5,23 @@ from .kiLog import *
 
 
 
+
+'''
+MP4 recovery class, dedicated to Yi4k.
+Expected MP4 characteristics, similar to any resolution/rate with firmware v1.3.3:
+- Keyframe is every 8 frames (IDR), followed by 7 (P) frames,
+- all data between frames is AAC, if any,
+- AAC is allways (AOT_AAC_LC, stereo, 48k) profile and (CPE, id=0, common_window=1) properties
+- maximum 2 AAC blocks stored seamlessly,
+	as one AAC duration is 21.3ms (1024/48000) and slowest frame duration is 41.6ms (1/24)
+'''
 class Mp4Recover():
 	h264Presets= {
 		  (1080,30,0): b'\'M@3\x9ad\x03\xc0\x11?,\x8c\x04\x04\x05\x00\x00\x03\x03\xe9\x00\x00\xea`\xe8`\x00\xb7\x18\x00\x02\xdcl\xbb\xcb\x8d\x0c\x00\x16\xe3\x00\x00[\x8d\x97ypxD"R\xc0'
 		, -1: b'\x28\xee\x38\x80'
 	}
 
+	#these prefixes only guaranteed with Yi4k .mp4
 	signMoov= b'\x6d\x6f\x6f\x76'
 	signAAC= b'\x21'
 	signAVC= [b'\x25\xb8\x01\x00', b'\x21\xe0\x10\x11', b'\x21\xe0\x20\x21', b'\x21\xe0\x30\x31', b'\x21\xe0\x40\x41', b'\x21\xe0\x50\x51', b'\x21\xe0\x60\x61', b'\x21\xe0\x70\x71']
@@ -24,6 +33,10 @@ class Mp4Recover():
 	detectHelper= None
 
 
+	'''
+		Provide Atom() consuming callback to be fired
+	when raw data added by add() is sufficient to detect something.
+	'''
 	def __init__(self, _atomCB):
 		self.detectHelper= AACDetect()
 	
@@ -37,6 +50,13 @@ class Mp4Recover():
 			self.atomCB( Atom(data=self.h264Presets[-1]).setAVC(True,False) )
 		
 
+	'''
+		Add chunks of raw .mp4 data read from camera (or other way).
+		Data can be delivered sequentally in small chunks, collected and consumed internally.
+
+		_ctx
+			Context, switching it to any new value indicates all previous data must be consumed.
+	'''
 	def add(self, _data, _ctx=None):
 		self.transit.add(_data, _ctx)
 
@@ -45,7 +65,8 @@ class Mp4Recover():
 
 	'''
 	Provide raw mp4 data to parse in addition to allready provided.
-	Return numer of bytes actually consumed.
+	Accumulator-bypass entry if compared to add()
+	Return numer of bytes actually consumed, suitable for ByteTransit.
 
 		data
 			.mp4 byte stream data
@@ -73,7 +94,7 @@ class Mp4Recover():
 
 	'''
 	Search .mp4 bytes for 264 and aac frames.
-	Return Atom() array.
+	Return [Atom(),..] array.
 	
 	First frame searched is IDR (Key frame).
 	Last frame is the one before last found IDR frame, or before MOOV atom if found.
@@ -158,11 +179,19 @@ class Mp4Recover():
 
 	'''
 	Detects Atom assumed to be started from _inPos.
-	Return: Atom if detected, False if not, or None if insufficient data.
 	
 	AVC: 4b:size, size:(signAVC[x],...), signAAC|(4b,signAVC[x+1])|(4b,signMoov)
 	AAC: signAAC, ?:..., (4b,signAVC[x+1])|(4b,signMoov)
 	MOOV: 4b:size, signMoov
+
+	Return: Atom if detected, False if not, or None if insufficient data.
+
+		_signAVC
+			Bytes prefix to find 'current' frame of interest,
+			cycled on successfully AVC detection.
+
+		_signAVC
+			Bytes prefix of 'next after current' frame.
 	'''
 	def analyzeAtom(self, _data, _inPos, _signAVC, _signAVC1):
 		if (_inPos+8)>len(_data):	#too short for anything
@@ -196,8 +225,8 @@ class Mp4Recover():
 			return [Atom(_inPos+4,outPos).setAVC(signThis==self.signAVC[0])]
 
 
-		#AAC
-# -todo 180 (feature, aac) +0: detect AAC length by native decoding
+		#AAC, as all between-frame data assumed to be
+#  todo 180 (feature, aac) +0: detect AAC length by native decoding
 		if _data[_inPos]==self.signAAC[0]:
 			outPos= _data.find(_signAVC, _inPos)-4
 
@@ -222,7 +251,11 @@ class Mp4Recover():
 			if len(AACA):
 				return AACA
 
-			return [Atom(_inPos,outPos).setAAC()]	#fallback if all AACs are "bad"
+
+			kiLog.warn('AAC data should be phased out by accident')
+
+			#fallback if all AACs are "bad".
+			return [Atom(_inPos,outPos).setAAC()]
 
 
 		return False
