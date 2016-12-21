@@ -16,6 +16,8 @@ Links three flows:
 class Stryim():
 	flagRun= False
 
+	dst= ''
+
 	live= None
 	selfIP= None
 
@@ -24,7 +26,7 @@ class Stryim():
 	App entry point, should be called once.
 	'''
 	@staticmethod
-	def start():
+	def start(_dst=None):
 		if Stryim.flagRun:
 			kiLog.err('Duplicated init')
 			return
@@ -42,6 +44,9 @@ class Stryim():
 
 
 #  todo 200 (feature, ui) +0: call from UI
+		if _dst!=None:
+			Stryim.dst= _dst
+
 
 		Stryim.live= StryimLive(
 			  cbConn=Stryim.cbConn
@@ -50,7 +55,7 @@ class Stryim():
 			, cbDie=Stryim.cbDie
 		)
 
-		Stryim.live.start('D:/yi/restore/stryim/L.flv', 30000./1001)
+		Stryim.live.start(Stryim.dst, 30000./1001)
 
 
 
