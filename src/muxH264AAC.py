@@ -10,7 +10,7 @@ class MuxFLV():
 	stampVideo= 0.
 	rateVideo= 1000./ (30000./1001) #29.97fps frame duration
 	stampAudio= 0
-	rateAudio= 1000. /(48000./1024) #each AAC packet is 1024 samples
+	rateAudio= 1000.*1024/ 48000 #each AAC packet is 1024 samples
 
 	useAudio= True
 
@@ -18,20 +18,20 @@ class MuxFLV():
 
 
 	@staticmethod
-	def defaults(fps=None, bps=None):
+	def defaults(fps=None, srate=None):
 		if fps:
 			MuxFLV.rateVideo= 1000./fps
-		if bps:
-			MuxFLV.rateAudio= 1000./bps
+		if srate:
+			MuxFLV.rateAudio= 1000.*1024/srate
 
 
-	def __init__(self, _sink, fps=None, audio=True, bps=None):
+	def __init__(self, _sink, fps=None, audio=True, srate=None):
 		self.stampVideo= 0.
 		if fps:
 			self.rateVideo= 1000./fps
 		self.stampAudio= 0.
-		if bps:
-			self.rateAudio= 1000./bps
+		if srate:
+			self.rateAudio= 1000.*1024/srate
 
 
 		self.sink= _sink

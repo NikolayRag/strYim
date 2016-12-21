@@ -75,8 +75,10 @@ class StryimLive():
 			kiLog.warn('Listener already on')
 			return
 
-		MuxFLV.defaults(fps=30000./1001, bps=48000./1024)
+		#Yi4k camera constants
+		MuxFLV.defaults(fps=30000./1001, srate=48000)
 		self.selfIP= KiTelnet.defaults(address='192.168.42.1')
+
 
 		self.setDest(_dst)
 
