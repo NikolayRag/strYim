@@ -49,7 +49,6 @@ class AACDetect():
 				aac.error
 				#Yi4k specific:
 				or (aac.sce_ics0.max_sfb!= (self.sfb8 if aac.sce_ics0.is8 else self.sfb1[self.started])) #predefined Maxsfb
-				or (self.started and not aac.ac_che.ms_present) #non-first must be masked
 				or (aac.sce_ics0.use_kb_window[0] == seqAfter)	#limit combinations
 			):
 				continue
