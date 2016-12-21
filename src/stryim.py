@@ -34,6 +34,10 @@ class Stryim():
 
 
 #  todo 200 (feature, ui) +0: call from UI
+		if Stryim.live:
+			kiLog.err('Duplicated init')
+			return
+
 		Stryim.live= StryimLive(
 			  cbConn=Stryim.cbConn
 			, cbLive=Stryim.cbLive
