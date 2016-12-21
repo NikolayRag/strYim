@@ -13,33 +13,19 @@ class StryimLive():
 	listener= None
 	muxers= []	
 
+	cbConn= None
+	cbLive= None
+	cbAir= None
+	cbDie= None
 
-	'''
-	Callback called when camera is connected/disconnected over WiFi(TCP).
-	In case of very week sygnal it can be fired 'disconnected', 
-	'''
-	def cbConn(self, _mode):
-		kiLog.ok('Connected' if _mode else 'Disconnected')
+	def __init__(self,cbConn=None, cbLive=None, cbAir=None, cbDie=None):
+		self.cbConn= cbConn
+		self.cbLive= cbLive
+		self.cbAir= cbAir
+		self.cbDie= cbDie
 
-	def cbLive(self, _mode):
-		if _mode==1:
-			kiLog.ok('Live')
-		if _mode==-1:
-			kiLog.ok('Dead')
-	
-	def cbAir(self, _mode):
-		if _mode==1:
-			kiLog.warn('Air On')
-		if _mode==0:
-			kiLog.warn('Air Off')
-		if _mode==-1:
-			kiLog.err('Air bad')
 
-	def cbDie(self):
-		for cMux in self.muxers:
-			cMux.stop()
 
-		kiLog.ok('Exiting')
 
 	def setDest(self, _dst, _fps):
 		_dst= '/'.join(_dst.split('\\'))
@@ -82,8 +68,14 @@ class StryimLive():
 		mp4Restore= Mp4Recover(muxRelay)
 
 
+		def listenerDie():
+			for cMux in self.muxers:
+				cMux.stop()
+
+			self.cbDie()
+
 		self.listener= YiListener()
-		self.listener.start(self.cbConn, self.cbLive, self.cbDie)
+		self.listener.start(self.cbConn, self.cbLive, listenerDie)
 		self.listener.live(mp4Restore.add, self.cbAir)
 
 
