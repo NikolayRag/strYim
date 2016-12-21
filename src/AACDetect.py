@@ -60,6 +60,11 @@ class AACDetect():
 			self.started= True
 
 
+			#spike. Yi4k limit, 30fps assumes mid-frame data have maximum 2 AACs
+			if len(aacStartA)==2:
+				break
+
+
 		aacEndA= aacStartA[1:] +[len(_data)]
 
 		aacA= []	#[[start,end],..] pairs
@@ -67,3 +72,4 @@ class AACDetect():
 			aacA.append([aacStart,aacEnd])
 
 		return aacA
+		
