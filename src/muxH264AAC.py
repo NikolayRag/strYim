@@ -91,7 +91,7 @@ class MuxFLV():
 			kiLog.warn('Video stamp underrun %ssec' % float(self.stampAudio-stampOut))
 #			self.stampAudio = self.stampVideo
 
-		return int(stampOut)
+		return stampOut
 
 # -todo 117 (mux, flv, bytes, aac) +2: reveal actual AAC frame length
 	def stampA(self, _bytes):
@@ -102,17 +102,17 @@ class MuxFLV():
 			kiLog.warn('Audio stamp underrun %ssec' % float(self.stampVideo-stampOut))
 #			self.stampAudio= self.stampVideo
 
-		return int(stampOut)
+		return stampOut
 
 
 	#FLVTAG, size ended
 	def tag(self, _type, _stamp=0, _data=[b'']):
-		if _stamp<0 or _stamp>2147483647: #0 to 7fffffff 
+		if _stamp<0 or _stamp>0x7fffffff:
 			kiLog.err('Stamp out of range: %s' % _stamp)
 			_stamp= 0
 
 
-		_stamp= (_stamp).to_bytes(4, 'big')
+		_stamp= int(_stamp).to_bytes(4, 'big')
 
 		dataLen= 0
 		for cD in _data:
