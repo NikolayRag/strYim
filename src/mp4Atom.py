@@ -5,8 +5,12 @@ class Atom():
 	typeMoov= False
 	typeAVC= False
 	typeAAC= False
+
 	AVCKey= None
 	AVCVisible= None
+
+	AACSamples= None
+
 	inPos= None
 	outPos= None
 
@@ -42,6 +46,9 @@ class Atom():
 		self.typeMoov= False
 		self.typeAVC= False
 		self.typeAAC= True
+
+# -todo 117 (mux, flv, bytes, aac) +2: reveal actual AAC frame length
+		self.AACSamples= 1024
 
 		return self
 

@@ -10,7 +10,7 @@ class MuxFLV():
 	stampVideo= 0.
 	rateVideo= 1000./ (30000./1001) #29.97fps frame duration
 	stampAudio= 0
-	rateAudio= 1000.*1024/ 48000 #each AAC packet is 1024 samples
+	rateAudio= 1000./ 48000
 
 	useAudio= True
 
@@ -22,7 +22,7 @@ class MuxFLV():
 		if fps:
 			MuxFLV.rateVideo= 1000./fps
 		if srate:
-			MuxFLV.rateAudio= 1000.*1024/srate
+			MuxFLV.rateAudio= 1000./srate
 
 
 	def __init__(self, _sink, fps=None, audio=True, srate=None):
@@ -31,7 +31,7 @@ class MuxFLV():
 			self.rateVideo= 1000./fps
 		self.stampAudio= 0.
 		if srate:
-			self.rateAudio= 1000.*1024/srate
+			self.rateAudio= 1000./srate
 
 
 		self.sink= _sink
@@ -63,7 +63,7 @@ class MuxFLV():
 				kiLog.warn('Too big AAC found, skipped: %d' % len(_atom.data))
 				return
 
-			flvTag= self.audioTag(1, _atom.data, self.stampA( len(_atom.data) ))
+			flvTag= self.audioTag(1, _atom.data, self.stampA(_atom.AACSamples))
 			self.sink.add(flvTag)
 
 
@@ -93,10 +93,9 @@ class MuxFLV():
 
 		return stampOut
 
-# -todo 117 (mux, flv, bytes, aac) +2: reveal actual AAC frame length
 	def stampA(self, _bytes):
 		stampOut= self.stampAudio
-		self.stampAudio+= self.rateAudio
+		self.stampAudio+= self.rateAudio *_bytes
 
 		if stampOut < self.stampVideo:
 			kiLog.warn('Audio stamp underrun %ssec' % float(self.stampVideo-stampOut))
