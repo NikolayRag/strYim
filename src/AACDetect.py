@@ -27,7 +27,7 @@ class AACDetect():
 		aacPos= -1
 
 			#spike. Yi4k limit, 30fps assumes mid-frame data have maximum 2 AACs
-		while (True if not _limit else (len(aacStartA)>_limit)):
+		while (True if not _limit else (len(aacStartA)<_limit)):
 			aacPos= _data.find(b'\x21', aacPos+1)
 			if aacPos==-1:
 				break
