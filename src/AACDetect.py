@@ -22,11 +22,12 @@ class AACDetect():
 		self.seqNow= False
 
 
-	def detect(self, _data):
+	def detect(self, _data, _limit=2):
 		aacStartA= []
 		aacPos= -1
 
-		while True:
+			#spike. Yi4k limit, 30fps assumes mid-frame data have maximum 2 AACs
+		while (True if not _limit else (len(aacStartA)>_limit)):
 			aacPos= _data.find(b'\x21', aacPos+1)
 			if aacPos==-1:
 				break
@@ -60,9 +61,6 @@ class AACDetect():
 			self.started= True
 
 
-			#spike. Yi4k limit, 30fps assumes mid-frame data have maximum 2 AACs
-			if len(aacStartA)==2:
-				break
 
 
 		aacEndA= aacStartA[1:] +[len(_data)]
