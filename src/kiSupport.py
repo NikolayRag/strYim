@@ -22,6 +22,13 @@ def pad(_val, _pad=4):
 	return '0'*(_pad-valLen) +_val[-valLen:]
 
 
+'''
+Cut all but specified number of fraction's decimal digits.
+'''
+def precision(_val, _digits=2):
+	e= 10*_digits
+	return int(_val*e)/e
+
 
 
 '''

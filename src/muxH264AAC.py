@@ -88,7 +88,7 @@ class MuxFLV():
 		self.stampVideo+= self.rateVideo
 
 		if stampOut < self.stampAudio:
-			kiLog.warn('Video stamp underrun %ssec' % float(self.stampAudio-stampOut))
+			kiLog.warn('Video stamp underrun %fmsec' % precision(self.stampAudio-self.stampVideo,1) )
 #			self.stampAudio = self.stampVideo
 
 		return stampOut
@@ -98,7 +98,7 @@ class MuxFLV():
 		self.stampAudio+= self.rateAudio *_bytes
 
 		if stampOut < self.stampVideo:
-			kiLog.warn('Audio stamp underrun %ssec' % float(self.stampVideo-stampOut))
+			kiLog.warn('Audio stamp underrun %fmsec' % precision(self.stampVideo-self.stampAudio,1) )
 #			self.stampAudio= self.stampVideo
 
 		return stampOut
@@ -107,7 +107,6 @@ class MuxFLV():
 	#FLVTAG, size ended
 	def tag(self, _type, _stamp=0, _data=[b'']):
 		if _stamp<0 or _stamp>0x7fffffff:
-			kiLog.err('Stamp out of range: %s' % _stamp)
 			_stamp= 0
 
 
