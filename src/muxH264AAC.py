@@ -7,9 +7,11 @@ FLV Muxer class
 Requires Sink to be specified
 '''
 class MuxFLV():
-	stampVideo= 0.
+	stampCurrent= 0.
+
+	stampVideoNext= 0.
 	rateVideo= 1000./ (30000./1001) #29.97fps frame duration
-	stampAudio= 0
+	stampAudioNext= 0
 	rateAudio= 1000./ 48000
 
 	useAudio= True
@@ -26,10 +28,12 @@ class MuxFLV():
 
 
 	def __init__(self, _sink, fps=None, audio=True, srate=None):
-		self.stampVideo= 0.
+		self.stampCurrent= 0.
+
+		self.stampVideoNext= 0.
 		if fps:
 			self.rateVideo= 1000./fps
-		self.stampAudio= 0.
+		self.stampAudioNext= 0.
 		if srate:
 			self.rateAudio= 1000./srate
 
@@ -81,32 +85,41 @@ class MuxFLV():
 	#private
 
 	'''
+	Audio/video timestamps are computed separate.
 	Return miliseconds corresponding to current timestamp.
 	'''
 	def stampV(self):
-		stampOut= self.stampVideo
-		self.stampVideo+= self.rateVideo
+		if self.stampVideoNext < self.stampCurrent:
+			kiLog.warn('Video stamp underrun %fmsec' % precision(self.stampCurrent-self.stampVideoNext,1) )
+			self.stampVideoNext = self.stampCurrent
 
-		if stampOut < self.stampAudio:
-			kiLog.warn('Video stamp underrun %fmsec' % precision(self.stampAudio-self.stampVideo,1) )
-#			self.stampAudio = self.stampVideo
+		self.stampCurrent= self.stampVideoNext
+		self.stampVideoNext+= self.rateVideo
 
-		return stampOut
+		return self.stampCurrent
 
+
+
+	'''
+	AAC audio block typically consist of 1024 samples, but potentially can vary.
+	'''
 	def stampA(self, _bytes):
-		stampOut= self.stampAudio
-		self.stampAudio+= self.rateAudio *_bytes
+		if self.stampAudioNext < self.stampCurrent:
+			kiLog.warn('Audio stamp underrun %fmsec' % precision(self.stampCurrent-self.stampAudioNext,1) )
+			self.stampAudioNext= self.stampCurrent
 
-		if stampOut < self.stampVideo:
-			kiLog.warn('Audio stamp underrun %fmsec' % precision(self.stampVideo-self.stampAudio,1) )
-#			self.stampAudio= self.stampVideo
-
-		return stampOut
+		self.stampCurrent= self.stampAudioNext
+		self.stampAudioNext+= self.rateAudio *_bytes
 
 
-	#FLVTAG, size ended
+		return self.stampCurrent
+
+
+
+	#FLVTAG, including 4 bytes size
 	def tag(self, _type, _stamp=0, _data=[b'']):
 		if _stamp<0 or _stamp>0x7fffffff:
+			kiLog.err('Stamp out of range: %f' % precision(_stamp,1) )
 			_stamp= 0
 
 
