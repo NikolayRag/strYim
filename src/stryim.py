@@ -43,7 +43,6 @@ class Stryim():
 		Stryim.selfIP= KiTelnet.defaults(address='192.168.42.1')
 
 
-#  todo 200 (feature, ui) +0: call from UI
 		if _dst!=None:
 			Stryim.dst= _dst
 
@@ -55,6 +54,8 @@ class Stryim():
 			, cbDie=Stryim.cbDie
 		)
 
+
+#  todo 200 (feature, ui) +0: call from UI
 		Stryim.live.start(Stryim.dst, 30000./1001)
 
 
@@ -110,4 +111,3 @@ class Stryim():
 		kiLog.ok('Exiting')
 
 		Stryim.flagRun= False
-

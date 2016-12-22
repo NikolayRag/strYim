@@ -18,7 +18,7 @@ class StryimLive():
 	cbAir= None
 	cbDie= None
 
-	def __init__(self,cbConn=None, cbLive=None, cbAir=None, cbDie=None):
+	def __init__(self, cbConn=None, cbLive=None, cbAir=None, cbDie=None):
 		self.cbConn= cbConn
 		self.cbLive= cbLive
 		self.cbAir= cbAir
