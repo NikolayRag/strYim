@@ -126,13 +126,12 @@ class AACCore():
 
 			self.ics1= IndividualChannelStream(ics)
 
-			if False:	#ics.predictor_present && self.ac_m4ac.object_type != AOT_AAC_MAIN
-				None
-				'''
+			'''
+			if ics.predictor_present && (self.ac_m4ac.object_type!=AOT_AAC_MAIN):
 				ics.ltp.present = self.bits.get(1)
 				if ics.ltp.present:
 					decode_ltp(self.ics1)	#decode other channel
-				'''
+			'''
 
 
 			self.ac_che.ms_present= self.bits.get(2)
@@ -140,14 +139,14 @@ class AACCore():
 				self.error= -11
 				return
 
-			#+decode_mid_side_stereo
+			#+decode_mid_side_stereo()
 			if self.ac_che.ms_present==2:	#all 1
 				self.ac_che.ms_mask= [1] *ics.num_window_groups*ics.max_sfb
 
 			if self.ac_che.ms_present==1:
 				for idx in range(0,ics.num_window_groups*ics.max_sfb):
 					self.ac_che.ms_mask[idx]= self.bits.get(1)
-			#-decode_mid_side_stereo
+			#-decode_mid_side_stereo()
 
 
 		self.decode_ics(ics,self.sce0)
@@ -172,13 +171,11 @@ class AACCore():
 					return
 
 
-			if False:	#(aot == AOT_ER_AAC_LD && _ics->window_sequence[0] != ONLY_LONG_SEQUENCE)
-				None
-				'''
-				_ics.window_sequence[0] = AACStatic.ONLY_LONG_SEQUENCE
+			'''
+			if (aot==AOT_ER_AAC_LD) && (_ics->windows_sequence0!=AACStatic.ONLY_LONG_SEQUENCE):
 				self.error= 23
 				return
-				'''
+			'''
 
 #			_ics.use_kb_window1= _ics.use_kb_window0
 			_ics.use_kb_window0= self.bits.get(1)
@@ -263,14 +260,12 @@ class AACCore():
 		global_gain= self.bits.get(8)
 
 
-		if False:	#!common_window && !scale_flag
-			None
-			'''
+		'''
+		if not common_window and not scale_flag:
 			decode_ics_info(_ics)
 			if self.error:
-				self.error= -31
 				return
-			'''
+		'''
 
 
 		#+decode_band_types()
