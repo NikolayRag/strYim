@@ -20,7 +20,7 @@ class YiListener():
 
 	liveOldAge= 4 #maximum number of seconds to consider tested file 'live'
 	liveTriggerSize= 1000000 #minimum file size to start reading
-	livePrefetch= 15000000 #file shorter than this will be started from 0
+	livePrefetch= 1500000 #file shorter than this will be started from 0
 
 	flagLive= False #live switch
 	flagRun= False #global cycle switch
@@ -168,7 +168,7 @@ class YiListener():
 				self.mp4CB(None,None) #reset
 
 
-			time.sleep(1)
+			time.sleep(.5)
 
 
 		kiLog.ok('stop')
