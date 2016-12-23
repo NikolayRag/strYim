@@ -197,5 +197,8 @@
  feature, ui 200: +0 "src\stryim.py" user 16/12/21 19:37:06
 	call from UI
 
++fix, aac 202: +1 "..\..\Application Data\Sublime Text 3\Packages\stryim\AACDetect.py" user 16/12/22 21:25:13
+	make possible to start AAC queue NOT from max_sfb=0
 
-Reserved: 202
+
+Reserved: 204
