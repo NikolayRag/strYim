@@ -1,33 +1,101 @@
 #  todo 120 (ui) +0: add ui
 
-import sublime, sublime_plugin
-from .muxSink import *
+from .stryimLive import *
 from .muxH264AAC import *
-from .mp4Recover import *
-from .yiListener import *
 from .kiTelnet import *
 from .kiLog import *
 
 
 '''
-main Yi control class
+Yi4k stream app.
+Links three flows:
+1. Camera live streaming
+2. Camera state
+3. UI
 '''
 class Stryim():
-	yiApp= None	#instance of yiListener
-	muxers= []	
+	flagRun= False
+
+	dst= ''
+
+	live= None
+	selfIP= None
 
 
+	'''
+	App entry point, should be called once.
+	'''
+	@staticmethod
+	def start(_dst=None):
+		if Stryim.flagRun:
+			kiLog.err('Duplicated init')
+			return
+		Stryim.flagRun= True
+
+
+		kiLog.states(verb=True, ok=True)
+		kiLog.states('', verb=True, ok=True)
+		kiLog.states('Mp4Recover', verb=True, ok=True)
+#		kiLog.states('MuxFLV', warn=False)
+
+		#Yi4k camera constants
+		MuxFLV.defaults(srate=48000)
+		Stryim.selfIP= KiTelnet.defaults(address='192.168.42.1')
+
+
+		if _dst!=None:
+			Stryim.dst= _dst
+
+
+		Stryim.live= StryimLive(
+			  cbConn=Stryim.cbConn
+			, cbLive=Stryim.cbLive
+			, cbAir=Stryim.cbAir
+			, cbDie=Stryim.cbDie
+		)
+
+
+#  todo 200 (feature, ui) +0: call from UI
+		Stryim.live.start(Stryim.dst, 30000./1001)
+
+
+
+	'''
+	App cleanup and exit point.
+	'''
+	@staticmethod
+	def stop():
+		Stryim.live.stop()
+
+
+
+
+	#callbacks
+
+	'''
+	Callback fired when camera is connected/disconnected over WiFi(TCP).
+	In case of very weak sygnal it can be fired 'disconnected', just ensure camera is close to PC.
+	'''
 	@staticmethod
 	def cbConn(_mode):
 		kiLog.ok('Connected' if _mode else 'Disconnected')
 
+	'''
+	Callback fired when camera starts/stops recording apropriate file.
+	There's nothing special to do with it, 'cause data is flown through YiListener.live() callback.
+	'''
 	@staticmethod
 	def cbLive(_mode):
 		if _mode==1:
 			kiLog.ok('Live')
+		if _mode==0:
+			kiLog.ok('Live split')
 		if _mode==-1:
 			kiLog.ok('Dead')
 	
+	'''
+	Callback fired when data flows to recoverer.
+	'''
 	@staticmethod
 	def cbAir(_mode):
 		if _mode==1:
@@ -37,71 +105,9 @@ class Stryim():
 		if _mode==-1:
 			kiLog.err('Air bad')
 
+
 	@staticmethod
 	def cbDie():
-		for cMux in Stryim.muxers:
-			cMux.stop()
-
 		kiLog.ok('Exiting')
 
-
-
-	@staticmethod
-	def setDest(_dst):
-		_dst= '/'.join(_dst.split('\\'))
-		protocol= _dst.split(':/')
-		ext= _dst.split('.')
-
-
-		muxer= MuxFLV
-		sink= SinkRTMP
-
-		if protocol[0]!='rtmp':
-			if len(protocol)>1 and protocol[0]=='tcp':
-				sink= SinkTCP
-			else:
-				sink= SinkFile
-
-			if len(ext)>1 and (ext[-1]=='264' or ext[-1]=='h264'):
-				muxer= MuxH264
-			if len(ext)>1 and ext[-1]=='aac':
-				muxer= MuxAAC
-
-		Stryim.muxers=[ muxer(sink(_dst)) ]
-
-
-		
-
-
-
-	@staticmethod
-	def start(_dst):
-		MuxFLV.defaults(fps=30000/1001, bps=16000)
-		Stryim.selfIP= KiTelnet.defaults(address='192.168.42.1')
-
-		if Stryim.yiApp:
-			kiLog.warn('App already on')
-			return
-
-		Stryim.setDest(_dst)
-
-		def muxRelay(data):
-			for cMux in Stryim.muxers:
-				cMux.add(data)
-		mp4Restore= Mp4Recover(muxRelay)
-
-
-		Stryim.yiApp= YiListener()
-		Stryim.yiApp.start(Stryim.cbConn, Stryim.cbLive, Stryim.cbDie)
-		Stryim.yiApp.live(mp4Restore.add, Stryim.cbAir)
-
-
-
-	@staticmethod
-	def stop():
-		if not Stryim.yiApp:
-			kiLog.warn('App already off')
-			return
-
-		Stryim.yiApp.stop()
-		Stryim.yiApp= None
+		Stryim.flagRun= False

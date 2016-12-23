@@ -1,3 +1,5 @@
+from .AACSupport import *
+from .kiSupport import *
 from .kiLog import *
 
 '''
@@ -5,10 +7,12 @@ FLV Muxer class
 Requires Sink to be specified
 '''
 class MuxFLV():
-	stampVideo= 0.
-	rateVideo= 1000./ (30000./1001) #29.97
-	stampAudio= 0
-	rateAudio= 1000./16000
+	stampCurrent= 0.
+
+	stampVideoNext= 0.
+	rateVideo= 1000./ (30000./1001) #29.97fps frame duration
+	stampAudioNext= 0
+	rateAudio= 1000./ 48000
 
 	useAudio= True
 
@@ -16,20 +20,22 @@ class MuxFLV():
 
 
 	@staticmethod
-	def defaults(fps=None, bps=None):
+	def defaults(fps=None, srate=None):
 		if fps:
 			MuxFLV.rateVideo= 1000./fps
-		if bps:
-			MuxFLV.rateAudio= 1000./bps
+		if srate:
+			MuxFLV.rateAudio= 1000./srate
 
 
-	def __init__(self, _sink, fps=None, audio=True, bps=None):
-		self.stampVideo= 0.
+	def __init__(self, _sink, fps=None, audio=True, srate=None):
+		self.stampCurrent= 0.
+
+		self.stampVideoNext= 0.
 		if fps:
 			self.rateVideo= 1000./fps
-		self.stampAudio= 0.
-		if bps:
-			self.rateAudio= 1000./bps
+		self.stampAudioNext= 0.
+		if srate:
+			self.rateAudio= 1000./srate
 
 
 		self.sink= _sink
@@ -44,15 +50,16 @@ class MuxFLV():
 		self.sink.add( self.header(audio=self.useAudio) )
 		self.sink.add( self.dataTag(self.flvMeta(self.useAudio)) )
 		self.sink.add( self.videoTag(0,True,self.videoDCR()) )
-		self.sink.add( self.audioTag(0,self.audioSC()) )
+		if self.useAudio:
+			self.sink.add( self.audioTag(0,self.audioSC()) )
 
 
 	def add(self, _atom):
 		if not self.sink:
 			return
 
-		if _atom.typeAVC:
-			flvTag= self.videoTag(1, _atom.AVCKey, _atom.data, self.stampV(_atom.AVCVisible))
+		if _atom.typeAVC and _atom.AVCVisible:
+			flvTag= self.videoTag(1, _atom.AVCKey, _atom.data, self.stampV())
 			self.sink.add(flvTag)
 
 		if self.useAudio and _atom.typeAAC:
@@ -60,7 +67,7 @@ class MuxFLV():
 				kiLog.warn('Too big AAC found, skipped: %d' % len(_atom.data))
 				return
 
-			flvTag= self.audioTag(1, _atom.data, self.stampA( len(_atom.data) ))
+			flvTag= self.audioTag(1, _atom.data, self.stampA(_atom.AACSamples))
 			self.sink.add(flvTag)
 
 
@@ -68,7 +75,7 @@ class MuxFLV():
 		if not self.sink:
 			return
 
-		self.sink.add( self.videoTag(2,True,stamp=self.stampV(False)) )
+		self.sink.add( self.videoTag(2,True,stamp=self.stampV()) )
 		self.sink.close()
 
 		self.sink= None
@@ -78,39 +85,45 @@ class MuxFLV():
 	#private
 
 	'''
-	Return miliseconds corresponding to current timestamp, incrementing by one for virtually same stamp.
+	Audio/video timestamps are computed separate.
+	Return miliseconds corresponding to current timestamp.
 	'''
-	def stampV(self, _visible=True):
-		stampOut= self.stampVideo
-		if _visible:
-			self.stampVideo+= self.rateVideo
+	def stampV(self):
+		if self.stampVideoNext < self.stampCurrent:
+			kiLog.warn('Video stamp underrun %fmsec' % precision(self.stampCurrent-self.stampVideoNext,1) )
+			self.stampVideoNext = self.stampCurrent
 
-			if self.stampVideo < self.stampAudio:
-				kiLog.warn('Video stamp underrun %dsec' % (self.stampAudio-self.stampVideo))
-				self.stampVideo= self.stampAudio
+		self.stampCurrent= self.stampVideoNext
+		self.stampVideoNext+= self.rateVideo
 
-		return int(stampOut)
+		return self.stampCurrent
 
-# -todo 117 (mux, flv, bytes, aac) +2: reveal actual AAC frame length
+
+
+	'''
+	AAC audio block typically consist of 1024 samples, but potentially can vary.
+	'''
 	def stampA(self, _bytes):
-		stampOut= self.stampAudio
-		self.stampAudio+= self.rateAudio *_bytes
+		if self.stampAudioNext < self.stampCurrent:
+			kiLog.warn('Audio stamp underrun %fmsec' % precision(self.stampCurrent-self.stampAudioNext,1) )
+			self.stampAudioNext= self.stampCurrent
 
-		if self.stampAudio < self.stampVideo:
-			kiLog.warn('Audio stamp underrun %dsec' % (self.stampVideo-self.stampAudio))
-			self.stampAudio= self.stampVideo
-
-		return int(stampOut)
+		self.stampCurrent= self.stampAudioNext
+		self.stampAudioNext+= self.rateAudio *_bytes
 
 
-	#FLVTAG, size ended
+		return self.stampCurrent
+
+
+
+	#FLVTAG, including 4 bytes size
 	def tag(self, _type, _stamp=0, _data=[b'']):
-		if _stamp<0 or _stamp>2147483647: #0 to 7fffffff 
-			kiLog.err('Stamp out of range: %s' % _stamp)
+		if _stamp<0 or _stamp>0x7fffffff:
+			kiLog.err('Stamp out of range: %f' % precision(_stamp,1) )
 			_stamp= 0
 
 
-		_stamp= (_stamp).to_bytes(4, 'big')
+		_stamp= int(_stamp).to_bytes(4, 'big')
 
 		dataLen= 0
 		for cD in _data:
@@ -244,7 +257,7 @@ class MuxFLV():
 
 
 '''
-h264 test Muxer class
+h264 Muxer class
 Requires Sink to be specified
 '''
 class MuxH264():
@@ -286,14 +299,32 @@ class MuxH264():
 
 
 '''
-AAC test Muxer class
+AAC Muxer class
 Requires Sink to be specified
 '''
 class MuxAAC():
-
 	sink= None
 
 	doADTS= True
+	adts= bitsCollect([
+		  (12, 0b111111111111)	#fff first 8 bits
+		, (1, 0)				#version, mpeg4=0
+		, (2, 0)				#layer(0)
+		, (1, 1)				#no protection
+		, (2, AACStatic.AOT_AAC_LC-1)	#profile-1
+		, (4, 3)				#freq index, 3=48000
+		, (1, 0)				#private
+		, (3, 2)				#chanCFG, 2=L+R
+		, (1, 0)
+		, (1, 0)				#home
+		, (1, 0)				#(c)
+		, (1, 0)				#(c)
+		, (13, 0)				#len
+		, (11, 0b11111111111)	#fill
+		, (2, 1-1)				#frames-1
+	], True)
+	adtsLen= 7
+
 
 	def __init__(self, _sink, adts=True):
 		self.sink= _sink
@@ -312,39 +343,15 @@ class MuxAAC():
 			return
 
 		if _atom.typeAAC:
-			if len(_atom.data)>2040:
+			if len(_atom.data)>(0b1111111111111):
 				kiLog.warn('Too big AAC found, skipped: %d' % len(_atom.data))
 				return
 
-
-
-#  todo 108 (aac) +0: write (optional) ADTS header
-			'''
-A 	12 	syncword 0xFFF, all bits must be 1
-B 	1 	MPEG Version: 0 for MPEG-4, 1 for MPEG-2
-C 	2 	Layer: always 0
-D 	1 	protection absent, Warning, set to 1 if there is no CRC and 0 if there is CRC
-E 	2 	profile, the MPEG-4 Audio Object Type minus 1
-F 	4 	MPEG-4 Sampling Frequency Index (15 is forbidden)
-G 	1 	private bit, guaranteed never to be used by MPEG, set to 0 when encoding, ignore when decoding
-H 	3 	MPEG-4 Channel Configuration (in the case of 0, the channel configuration is sent via an inband PCE)
-I 	1 	originality, set to 0 when encoding, ignore when decoding
-J 	1 	home, set to 0 when encoding, ignore when decoding
-K 	1 	copyrighted id bit, the next bit of a centrally registered copyright identifier, set to 0 when encoding, ignore when decoding
-L 	1 	copyright id start, signals that this frame's copyright id bit is the first bit of the copyright id, set to 0 when encoding, ignore when decoding
-M 	13 	frame length, this value must include 7 or 9 bytes of header length: FrameLength = (ProtectionAbsent == 1 ? 7 : 9) + size(AACFrame)
-O 	11 	Buffer fullness
-P 	2 	Number of AAC frames (RDBs) in ADTS frame minus 1, for maximum compatibility always use 1 AAC frame per ADTS frame
-Q 	16 	CRC if protection absent is 0 
-			'''
-
-		
-
 			if self.doADTS:
-				adts= b'\xff\xf1\x4c\x80' +(len(_atom.data)*32+255).to_bytes(2,'big') +b'\xfc'
-				self.sink.add(adts +_atom.data)
-			else:
-				self.sink.add(_atom.data)
+				adtsHead= self.adts +(len(_atom.data)+self.adtsLen<<13)	#-13 bit pos
+				self.sink.add(adtsHead.to_bytes(self.adtsLen, 'big'))
+
+			self.sink.add(_atom.data)
 
 
 	def stop(self):

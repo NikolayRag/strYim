@@ -5,7 +5,7 @@ Manage context-grouped chunks of byte data.
 Data is added to active chunks, splitted by context and then sequentally dispatched to callback function.
 
 
-byteTransit(cb, trigger)
+ByteTransit(cb, trigger)
 	Constructor.
 
 	cb(data, ctx)
@@ -30,7 +30,7 @@ context(ctx)
 
 
 '''
-class byteTransitChunk():
+class ByteTransitChunk():
 	context= None
 	dataIO = None
 	position= 0
@@ -59,7 +59,7 @@ class byteTransitChunk():
 
 
 
-class byteTransit():
+class ByteTransit():
 	chunk= False
 
 	dispatchCB= None
@@ -116,7 +116,7 @@ class byteTransit():
 					break
 
 		if not self.chunk or self.chunk.context!=_ctx:
-			self.chunk= byteTransitChunk(_ctx)	#new
+			self.chunk= ByteTransitChunk(_ctx)	#new
 
 			return True
 

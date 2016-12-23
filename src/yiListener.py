@@ -20,7 +20,7 @@ class YiListener():
 
 	liveOldAge= 4 #maximum number of seconds to consider tested file 'live'
 	liveTriggerSize= 1000000 #minimum file size to start reading
-	livePrefetch= 15000000 #file shorter than this will be started from 0
+	livePrefetch= 1500000 #file shorter than this will be started from 0
 
 	flagLive= False #live switch
 	flagRun= False #global cycle switch
@@ -53,6 +53,12 @@ class YiListener():
 					camera continue to shoot seamlessly (in loop mode)
 				-1
 					camera stops shooting
+
+		deadCB
+			called when listener loop is finally over.
+			This is done eventually after calling .stop(),
+				delayed for read stream to fe flushed down to the recoverer.
+			YiListener object instance is no more usable after that.
 	'''
 	def start(self, _connectCB=None, _liveCB=None, _deadCB= None):
 		if self.flagRun:
@@ -162,7 +168,7 @@ class YiListener():
 				self.mp4CB(None,None) #reset
 
 
-			time.sleep(1)
+			time.sleep(.5)
 
 
 		kiLog.ok('stop')
@@ -218,7 +224,7 @@ class YiListener():
 				time.sleep(.5)
 
 
-# =todo 31 (read, cam) +0: check 999+ file switch
+# =todo 31 (read, cam) +1: check 999+ file switch
 			fParts['num']= (fParts['num'] +1) %1000
 			if fParts['num']==0:
 				fParts['dir']+= 1
