@@ -268,14 +268,11 @@ class MPEG4AudioConfig():
 
 
 
-class SCE_ICS(): #IndividualChannelStream & SingleChannelElement
-	is8= 0
-
-	#ICS
+class IndividualChannelStream():
 	ms_present= 0
 	max_sfb= 0
-	windows_sequence= [0] *2
-	use_kb_window= [0] *2
+	windows_sequence0= 0
+	use_kb_window0= 0
 	num_window_groups= 0
 	group_len= [0] *8
 #	ltp
@@ -295,7 +292,14 @@ class SCE_ICS(): #IndividualChannelStream & SingleChannelElement
 #	clip_avoidance_factor
 
 
-	#SCE
+	def __init__(self, _ref=None):
+		if _ref:
+#			self.use_kb_window0= ref.use_kb_window0
+			None
+
+
+
+class SingleChannelElement():
 	band_type= [0] *128
 	band_type_run_end= [0] *120
 	sf= [0] *120
@@ -307,12 +311,12 @@ class SCE_ICS(): #IndividualChannelStream & SingleChannelElement
 #	ltp_state= [0] *3072
 #	predictor_state[MAX_PREDICTORS];
 
-	#TNS
+
 
 	def __init__(self, _ref=None):
 		if _ref:
-#			self.ics_use_kb_window= ref.ics_use_kb_window
 			None
+
 
 
 class ChannelElement():
@@ -336,11 +340,11 @@ class Pulse():
 	amp= [0] *4
 
 
-class AACContext():
-	None
+#class AACContext():
+#	None
 
-class AVCodecContext():
-	None
+#class AVCodecContext():
+#	None
 
-class AVFrame():
-	None
+#class AVFrame():
+#	None

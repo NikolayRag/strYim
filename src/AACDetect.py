@@ -43,19 +43,19 @@ class AACDetect():
 
 			aac= AACCore().aac_decode_frame(_data[aacPos:], limitSequence=self.seqNow)
 			seqAfter= (	#is aac ended up into sequence
-				aac.sce_ics0.windows_sequence[0]==1
-				or aac.sce_ics0.windows_sequence[0]==2
+				aac.ics0.windows_sequence0==AACStatic.LONG_START_SEQUENCE
+				or aac.ics0.windows_sequence0==AACStatic.EIGHT_SHORT_SEQUENCE
 			)
 
 			if (
 				aac.error
 				#Yi4k specific:
-				or (aac.sce_ics0.max_sfb not in [self.sfb1,self.sfb8][aac.sce_ics0.is8][self.started]) #allowed Maxsfb
-				or (aac.sce_ics0.use_kb_window[0] == seqAfter)	#limit combinations
+				or (aac.ics0.max_sfb not in [self.sfb1,self.sfb8][aac.ics0.windows_sequence0==AACStatic.EIGHT_SHORT_SEQUENCE][self.started]) #allowed Maxsfb
+				or (aac.ics0.use_kb_window0 == seqAfter)	#limit combinations
 			):
 				continue
 
-			if not self.started and not aac.sce_ics0.max_sfb:
+			if not self.started and not aac.ics0.max_sfb:
 				kiLog.warn('AAC started from mid')
 
 			aacStartA.append(aacPos)

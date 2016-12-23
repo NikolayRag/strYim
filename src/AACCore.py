@@ -15,8 +15,10 @@ class AACCore():
 	ac_m4ac= None #active audion config, shortcut for ac->oc[1].m4ac
 	m4ac= MPEG4AudioConfig() #template audion config for ac_m4ac
 	ac_che= None #ChannelElement
-	sce_ics0= None
-	sce_ics1= None
+	ics0= None
+	ics1= None
+	sce0= None
+	sce1= None
 
 	bits= None	#gb bit context
 
@@ -85,8 +87,8 @@ class AACCore():
 			aac_id= self.bits.get(4)
 
 			self.ac_che= ChannelElement()
-			self.sce_ics0= SCE_ICS()
-
+			self.ics0= IndividualChannelStream()
+			self.sce0= SingleChannelElement()
 
 			#TYPE_CPE is only one supported indeed
 #  todo 182 (feature, aac) -1: add different aac types
@@ -112,7 +114,7 @@ class AACCore():
 
 
 	def decode_cpe(self):
-		ics= self.sce_ics0
+		ics= self.ics0
 
 		self.ac_che.common_window= self.bits.get(1)
 
@@ -122,14 +124,14 @@ class AACCore():
 			if self.error:
 				return
 
-			self.sce_ics1= SCE_ICS(ics)
+			self.ics1= IndividualChannelStream(ics)
 
 			if False:	#ics.predictor_present && self.ac_m4ac.object_type != AOT_AAC_MAIN
 				None
 				'''
 				ics.ltp.present = self.bits.get(1)
 				if ics.ltp.present:
-					decode_ltp(self.sce_ics1)	#decode other channel
+					decode_ltp(self.ics1)	#decode other channel
 				'''
 
 
@@ -148,7 +150,7 @@ class AACCore():
 			#-decode_mid_side_stereo
 
 
-		self.decode_ics(ics)
+		self.decode_ics(ics,self.sce0)
 		if self.error:
 			return
 
@@ -161,12 +163,11 @@ class AACCore():
 				self.error= -21
 				return
 
-			_ics.windows_sequence[1]= _ics.windows_sequence[0]
-			_ics.windows_sequence[0]= self.bits.get(2)
-			_ics.is8= _ics.windows_sequence[0]==AACStatic.EIGHT_SHORT_SEQUENCE
+#			_ics.windows_sequence1= _ics.windows_sequence0
+			_ics.windows_sequence0= self.bits.get(2)
 
 			if self.limitSequence!=-1:
-				if _ics.windows_sequence[0]>1 != self.limitSequence:	#short/long sequence switching order
+				if (_ics.windows_sequence0>=AACStatic.EIGHT_SHORT_SEQUENCE) != self.limitSequence:	#short/long sequence switching order
 					self.error= -22
 					return
 
@@ -179,14 +180,14 @@ class AACCore():
 				return
 				'''
 
-			_ics.use_kb_window[1]= _ics.use_kb_window[0]
-			_ics.use_kb_window[0]= self.bits.get(1)
+#			_ics.use_kb_window1= _ics.use_kb_window0
+			_ics.use_kb_window0= self.bits.get(1)
 
 
 		_ics.num_window_groups= 1
 		_ics.group_len[0]= 1
 
-		if _ics.is8:
+		if _ics.windows_sequence0==AACStatic.EIGHT_SHORT_SEQUENCE:
 			_ics.max_sfb= self.bits.get(4)
 			
 			for i in range(0,7):
@@ -258,7 +259,7 @@ class AACCore():
 
 
 
-	def decode_ics(self, _ics):
+	def decode_ics(self, _ics, _sce):
 		global_gain= self.bits.get(8)
 
 
@@ -274,8 +275,8 @@ class AACCore():
 
 		#+decode_band_types()
 		idx= 0
-		bits= 3 if _ics.is8 else 5
-		bitsMax= 0b111 if _ics.is8 else 0b11111
+		bits= 3 if _ics.windows_sequence0==AACStatic.EIGHT_SHORT_SEQUENCE else 5
+		bitsMax= 0b111 if _ics.windows_sequence0==AACStatic.EIGHT_SHORT_SEQUENCE else 0b11111
 		for g in range(0,_ics.num_window_groups):
 			k=0
 			while k < _ics.max_sfb:
@@ -300,8 +301,8 @@ class AACCore():
 						break
 
 				while k < sect_end:
-					_ics.band_type[idx] = sect_band_type
-					_ics.band_type_run_end[idx] = sect_end
+					_sce.band_type[idx] = sect_band_type
+					_sce.band_type_run_end[idx] = sect_end
 					idx+= 1
 
 					k+= 1
@@ -323,23 +324,23 @@ class AACCore():
 
 		for g in range(0,_ics.num_window_groups):
 			for i in range(0,_ics.max_sfb):
-				run_end= _ics.band_type_run_end[idx]
-				if _ics.band_type[idx] == AACStatic.ZERO_BT:
+				run_end= _sce.band_type_run_end[idx]
+				if _sce.band_type[idx] == AACStatic.ZERO_BT:
 					while i<run_end:
-						_ics.sf[idx]= 0
+						_sce.sf[idx]= 0
 
 						i+= 1
 						idx+= 1
 
-				elif _ics.band_type[idx] == AACStatic.INTENSITY_BT or _ics.band_type[idx] == AACStatic.INTENSITY_BT2:
+				elif _sce.band_type[idx] == AACStatic.INTENSITY_BT or _sce.band_type[idx] == AACStatic.INTENSITY_BT2:
 					while i<run_end:
 						offset[2]+= self.get_vlc2() -AACStatic.SCALE_DIFF_ZERO
-						_ics.sf[idx]= 100 -clip(offset[2], -155, 100)
+						_sce.sf[idx]= 100 -clip(offset[2], -155, 100)
 
 						i+= 1
 						idx+= 1
 
-				elif _ics.band_type[idx] == AACStatic.NOISE_BT:
+				elif _sce.band_type[idx] == AACStatic.NOISE_BT:
 					while i<run_end:
 						if noise_flag:
 							offset[1]+= self.bits.get(AACStatic.NOISE_PRE_BITS) -AACStatic.NOISE_PRE
@@ -347,7 +348,7 @@ class AACCore():
 						else:
 							offset[1]+= self.get_vlc2() -AACStatic.SCALE_DIFF_ZERO
 
-						_ics.sf[idx]= -clip(offset[1], -100, 155)
+						_sce.sf[idx]= -clip(offset[1], -100, 155)
 
 						i+= 1
 						idx+= 1
@@ -358,7 +359,7 @@ class AACCore():
 							self.error= -35
 							return
 
-						_ics.sf[idx]= -offset[0]
+						_sce.sf[idx]= -offset[0]
 
 						i+= 1
 						idx+= 1
@@ -366,7 +367,7 @@ class AACCore():
 		#-decode_scalefactors()
 
 
-		out= _ics.coeffs
+		out= _sce.coeffs
 		pulse= Pulse()
 		pulse_present= 0
 		eld_syntax= False	#ac_m4ac.object_type == AOT_ER_AAC_ELD
