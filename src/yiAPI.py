@@ -5,19 +5,19 @@ from .kiLog import *
 
 
 '''
-Lightweighted version of Yi4k API.
+Lightweighted version of Yi4k API, reverse-engineered from official Java API.
 It is limited so:
 	- values provided to commands should be correct strings,
 	- camera data exchanging operations are blocking,
 	- no callbacks are supported.
 
-Commands not implemented
+Commands not implemented:
 
 	formatSDCard
 		NSFW
 
 	deleteFile
-		Vulnerable, maybe later
+		Considered vulnerable, maybe later
 
 	downloadFile
 	cancelDownload
@@ -35,49 +35,50 @@ Commands not implemented
 '''
 
 
+
+'''
+Class usable to pass to YiAPI.cmd()
+
+	_params
+		dict of non-changing parameters.
+
+	_names
+		name or list of names to be assigned later with apply()
+'''
 class YiAPICommand():
-	cb= None
+	resultCB= None
 
-	args= None
 	params= None
+	names= None
 
-	'''
-	Class usable po pass to YiAPI.cmd()
+	def __init__(self, _id, _params=None, _names=None, resultCB=None):
+		self.resultCB= resultCB
 
-		_args
-			dict of non-changing parameters.
+		self.params= {'msg_id':int(_id)}
+		if _params:
+			self.params.update(_params)
 
-		_params
-			name or list of names to be assigned later with apply()
-	'''
-	def __init__(self, _id, _args=None, _params=None, cb=None):
-		self.cb= cb
+		if not isinstance(self.names, list) and not isinstance(self.names, tuple):
+			_names= [_names]
 
-		self.args= {'msg_id':int(_id)}
-		if _args:
-			self.args.update(_args)
-
-		if not isinstance(self.params, list) and not isinstance(self.params, tuple):
-			_params= [_params]
-
-		self.params= _params
+		self.names= _names
 
 
 	'''
 	Collect dict to be send to camera.
-	Append stored args to provided dict and apply _val to stored .params respectively
+	Append stored params to provided dict and apply _val to stored .names respectively
 
 	Return complete suitable dict.
 	'''
 	def apply(self, _dict, _val=None):
-		_dict.update(self.args)
+		_dict.update(self.params)
 
 
-		#assign provided _val[] values to stored .params[] parameters
+		#assign provided _val[] values to stored .names[] parameters
 		if not isinstance(_val, list) and not isinstance(_val, tuple):
 			_val= [_val]
 
-		for pair in zip(self.params,_val):
+		for pair in zip(self.names,_val):
 			_dict[pair[0]]= pair[1]
 
 
@@ -94,13 +95,13 @@ class YiAPI():
 	startRecording=		YiAPICommand(513)
 	stopRecording=		YiAPICommand(514)
 	capturePhoto=		YiAPICommand(16777220, {'param':'precise quality;off'})
-	getFileList=		YiAPICommand(1282, {'param':'/tmp/fuse_d'}, cb= lambda res: res['listing'])
-#	deleteFile=		YiAPICommand(1281, {}, {'param': '/tmp/fuse_d/DCIM'}, cb= lambda res: res['listing'])
+	getFileList=		YiAPICommand(1282, {'param':'/tmp/fuse_d'}, resultCB= lambda res: res['listing'])
+#	deleteFile=		YiAPICommand(1281, {}, {'param': '/tmp/fuse_d/DCIM'}, resultCB= lambda res: res['listing'])
 	startViewFinder=		YiAPICommand(259)
 	stopViewFinder=		YiAPICommand(260)
 
 
-	getSettings=		YiAPICommand(3, cb=lambda res:{key:val for d in res['param'] for key,val in d.items()})
+	getSettings=		YiAPICommand(3, resultCB=lambda res:{key:val for d in res['param'] for key,val in d.items()})
 	#"yyyy-MM-dd HH:mm:ss"
 	setDateTime=		YiAPICommand(2, {'type':'camera_clock'}, 'param')
 	#"capture", "record"
@@ -260,8 +261,8 @@ class YiAPI():
 			kiLog.err('Camera error: %d' % res['rval'])
 			return res['rval']
 
-		if callable(_command.cb):
-			return _command.cb(res)
+		if callable(_command.resultCB):
+			return _command.resultCB(res)
 
 		if 'param' in res:
 			return res['param']
