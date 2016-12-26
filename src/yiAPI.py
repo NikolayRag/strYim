@@ -215,8 +215,8 @@ class YiAPI():
 
 
 
-	def __init__(self):
-		self.sock= socket.create_connection(('192.168.42.1',7878))
+	def __init__(self, _ip='192.168.42.1'):
+		self.sock= socket.create_connection((_ip,7878))
 
 		res= self.cmd(YiAPI.startSession)
 		if res<0:
