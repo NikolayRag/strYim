@@ -86,5 +86,7 @@ class StryimLive():
 			kiLog.warn('Listener already off')
 			return
 
-		self.listener.stop()
+		#additional protect from loop
+		listener= self.listener
 		self.listener= None
+		listener.stop()

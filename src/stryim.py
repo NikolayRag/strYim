@@ -133,8 +133,11 @@ class Stryim():
 	def cbAir(_mode):
 		if _mode==1:
 			kiLog.warn('Air On')
+
 		if _mode==0:
 			kiLog.warn('Air Off')
+			Stryim.stop()
+		
 		if _mode==-1:
 			kiLog.err('Air bad')
 
