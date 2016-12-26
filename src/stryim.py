@@ -76,7 +76,7 @@ class Stryim():
 		)
 
 
-
+#  todo 218 (app, feature) +0: allow reconfiguration
 		#apply settings
 		KiTelnet.defaults(address=Stryim.YiIP)
 		YiAPI.defaults(ip=Stryim.YiIP)
@@ -100,6 +100,7 @@ class Stryim():
 		Stryim.live.stop()
 		Stryim.control.stop()
 
+#  todo 219 (app, clean,feature) +0: wait for .live to stop
 
 
 

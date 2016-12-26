@@ -152,7 +152,7 @@
 -sink 119: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\muxSink.py" user 16/11/26 06:21:34
 	make SinkRTMP nonblocking, stream-based
 
- ui 120: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/11/26 06:44:04
+ ui 120: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/12/26 01:32:11
 	add ui
 
 +log 121: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiLog.py" user 16/11/26 15:28:27
@@ -200,5 +200,11 @@
 +fix, aac 202: +1 "..\..\Application Data\Sublime Text 3\Packages\stryim\AACDetect.py" user 16/12/22 21:25:13
 	make possible to start AAC queue NOT from max_sfb=0
 
+ app, feature 218: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/12/26 04:54:16
+	allow reconfiguration
 
-Reserved: 204
+ app, clean, feature 219: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/12/26 11:14:13
+	wait for .live to stop
+
+
+Reserved: 220
