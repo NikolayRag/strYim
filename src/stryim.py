@@ -69,8 +69,9 @@ class Stryim():
 		#Cheak for ability to run
 
 
-		Stryim.control= YiControl(Stryim.YiIP)
 
+		#init
+		Stryim.control= YiControl()
 		Stryim.live= StryimLive(
 			  cbConn=Stryim.cbConn
 			, cbLive=Stryim.cbLive
@@ -79,6 +80,7 @@ class Stryim():
 		)
 
 
+		YiAPI.defaults(ip=Stryim.YiIP)
 #  todo 200 (feature, ui) +0: call from UI
 		formatI= 0
 		if Stryim.control.start(Stryim.formats[formatI]['yi']):

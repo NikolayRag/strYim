@@ -207,6 +207,7 @@ class YiAPI():
 
 	jsonTest= re.compile('Extra data: line \d+ column \d+ - line \d+ column \d+ \(char (?P<char>\d+) - \d+\)')
 
+	ip= '192.168.42.1'
 	sock= None
 	tick= 0
 	sessionId= 0
@@ -215,8 +216,17 @@ class YiAPI():
 
 
 
-	def __init__(self, _ip='192.168.42.1'):
-		self.sock= socket.create_connection((_ip,7878))
+	@staticmethod
+	def defaults(self, ip):
+		if ip:
+			YiAPI.ip= ip
+
+
+
+	def __init__(self, _ip=None):
+		if _ip:
+			self.ip= _ip
+		self.sock= socket.create_connection((self.ip,7878))
 
 		res= self.cmd(YiAPI.startSession)
 		if res<0:
