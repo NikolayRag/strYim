@@ -1,5 +1,7 @@
 #  todo 120 (ui) +0: add ui
 
+from .yiControl import *
+
 from .stryimLive import *
 from .muxH264AAC import *
 from .kiTelnet import *
@@ -14,12 +16,21 @@ Links three flows:
 3. UI
 '''
 class Stryim():
+	formats= [
+		{
+			'fps':30000./1001,
+			'yi':'1920x1080 30P 16:9'
+		}
+	]
+
+
 	flagRun= False
 
 	dst= ''
 
 	live= None
 	selfIP= None
+	control= None
 
 
 	'''
@@ -33,9 +44,9 @@ class Stryim():
 		Stryim.flagRun= True
 
 
-		kiLog.states(verb=True, ok=True)
-		kiLog.states('', verb=True, ok=True)
-		kiLog.states('Mp4Recover', verb=True, ok=True)
+#		kiLog.states(verb=True, ok=True)
+#		kiLog.states('', verb=True, ok=True)
+#		kiLog.states('Mp4Recover', verb=True, ok=True)
 #		kiLog.states('MuxFLV', warn=False)
 
 		#Yi4k camera constants
@@ -46,6 +57,9 @@ class Stryim():
 			Stryim.dst= _dst
 
 
+
+		Stryim.control= YiControl('192.168.42.1')
+
 		Stryim.live= StryimLive(
 			  cbConn=Stryim.cbConn
 			, cbLive=Stryim.cbLive
@@ -55,7 +69,9 @@ class Stryim():
 
 
 #  todo 200 (feature, ui) +0: call from UI
-		Stryim.live.start(Stryim.dst, 30000./1001)
+		formatI= 0
+		if Stryim.control.start(Stryim.formats[formatI]['yi']):
+			Stryim.live.start(Stryim.dst, Stryim.formats[formatI]['fps'])
 
 
 
@@ -65,6 +81,7 @@ class Stryim():
 	@staticmethod
 	def stop():
 		Stryim.live.stop()
+		Stryim.control.stop()
 
 
 
