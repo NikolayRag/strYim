@@ -29,7 +29,7 @@ class Stryim():
 	dst= ''
 
 	live= None
-	selfIP= None
+	YiIP= '192.168.42.1'
 	control= None
 
 
@@ -50,15 +50,14 @@ class Stryim():
 #		kiLog.states('MuxFLV', warn=False)
 
 		#Yi4k camera constants
-		Stryim.selfIP= KiTelnet.defaults(address='192.168.42.1')
-
+		KiTelnet.defaults(address=Stryim.YiIP)
 
 		if _dst!=None:
 			Stryim.dst= _dst
 
 
 
-		Stryim.control= YiControl('192.168.42.1')
+		Stryim.control= YiControl(Stryim.YiIP)
 
 		Stryim.live= StryimLive(
 			  cbConn=Stryim.cbConn
