@@ -54,19 +54,15 @@ class Stryim():
 		Stryim.flagRun= True
 
 
-#		kiLog.states(verb=True, ok=True)
-#		kiLog.states('', verb=True, ok=True)
-#		kiLog.states('Mp4Recover', verb=True, ok=True)
-#		kiLog.states('MuxFLV', warn=False)
-
-		#Yi4k camera constants
-		KiTelnet.defaults(address=Stryim.YiIP)
-
+		#pass args
 		if _dst!=None:
 			Stryim.dst= _dst
 
 
-		#Cheak for ability to run
+#		kiLog.states(verb=True, ok=True)
+#		kiLog.states('', verb=True, ok=True)
+#		kiLog.states('Mp4Recover', verb=True, ok=True)
+#		kiLog.states('MuxFLV', warn=False)
 
 
 
@@ -80,7 +76,15 @@ class Stryim():
 		)
 
 
+
+		#apply settings
+		KiTelnet.defaults(address=Stryim.YiIP)
 		YiAPI.defaults(ip=Stryim.YiIP)
+
+
+		#Check for ability to run
+
+
 #  todo 200 (feature, ui) +0: call from UI
 		formatI= 0
 		if Stryim.control.start(Stryim.formats[formatI]['yi']):
