@@ -1,3 +1,13 @@
+'''
+Following steps must be done once prior to running app:
+- enable 8081-8089 ports in firewall
+- place blank 'console_enable.script' file in the root of camera's SD-card
+
+Connect to camera WiFi for app to work.
+'''
+
+
+
 #  todo 120 (ui) +0: add ui
 
 from .yiControl import *
@@ -12,7 +22,7 @@ from .kiLog import *
 Yi4k stream app.
 Links three flows:
 1. Camera live streaming
-2. Camera state
+2. Camera control
 3. UI
 '''
 class Stryim():
@@ -26,10 +36,10 @@ class Stryim():
 
 	flagRun= False
 
+	YiIP= '192.168.42.1'
 	dst= ''
 
 	live= None
-	YiIP= '192.168.42.1'
 	control= None
 
 
@@ -55,6 +65,8 @@ class Stryim():
 		if _dst!=None:
 			Stryim.dst= _dst
 
+
+		#Cheak for ability to run
 
 
 		Stryim.control= YiControl(Stryim.YiIP)
