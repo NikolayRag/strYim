@@ -33,7 +33,7 @@ class StryimLive():
 		ext= _dst.split('.')
 
 
-		MuxFLV.defaults(fps=_fps)
+		MuxFLV.defaults(fps=_fps, srate=48000)
 		muxer= MuxFLV
 		sink= SinkRTMP
 

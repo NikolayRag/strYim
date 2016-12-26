@@ -39,7 +39,6 @@ class Stryim():
 #		kiLog.states('MuxFLV', warn=False)
 
 		#Yi4k camera constants
-		MuxFLV.defaults(srate=48000)
 		Stryim.selfIP= KiTelnet.defaults(address='192.168.42.1')
 
 
