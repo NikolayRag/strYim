@@ -217,7 +217,7 @@ class YiAPI():
 
 
 	@staticmethod
-	def defaults(self, ip):
+	def defaults(ip):
 		if ip:
 			YiAPI.ip= ip
 
