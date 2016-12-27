@@ -226,7 +226,10 @@ class YiAPI():
 	def __init__(self, _ip=None):
 		if _ip:
 			self.ip= _ip
-		self.sock= socket.create_connection((self.ip,7878))
+		try:
+			self.sock= socket.create_connection((self.ip,7878))
+		except:
+			return None
 
 		res= self.cmd(YiAPI.startSession)
 		if res<0:

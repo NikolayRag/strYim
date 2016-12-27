@@ -1,4 +1,5 @@
 from .yiAPI import *
+from .kiLog import *
 
 
 class YiControl():
@@ -25,6 +26,10 @@ class YiControl():
 
 
 		yi= YiAPI()
+		if not yi:
+			kiLog.warn('Camera not found')
+			return
+
 		self.settings= yi.cmd(YiAPI.getSettings)
 
 		yi.cmd(YiAPI.setSystemMode, 'record')
