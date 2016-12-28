@@ -51,14 +51,14 @@ class YiAPICommand():
 	params= None
 	names= None
 
-	def __init__(self, _id, _params=None, _names=None, resultCB=None):
+	def __init__(self, _id, _params=None, _names=[], resultCB=None):
 		self.resultCB= resultCB
 
 		self.params= {'msg_id':int(_id)}
 		if _params:
 			self.params.update(_params)
 
-		if not isinstance(self.names, list) and not isinstance(self.names, tuple):
+		if not isinstance(_names, list) and not isinstance(_names, tuple):
 			_names= [_names]
 
 		self.names= _names
