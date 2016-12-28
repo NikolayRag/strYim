@@ -229,11 +229,13 @@ class YiAPI():
 		try:
 			self.sock= socket.create_connection((self.ip,7878),3)
 		except:
-			return None
+			self.res= False
+			return
 
 		res= self.cmd(YiAPI.startSession)
 		if res<0:
 			self.sock= None
+			self.res= False
 		else:
 			self.sessionId= res
 
@@ -272,6 +274,7 @@ class YiAPI():
 
 		if 'rval' in res and res['rval']:
 			kiLog.err('Camera error: %d' % res['rval'])
+			kiLog.verb('Full result: %s' % str(self.res))
 			return res['rval']
 
 		if callable(_command.resultCB):

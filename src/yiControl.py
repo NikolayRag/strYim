@@ -26,8 +26,8 @@ class YiControl():
 
 
 		yi= YiAPI()
-		if not yi:
-			kiLog.warn('Camera not found')
+		if yi.res==False:
+			kiLog.err('Camera not found')
 			return
 
 		self.settings= yi.cmd(YiAPI.getSettings)
@@ -42,10 +42,14 @@ class YiControl():
 
 		yi.close()
 
+		return True
 
 
 	def stop(self):
 		yi= YiAPI()
+		if yi.res==False:
+			kiLog.err('Camera not found')
+			return
 
 		res= yi.cmd(YiAPI.stopRecording)
 
