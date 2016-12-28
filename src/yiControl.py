@@ -55,12 +55,10 @@ class YiControl():
 
 		#restore settings
 		yi.cmd(YiAPI.setSystemMode, self.settings['system_mode'])
-		if self.settings['system_mode']=='capture':
-			yi.cmd(YiAPI.setCaptureMode, self.settings['capture_mode'])
-		else:
-			yi.cmd(YiAPI.setRecordMode, self.settings['rec_mode'])
-			yi.cmd(YiAPI.setVideoQuality, self.settings['video_quality'])
-			yi.cmd(YiAPI.setVideoStandard, self.settings['video_standard'])
-			yi.cmd(YiAPI.setVideoResolution, self.settings['video_resolution'])
+		yi.cmd(YiAPI.setRecordMode, self.settings['rec_mode'])
+		yi.cmd(YiAPI.setVideoQuality, self.settings['video_quality'])
+		yi.cmd(YiAPI.setVideoStandard, self.settings['video_standard'])
+		yi.cmd(YiAPI.setVideoResolution, self.settings['video_resolution'])
+		yi.cmd(YiAPI.setVideoFieldOfView, self.settings['fov'])
 
 		yi.close()
