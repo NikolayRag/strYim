@@ -227,7 +227,7 @@ class YiAPI():
 		if _ip:
 			self.ip= _ip
 		try:
-			self.sock= socket.create_connection((self.ip,7878))
+			self.sock= socket.create_connection((self.ip,7878),3)
 		except:
 			return None
 
