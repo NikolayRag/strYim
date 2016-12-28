@@ -51,4 +51,7 @@ stryim.do
 *.sublime-commands
 inploy.bat
 gitk.exe
-src/tmp.py
+tmp.py
+__pycache__
+build
+*.spec
