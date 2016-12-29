@@ -62,6 +62,17 @@ def clip(_val, _from, _to):
 
 
 
+
+import sys, os
+def pyinstPath(_relPath= ''):
+	if '_MEIPASS' in dir(sys):
+		root= sys._MEIPASS
+	else:
+		root= os.path.abspath(".")
+
+	return os.path.join(root, _relPath)
+
+
 '''
 Bits one-by-one streaming
 '''
