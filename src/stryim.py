@@ -10,12 +10,13 @@ Connect to camera WiFi for app to work.
 
 #  todo 120 (ui) +0: add ui
 
-from .yiControl import *
+import time
 
-from .stryimLive import *
-from .muxH264AAC import *
-from .kiTelnet import *
-from .kiLog import *
+from yiControl import *
+from stryimLive import *
+from mp4.muxH264AAC import *
+from telnet.kiTelnet import *
+from kiLog import *
 
 
 '''
@@ -87,9 +88,21 @@ class Stryim():
 
 #  todo 200 (feature, ui) +0: call from UI
 		formatI= 0
-		if Stryim.control.start(Stryim.formats[formatI]['yi']):
-			Stryim.live.start(Stryim.dst, Stryim.formats[formatI]['fps'])
+		if not Stryim.control.start(Stryim.formats[formatI]['yi']):
+			Stryim.cbDie()
+			return
 
+		Stryim.live.start(Stryim.dst, Stryim.formats[formatI]['fps'])
+
+		while Stryim.flagRun:
+			try:
+				time.sleep(.1)
+			except KeyboardInterrupt:
+				kiLog.warn('Exit by demand (Ctrl-C)')
+				
+				Stryim.stop()
+				break
+		
 
 
 	'''
