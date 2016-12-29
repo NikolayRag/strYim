@@ -1,6 +1,6 @@
 import inspect
 
-from .kiSupport import *
+from kiSupport import *
 
 class kiLog():
 	#statical collection

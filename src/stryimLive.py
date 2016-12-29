@@ -1,9 +1,9 @@
-from .muxSink import *
-from .muxH264AAC import *
-from .mp4Recover import *
-from .yiListener import *
-from .kiTelnet import *
-from .kiLog import *
+from mp4.muxSink import *
+from mp4.muxH264AAC import *
+from recover.mp4Recover import *
+from yiListener import *
+from telnet.kiTelnet import *
+from kiLog import *
 
 
 '''

@@ -1,5 +1,5 @@
-from .yiAPI import *
-from .kiLog import *
+from yi.yiAPI import *
+from kiLog import *
 
 
 class YiControl():

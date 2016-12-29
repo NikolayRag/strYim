@@ -47,8 +47,8 @@ result()
 
 import telnetlib, socket, threading
 
-from .kiSupport import *
-from .kiLog import *
+from kiSupport import *
+from kiLog import *
 
 
 

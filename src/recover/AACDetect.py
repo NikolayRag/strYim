@@ -1,5 +1,5 @@
-from .AACCore import *
-from .kiLog import *
+from aac.AACCore import *
+from kiLog import *
 
 
 '''

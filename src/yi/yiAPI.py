@@ -1,6 +1,6 @@
 import socket, json, time, re
 
-from .kiLog import *
+from kiLog import *
 
 
 

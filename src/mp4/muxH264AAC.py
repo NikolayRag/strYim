@@ -1,6 +1,6 @@
-from .AACSupport import *
-from .kiSupport import *
-from .kiLog import *
+from aac.AACSupport import *
+from kiSupport import *
+from kiLog import *
 
 '''
 FLV Muxer class
