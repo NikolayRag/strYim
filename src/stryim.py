@@ -62,13 +62,6 @@ class Stryim():
 		Stryim.nonstop= _nonstop
 
 
-#		kiLog.states(verb=True, ok=True)
-#		kiLog.states('', verb=True, ok=True)
-#		kiLog.states('Mp4Recover', verb=True, ok=True)
-#		kiLog.states('MuxFLV', warn=False)
-
-
-
 		#init
 		Stryim.control= YiControl()
 		Stryim.live= StryimLive(
@@ -89,12 +82,13 @@ class Stryim():
 
 
 #  todo 200 (feature, ui) +0: call from UI
-		formatI= 0
-		if not Stryim.control.start(Stryim.formats[formatI]['yi']):
+		cFormat= Stryim.formats[0]
+		kiLog.ok('Setting ' +str(cFormat['yi']))
+		if not Stryim.control.start(cFormat['yi']):
 			Stryim.cbDie()
 			return
 
-		Stryim.live.start(Stryim.dst, Stryim.formats[formatI]['fps'])
+		Stryim.live.start(Stryim.dst, cFormat['fps'])
 
 		while Stryim.flagRun:
 			try:
