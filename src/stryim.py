@@ -39,6 +39,7 @@ class Stryim():
 
 	YiIP= '192.168.42.1'
 	dst= ''
+	nonstop= False
 
 	live= None
 	control= None
@@ -48,7 +49,7 @@ class Stryim():
 	App entry point, should be called once.
 	'''
 	@staticmethod
-	def start(_dst=None):
+	def start(_dst=None, _nonstop=False):
 		if Stryim.flagRun:
 			kiLog.err('Duplicated init')
 			return
@@ -58,6 +59,7 @@ class Stryim():
 		#pass args
 		if _dst!=None:
 			Stryim.dst= _dst
+		Stryim.nonstop= _nonstop
 
 
 #		kiLog.states(verb=True, ok=True)
@@ -150,7 +152,9 @@ class Stryim():
 
 		if _mode==0:
 			kiLog.warn('Air Off')
-			Stryim.stop()
+
+			if not Stryim.nonstop:
+				Stryim.stop()
 		
 		if _mode==-1:
 			kiLog.err('Air bad')
