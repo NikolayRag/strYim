@@ -96,6 +96,7 @@ class Stryim():
 			except KeyboardInterrupt:
 				kiLog.warn('Exit by demand (Ctrl-C)')
 				
+				Stryim.nonstop= True
 				Stryim.stop()
 				break
 		
