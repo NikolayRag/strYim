@@ -10,7 +10,7 @@ Connect to camera WiFi for app to work.
 
 #  todo 120 (ui) +0: add ui
 
-import time
+import time, os
 
 from yiControl import *
 from stryimLive import *
@@ -76,6 +76,8 @@ class Stryim():
 		#apply settings
 		KiTelnet.defaults(address=Stryim.YiIP)
 		YiAPI.defaults(ip=Stryim.YiIP)
+		if os.system("ping -n 1 %s>nul" % Stryim.YiIP):
+			kiLog.warn('Camera ping failed.')
 
 
 		#Check for ability to run
