@@ -1,3 +1,5 @@
+import time
+
 from yi.yiAPI import *
 from kiLog import *
 
@@ -52,6 +54,8 @@ class YiControl():
 			return
 
 		res= yi.cmd(YiAPI.stopRecording)
+#  todo 225 (Yi) +0: detect real command ending
+		time.sleep(1.5)
 
 		#restore settings
 		yi.cmd(YiAPI.setSystemMode, self.settings['system_mode'])
