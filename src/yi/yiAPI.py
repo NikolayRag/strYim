@@ -336,14 +336,16 @@ class YiAPI():
 				jsonA.append(jsonTry)	#rest
 				break	#json ended up
 			except Exception as exc:
+				kiLog.verb('Json result: ' +str(exc))
+				
 				jsonErr= self.jsonTest.match(str(exc))
 				if not jsonErr:
 					return False
 
 				jsonFrom2= int(jsonErr.group('char'))
-				jsonA.append( json.loads(_json[jsonFrom:jsonFrom2]) )
+				jsonA.append( json.loads(_json[jsonFrom:jsonFrom+jsonFrom2]) )
 
-				jsonFrom= jsonFrom2
+				jsonFrom+= jsonFrom2
 
 
 		return(jsonA)
