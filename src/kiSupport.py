@@ -64,11 +64,11 @@ def clip(_val, _from, _to):
 
 
 import sys, os
-def pyinstPath(_relPath= ''):
+def pyinstRoot(_relPath= ''):
 	if '_MEIPASS' in dir(sys):
 		root= sys._MEIPASS
 	else:
-		root= os.path.abspath(".")
+		root= os.path.abspath(os.path.dirname(__file__))
 
 	return os.path.join(root, _relPath)
 
