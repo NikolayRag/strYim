@@ -81,7 +81,7 @@ class SinkRTMP():
 		try:
 			self.tcp.sendall(_data)
 		except:
-			kiLog('Socket error')
+			kiLog.err('Socket error')
 			self.tcp= None
 
 
