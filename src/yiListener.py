@@ -17,6 +17,7 @@ class YiListener():
 	camRoot= '/tmp/fuse_d/DCIM'
 	camMask= '???MEDIA/L???????.MP4'
 	camMaskRe= re.compile('^(?P<dir>\d\d\d)MEDIA/L(?P<seq>\d\d\d)(?P<num>\d\d\d\d).MP4$')
+	camFilesA= []
 
 	liveOldAge= 4 #maximum number of seconds to consider tested file 'live'
 	liveTriggerSize= 1000000 #minimum file size to start reading
@@ -32,7 +33,7 @@ class YiListener():
 
 
 	def __init__(self):
-		None
+		self.camFilesA= []
 
 
 
@@ -167,6 +168,9 @@ class YiListener():
 
 				self.mp4CB(None,None) #reset
 
+				time.sleep(.5)
+				self.cleanFiles()
+
 
 			time.sleep(.5)
 
@@ -203,6 +207,8 @@ class YiListener():
 #  todo 34 (read, cam) +0: detect buffer underrun
 		while True:
 			kiLog.ok('Read %s from %d ...' % (fName, fPos))
+			self.camFilesA.append(fName)
+
 			while True:
 # -todo 114 (read, cam) +0: define maximum read block
 				if not self.flagLive:
@@ -290,3 +296,16 @@ class YiListener():
 			
 		return {'fname': camFileMatch['fname'], 'size': int(camFileMatch['size'])}
 
+
+
+
+	'''
+	Delete files been read.
+	'''
+# -todo 227 (Yi, fix) +0: deleted files remains in camera file list till restart
+	def	cleanFiles(self):
+		kiLog.ok('Attempt to clean %d files' % len(self.camFilesA))
+
+		filesKill= ' '.join((self.camRoot+'/'+fn+' '+self.camRoot+'/'+fn[:-4]+'_thm'+fn[-4:]) for fn in self.camFilesA)
+		telCmd= 'rm -f %s' % filesKill
+		telnetResA= KiTelnet(telCmd).result()
