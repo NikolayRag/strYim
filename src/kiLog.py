@@ -7,7 +7,7 @@ class kiLog():
 	contexts= {
 		False:{	#all unspecified
 			    'verb':[False, 'verb']
-			  , 'ok':[False, 'log']
+			  , 'ok':[True, 'log']
 			  , 'warn':[True, 'warning']
 			  , 'err':[True, 'error']
 		}

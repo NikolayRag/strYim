@@ -96,7 +96,7 @@ class Stryim():
 			try:
 				time.sleep(.1)
 			except KeyboardInterrupt:
-				kiLog.warn('Exit by demand (Ctrl-C)')
+				kiLog.ok('Exit by demand (Ctrl-C)')
 				
 				Stryim.nonstop= True
 				Stryim.stop()
@@ -145,10 +145,10 @@ class Stryim():
 	@staticmethod
 	def cbAir(_mode):
 		if _mode==1:
-			kiLog.warn('Air On')
+			kiLog.ok('Air On')
 
 		if _mode==0:
-			kiLog.warn('Air Off')
+			kiLog.ok('Air Off')
 
 			if not Stryim.nonstop:
 				Stryim.stop()

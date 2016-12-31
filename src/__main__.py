@@ -17,6 +17,7 @@ Example:
 
 	cParser.add_argument('-nonstop', type=bool, nargs='?', const=True, help='Dont exit when camera pauses.')
 	cParser.add_argument('-logverb', type=str, nargs='+', help='Classes to log verb-level.')
+	cParser.add_argument('-logwarn', type=str, nargs='+', help='Classes to log warn-level.')
 	cParser.add_argument('dst', type=str, help='streaming destination; file or rtmp://')
 	
 	try:
@@ -25,11 +26,13 @@ Example:
 		sys.exit(0)
 
 
-	kiLog.states(ok=True)
+	kiLog.states(False, ok=False, warn=False)
+	kiLog.states('', ok=True)
 
-	if args.logverb:
-		for c in args.logverb:
-			kiLog.states(c, verb=True)
+	for c in (args.logverb or []):
+		kiLog.states(c, verb=True)
+	for c in (args.logwarn or []):
+		kiLog.states(c, warn=True)
 
 
 	Stryim.start(args.dst, args.nonstop)
