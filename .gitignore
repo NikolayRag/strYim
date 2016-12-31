@@ -54,4 +54,3 @@ gitk.exe
 tmp.py
 __pycache__
 build
-*.spec
