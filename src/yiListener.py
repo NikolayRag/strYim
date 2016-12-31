@@ -119,7 +119,7 @@ class YiListener():
 			kiLog.ok('connected')
 			callable(self.connectCB) and self.connectCB(True)
 
-		if _fNew and not _fOld:
+		if not _fOld and _fNew:
 			kiLog.ok('found: %s' % _fNew)
 			callable(self.liveCB) and self.liveCB(1)
 
