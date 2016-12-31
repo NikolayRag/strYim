@@ -1,9 +1,9 @@
-from .muxSink import *
-from .muxH264AAC import *
-from .mp4Recover import *
-from .yiListener import *
-from .kiTelnet import *
-from .kiLog import *
+from mp4.muxSink import *
+from mp4.muxH264AAC import *
+from recover.mp4Recover import *
+from yiListener import *
+from telnet.kiTelnet import *
+from kiLog import *
 
 
 '''
@@ -33,7 +33,7 @@ class StryimLive():
 		ext= _dst.split('.')
 
 
-		MuxFLV.defaults(fps=_fps)
+		MuxFLV.defaults(fps=_fps, srate=48000)
 		muxer= MuxFLV
 		sink= SinkRTMP
 
@@ -86,5 +86,7 @@ class StryimLive():
 			kiLog.warn('Listener already off')
 			return
 
-		self.listener.stop()
+		#additional protect from loop
+		listener= self.listener
 		self.listener= None
+		listener.stop()

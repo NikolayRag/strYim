@@ -1,52 +1,69 @@
+'''
+Following steps must be done once prior to running app:
+- enable 8081-8089 ports in firewall
+- place blank 'console_enable.script' file in the root of camera's SD-card
+
+Connect to camera WiFi for app to work.
+'''
+
+
+
 #  todo 120 (ui) +0: add ui
 
-from .stryimLive import *
-from .muxH264AAC import *
-from .kiTelnet import *
-from .kiLog import *
+import time, os
+
+from yiControl import *
+from stryimLive import *
+from mp4.muxH264AAC import *
+from telnet.kiTelnet import *
+from kiLog import *
 
 
 '''
 Yi4k stream app.
 Links three flows:
 1. Camera live streaming
-2. Camera state
+2. Camera control
 3. UI
 '''
 class Stryim():
+	formats= [
+		{
+			'fps':30000./1001,
+			'yi':'1920x1080 30P 16:9'
+		}
+	]
+
+
 	flagRun= False
 
+	YiIP= '192.168.42.1'
 	dst= ''
+	nonstop= False
 
 	live= None
-	selfIP= None
+	control= None
 
 
 	'''
 	App entry point, should be called once.
 	'''
 	@staticmethod
-	def start(_dst=None):
+	def start(_dst=None, _nonstop=False):
 		if Stryim.flagRun:
 			kiLog.err('Duplicated init')
 			return
 		Stryim.flagRun= True
 
 
-		kiLog.states(verb=True, ok=True)
-		kiLog.states('', verb=True, ok=True)
-		kiLog.states('Mp4Recover', verb=True, ok=True)
-#		kiLog.states('MuxFLV', warn=False)
-
-		#Yi4k camera constants
-		MuxFLV.defaults(srate=48000)
-		Stryim.selfIP= KiTelnet.defaults(address='192.168.42.1')
-
-
+		#pass args
 		if _dst!=None:
 			Stryim.dst= _dst
+		Stryim.nonstop= _nonstop
 
 
+		#init
+		Stryim.control= YiControl()
 		Stryim.live= StryimLive(
 			  cbConn=Stryim.cbConn
 			, cbLive=Stryim.cbLive
@@ -55,9 +72,36 @@ class Stryim():
 		)
 
 
-#  todo 200 (feature, ui) +0: call from UI
-		Stryim.live.start(Stryim.dst, 30000./1001)
+#  todo 218 (app, feature) +0: allow reconfiguration
+		#apply settings
+		KiTelnet.defaults(address=Stryim.YiIP)
+		YiAPI.defaults(ip=Stryim.YiIP)
+		if os.system("ping -n 1 %s>nul" % Stryim.YiIP):
+			kiLog.warn('Camera ping failed.')
 
+
+		#Check for ability to run
+
+
+#  todo 200 (feature, ui) +0: call from UI
+		cFormat= Stryim.formats[0]
+		kiLog.ok('Setting ' +str(cFormat['yi']))
+		if not Stryim.control.start(cFormat['yi']):
+			Stryim.cbDie()
+			return
+
+		Stryim.live.start(Stryim.dst, cFormat['fps'])
+
+		while Stryim.flagRun:
+			try:
+				time.sleep(.1)
+			except KeyboardInterrupt:
+				kiLog.ok('Exit by demand (Ctrl-C)')
+				
+				Stryim.nonstop= True
+				Stryim.stop()
+				break
+		
 
 
 	'''
@@ -66,7 +110,9 @@ class Stryim():
 	@staticmethod
 	def stop():
 		Stryim.live.stop()
+		Stryim.control.stop()
 
+#  todo 219 (app, clean,feature) +0: wait for .live to stop
 
 
 
@@ -99,9 +145,14 @@ class Stryim():
 	@staticmethod
 	def cbAir(_mode):
 		if _mode==1:
-			kiLog.warn('Air On')
+			kiLog.ok('Air On')
+
 		if _mode==0:
-			kiLog.warn('Air Off')
+			kiLog.ok('Air Off')
+
+			if not Stryim.nonstop:
+				Stryim.stop()
+		
 		if _mode==-1:
 			kiLog.err('Air bad')
 
