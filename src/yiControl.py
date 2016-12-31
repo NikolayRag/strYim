@@ -61,11 +61,11 @@ class YiControl():
 		time.sleep(1.5)
 
 		#restore settings
-		yi.cmd(YiAPI.setSystemMode, self.settings['system_mode'])
-		yi.cmd(YiAPI.setRecordMode, self.settings['rec_mode'])
 		yi.cmd(YiAPI.setVideoQuality, self.settings['video_quality'])
 		yi.cmd(YiAPI.setVideoStandard, self.settings['video_standard'])
 		yi.cmd(YiAPI.setVideoResolution, self.settings['video_resolution'])
 		yi.cmd(YiAPI.setVideoFieldOfView, self.settings['fov'])
+		yi.cmd(YiAPI.setRecordMode, self.settings['rec_mode'])
+		yi.cmd(YiAPI.setSystemMode, self.settings['system_mode'])
 
 		yi.close()
