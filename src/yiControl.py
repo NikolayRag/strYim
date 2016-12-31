@@ -37,7 +37,7 @@ class YiControl():
 
 		yi.cmd(YiAPI.setSystemMode, 'record')
 		yi.cmd(YiAPI.setRecordMode, 'record_loop')
-# =todo 229 (Yi) +0: set loop length to 5min
+		yi.cmd(YiAPI.setLoopDuration, '5 minutes')
 		yi.cmd(YiAPI.setVideoQuality, quality)
 		yi.cmd(YiAPI.setVideoStandard, self.presets[_yiFormat])
 		yi.cmd(YiAPI.setVideoResolution, _yiFormat)
@@ -65,6 +65,7 @@ class YiControl():
 		yi.cmd(YiAPI.setVideoStandard, self.settings['video_standard'])
 		yi.cmd(YiAPI.setVideoResolution, self.settings['video_resolution'])
 		yi.cmd(YiAPI.setVideoFieldOfView, self.settings['fov'])
+		yi.cmd(YiAPI.setLoopDuration, self.settings['loop_rec_duration'])
 		yi.cmd(YiAPI.setRecordMode, self.settings['rec_mode'])
 		yi.cmd(YiAPI.setSystemMode, self.settings['system_mode'])
 

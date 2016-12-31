@@ -202,6 +202,9 @@ class YiAPI():
 	#"high", "low", "mute"
 	getBuzzerVolume=		YiAPICommand(1, {'type':'buzzer_volume'})
 	setBuzzerVolume=		YiAPICommand(2, {'type':'buzzer_volume'}, 'param')
+	#"5 minutes", "20 minutes", "60 minutes", "120 minutes", "max"
+	getLoopDuration=		YiAPICommand(1, {'type':'loop_rec_duration'})
+	setLoopDuration=		YiAPICommand(2, {'type':'loop_rec_duration'}, 'param')
 
 
 
