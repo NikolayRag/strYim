@@ -27,6 +27,7 @@ class YiControl():
 			return False
 
 
+# -todo 228 (Yi, fix) +0: detect YiAPI errors: playback mode, busy switching
 		yi= YiAPI()
 		if yi.res==False:
 			kiLog.err('Camera not found')
@@ -36,6 +37,7 @@ class YiControl():
 
 		yi.cmd(YiAPI.setSystemMode, 'record')
 		yi.cmd(YiAPI.setRecordMode, 'record_loop')
+# =todo 229 (Yi) +0: set loop length to 5min
 		yi.cmd(YiAPI.setVideoQuality, quality)
 		yi.cmd(YiAPI.setVideoStandard, self.presets[_yiFormat])
 		yi.cmd(YiAPI.setVideoResolution, _yiFormat)
@@ -53,6 +55,7 @@ class YiControl():
 			kiLog.err('Camera not found')
 			return
 
+# =todo 230 (Yi) +0: detect error when stopping stopped cam
 		res= yi.cmd(YiAPI.stopRecording)
 #  todo 225 (Yi) +0: detect real command ending
 		time.sleep(1.5)

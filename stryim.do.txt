@@ -194,17 +194,32 @@
  aac 183: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\AACSupport.py" user 16/12/20 17:33:11
 	fill VLC table
 
- feature, ui 200: +0 "src\stryim.py" user 16/12/21 19:37:06
+ feature, ui 200: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/12/28 00:35:27
 	call from UI
 
 +fix, aac 202: +1 "..\..\Application Data\Sublime Text 3\Packages\stryim\AACDetect.py" user 16/12/22 21:25:13
 	make possible to start AAC queue NOT from max_sfb=0
 
- app, feature 218: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/12/26 04:54:16
+ app, feature 218: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/12/27 01:24:09
 	allow reconfiguration
 
  app, clean, feature 219: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/12/26 11:14:13
 	wait for .live to stop
 
+ Yi 225: +0 "src\yiControl.py" user 16/12/30 23:40:45
+	detect real command ending
 
-Reserved: 220
+-Yi, fix 227: +0 "src\yiListener.py" user 16/12/31 04:40:24
+	deleted files remains in camera file list till restart
+
+-Yi, fix 228: +0 "src\yiControl.py" user 16/12/31 04:50:01
+	detect YiAPI errors: playback mode, busy switching
+
+=Yi 229: +0 "src\yiControl.py" user 16/12/31 04:50:42
+	set loop length to 5min
+
+=Yi 230: +0 "src\yiControl.py" user 16/12/31 04:53:01
+	detect error when stopping stopped cam
+
+
+Reserved: 231
