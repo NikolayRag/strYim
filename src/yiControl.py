@@ -42,6 +42,7 @@ class YiControl():
 		yi.cmd(YiAPI.setVideoStandard, self.presets[_yiFormat])
 		yi.cmd(YiAPI.setVideoResolution, _yiFormat)
 
+		time.sleep(1)
 		yi.cmd(YiAPI.startRecording)
 
 		yi.close()
@@ -58,7 +59,7 @@ class YiControl():
 # =todo 230 (Yi) +0: detect error when stopping stopped cam
 		res= yi.cmd(YiAPI.stopRecording)
 #  todo 225 (Yi) +0: detect real command ending
-		time.sleep(1.5)
+		time.sleep(2)
 
 		#restore settings
 		yi.cmd(YiAPI.setVideoQuality, self.settings['video_quality'])
