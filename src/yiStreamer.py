@@ -10,7 +10,7 @@ from kiLog import *
 Live control class.
 '''
 class YiStreamer():
-	listener= None
+	agent= None
 	muxers= []	
 
 	cbConn= None
@@ -56,8 +56,8 @@ class YiStreamer():
 
 
 	def start(self, _dst, fps=30000./1001):
-		if self.listener:
-			kiLog.warn('Listener already on')
+		if self.agent:
+			kiLog.warn('Agent already on')
 			return
 
 		self.setDest(_dst, fps)
@@ -68,25 +68,25 @@ class YiStreamer():
 		mp4Restore= Mp4Recover(muxRelay)
 
 
-		def listenerDie():
+		def agentDie():
 			for cMux in self.muxers:
 				cMux.stop()
 
 			callable(self.cbDie) and self.cbDie()
 
 
-		self.listener= YiListener()
-		self.listener.start(self.cbConn, self.cbLive, listenerDie)
-		self.listener.live(mp4Restore.add, self.cbAir)
+		self.agent= YiAgent()
+		self.agent.start(self.cbConn, self.cbLive, agentDie)
+		self.agent.live(mp4Restore.add, self.cbAir)
 
 
 
 	def stop(self):
-		if not self.listener:
-			kiLog.warn('Listener already off')
+		if not self.agent:
+			kiLog.warn('Agent already off')
 			return
 
 		#additional protect from loop
-		listener= self.listener
-		self.listener= None
-		listener.stop()
+		agent= self.agent
+		self.agent= None
+		agent.stop()

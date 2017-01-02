@@ -11,7 +11,7 @@ from kiLog import *
 connect to Yi and get live file
 reconnect if needed
 '''
-class YiListener():
+class YiAgent():
 	lsMaskRe= re.compile('^(?P<rights>[^\s]+)\s+(?P<links>[^\s]+)\s+(?P<owner>[^\s]+)\s+(?P<group>[^\s]+)\s+(?P<size>[^\s]+)\s+(?P<date>\w+\s+\w+\s+\d+\s+\d+:\d+:\d+\s+\d+)\s+(?P<fname>.*)\s*$')
 
 	camRoot= '/tmp/fuse_d/DCIM'
@@ -59,7 +59,7 @@ class YiListener():
 			called when listener loop is finally over.
 			This is done eventually after calling .stop(),
 				delayed for read stream to fe flushed down to the recoverer.
-			YiListener object instance is no more usable after that.
+			This object instance is no more usable after that.
 	'''
 	def start(self, _connectCB=None, _liveCB=None, _deadCB= None):
 		if self.flagRun:
@@ -98,7 +98,7 @@ class YiListener():
 	'''
 	def live(self, _mp4CB, _airCB=None):
 		if not self.flagRun:
-			kiLog.warn('Listener is currently idle')
+			kiLog.warn('Agent is currently idle')
 			return
 
 		if self.flagLive:
