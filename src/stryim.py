@@ -13,7 +13,7 @@ Connect to camera WiFi for app to work.
 import time, os
 
 from yiControl import *
-from stryimLive import *
+from yiStreamer import *
 from mp4.muxH264AAC import *
 from telnet.kiTelnet import *
 from kiLog import *
