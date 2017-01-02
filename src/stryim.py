@@ -41,8 +41,8 @@ YiIP= '192.168.42.1'
 destination= ''
 nonstop= False
 
-live= None
-control= None
+camStreamer= None
+camControl= None
 
 
 '''
@@ -56,8 +56,8 @@ def start(_gui=True, _dst=None, _nonstop=False):
 
 
 	#init
-	control= YiControl()
-	live= StryimLive(
+	camControl= YiControl()
+	camStreamer= YiStreamer(
 		  cbConn=cbConn
 		, cbLive=cbLive
 		, cbAir=cbAir
@@ -76,11 +76,11 @@ def start(_gui=True, _dst=None, _nonstop=False):
 #  todo 200 (feature, ui) +0: call from UI
 	cFormat= formats[0]
 	kiLog.ok('Setting ' +str(cFormat['yi']))
-	if not control.start(cFormat['yi']):
+	if not camControl.start(cFormat['yi']):
 		cbDie()
 		return
 
-	live.start(destination, cFormat['fps'])
+	camStreamer.start(destination, cFormat['fps'])
 
 	while flagRun:
 		try:
@@ -98,8 +98,8 @@ def start(_gui=True, _dst=None, _nonstop=False):
 App cleanup and exit point.
 '''
 def stop():
-	live.stop()
-	control.stop()
+	camStreamer.stop()
+	camControl.stop()
 
 #  todo 219 (app, clean,feature) +0: wait for .live to stop
 

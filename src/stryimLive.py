@@ -9,7 +9,7 @@ from kiLog import *
 '''
 Live control class.
 '''
-class StryimLive():
+class YiStreamer():
 	listener= None
 	muxers= []	
 
