@@ -26,136 +26,124 @@ Links three flows:
 2. Camera control
 3. UI
 '''
-class Stryim():
-	formats= [
-		{
-			'fps':30000./1001,
-			'yi':'1920x1080 30P 16:9'
-		}
-	]
+
+formats= [
+	{
+		'fps':30000./1001,
+		'yi':'1920x1080 30P 16:9'
+	}
+]
 
 
-	flagRun= False
+flagRun= True
 
-	YiIP= '192.168.42.1'
-	dst= ''
-	nonstop= False
+YiIP= '192.168.42.1'
+destination= ''
+nonstop= False
 
-	live= None
-	control= None
-
-
-	'''
-	App entry point, should be called once.
-	'''
-	@staticmethod
-	def start(_dst=None, _nonstop=False):
-		if Stryim.flagRun:
-			kiLog.err('Duplicated init')
-			return
-		Stryim.flagRun= True
+live= None
+control= None
 
 
-		#pass args
-		if _dst!=None:
-			Stryim.dst= _dst
-		Stryim.nonstop= _nonstop
+'''
+App entry point, should be called once.
+'''
+def start(_dst=None, _nonstop=False):
+	#pass args
+	if _dst!=None:
+		destination= _dst
+	nonstop= _nonstop
 
 
-		#init
-		Stryim.control= YiControl()
-		Stryim.live= StryimLive(
-			  cbConn=Stryim.cbConn
-			, cbLive=Stryim.cbLive
-			, cbAir=Stryim.cbAir
-			, cbDie=Stryim.cbDie
-		)
+	#init
+	control= YiControl()
+	live= StryimLive(
+		  cbConn=cbConn
+		, cbLive=cbLive
+		, cbAir=cbAir
+		, cbDie=cbDie
+	)
 
 
 #  todo 218 (app, feature) +0: allow reconfiguration
-		#apply settings
-		KiTelnet.defaults(address=Stryim.YiIP)
-		Yi4kAPI.YiAPI.defaults(ip=Stryim.YiIP)
+	#apply settings
+	KiTelnet.defaults(address=YiIP)
+	Yi4kAPI.YiAPI.defaults(ip=YiIP)
 
-		#Check for ability to run
+	#Check for ability to run
 
 
 #  todo 200 (feature, ui) +0: call from UI
-		cFormat= Stryim.formats[0]
-		kiLog.ok('Setting ' +str(cFormat['yi']))
-		if not Stryim.control.start(cFormat['yi']):
-			Stryim.cbDie()
-			return
+	cFormat= formats[0]
+	kiLog.ok('Setting ' +str(cFormat['yi']))
+	if not control.start(cFormat['yi']):
+		cbDie()
+		return
 
-		Stryim.live.start(Stryim.dst, cFormat['fps'])
+	live.start(destination, cFormat['fps'])
 
-		while Stryim.flagRun:
-			try:
-				time.sleep(.1)
-			except KeyboardInterrupt:
-				kiLog.ok('Exit by demand (Ctrl-C)')
-				
-				Stryim.nonstop= True
-				Stryim.stop()
-				break
-		
+	while flagRun:
+		try:
+			time.sleep(.1)
+		except KeyboardInterrupt:
+			kiLog.ok('Exit by demand (Ctrl-C)')
+			
+			nonstop= True
+			stop()
+			break
+	
 
 
-	'''
-	App cleanup and exit point.
-	'''
-	@staticmethod
-	def stop():
-		Stryim.live.stop()
-		Stryim.control.stop()
+'''
+App cleanup and exit point.
+'''
+def stop():
+	live.stop()
+	control.stop()
 
 #  todo 219 (app, clean,feature) +0: wait for .live to stop
 
 
 
-	#callbacks
+#callbacks
 
-	'''
-	Callback fired when camera is connected/disconnected over WiFi(TCP).
-	In case of very weak sygnal it can be fired 'disconnected', just ensure camera is close to PC.
-	'''
-	@staticmethod
-	def cbConn(_mode):
-		kiLog.ok('Connected' if _mode else 'Disconnected')
+'''
+Callback fired when camera is connected/disconnected over WiFi(TCP).
+In case of very weak sygnal it can be fired 'disconnected', just ensure camera is close to PC.
+'''
+def cbConn(_mode):
+	kiLog.ok('Connected' if _mode else 'Disconnected')
 
-	'''
-	Callback fired when camera starts/stops recording apropriate file.
-	There's nothing special to do with it, 'cause data is flown through YiListener.live() callback.
-	'''
-	@staticmethod
-	def cbLive(_mode):
-		if _mode==1:
-			kiLog.ok('Live')
-		if _mode==0:
-			kiLog.ok('Live split')
-		if _mode==-1:
-			kiLog.ok('Dead')
+'''
+Callback fired when camera starts/stops recording apropriate file.
+There's nothing special to do with it, 'cause data is flown through YiListener.live() callback.
+'''
+def cbLive(_mode):
+	if _mode==1:
+		kiLog.ok('Live')
+	if _mode==0:
+		kiLog.ok('Live split')
+	if _mode==-1:
+		kiLog.ok('Dead')
+
+'''
+Callback fired when data flows to recoverer.
+'''
+def cbAir(_mode):
+	if _mode==1:
+		kiLog.ok('Air On')
+
+	if _mode==0:
+		kiLog.ok('Air Off')
+
+		if not nonstop:
+			stop()
 	
-	'''
-	Callback fired when data flows to recoverer.
-	'''
-	@staticmethod
-	def cbAir(_mode):
-		if _mode==1:
-			kiLog.ok('Air On')
-
-		if _mode==0:
-			kiLog.ok('Air Off')
-
-			if not Stryim.nonstop:
-				Stryim.stop()
-		
-		if _mode==-1:
-			kiLog.err('Air bad')
+	if _mode==-1:
+		kiLog.err('Air bad')
 
 
-	@staticmethod
-	def cbDie():
-		kiLog.ok('Exiting')
+def cbDie():
+	kiLog.ok('Exiting')
 
-		Stryim.flagRun= False
+	flagRun= False

@@ -1,6 +1,6 @@
 import argparse, sys
 
-from stryim import *
+import stryim
 from kiLog import *
 
 
@@ -35,6 +35,6 @@ Example:
 		kiLog.states(c, warn=True)
 
 
-	Stryim.start(args.dst, args.nonstop)
+	stryim.start(args.dst, args.nonstop)
 
 
