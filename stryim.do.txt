@@ -5,55 +5,55 @@
 !network, unsure 6: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiTelnet.py" kii 16/11/05 23:18:34
 	think of telnet over route
 
-+network 7: +1 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiTelnet.py" user 16/10/28 23:26:41
++network 7: +1 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiTelnet.py" kii 16/10/28 23:26:41
 	start sending telnet ONLY after TCP started listening
 
- telnet 8: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiTelnet.py" user 16/11/21 00:49:41
+ telnet 8: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiTelnet.py" kii 16/11/21 00:49:41
 	check for timeout
 
-+code 11: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiTelnet.py" user 16/10/29 20:09:13
++code 11: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiTelnet.py" kii 16/10/29 20:09:13
 	call telnet unblocking
 
-!clean, network 16: +0 "" user 16/10/31 06:45:59
+!clean, network 16: +0 "" kii 16/10/31 06:45:59
 	outdated
 
-+clean, network 17: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiYiListener.py" user 16/10/29 21:29:24
++clean, network 17: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiYiListener.py" kii 16/10/29 21:29:24
 	make sure KiTelnet recreated
 
-+telnet 19: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiTelnet.py" user 16/11/01 15:15:06
++telnet 19: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiTelnet.py" kii 16/11/01 15:15:06
 	get telnet finish elseway
 
 +telnet, log 20: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiTelnet.py" kii 16/10/30 15:53:35
 	use log elseway
 
-!telnet 23: +0 "" user 16/10/31 03:58:52
+!telnet 23: +0 "" kii 16/10/31 03:58:52
 	add timeout for blankNone
 
-=read, cam 31: +1 "..\..\Application Data\Sublime Text 3\Packages\stryim\yiListener.py" user 16/12/21 18:19:51
+=read, cam 31: +1 "..\..\Application Data\Sublime Text 3\Packages\stryim\yiListener.py" kii 16/12/21 18:19:51
 	check 999+ file switch
 
- read, cam 33: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiYiListener.py" user 16/11/04 20:21:34
+ read, cam 33: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiYiListener.py" kii 16/11/04 20:21:34
 	detect buffer overrun
 
- read, cam 34: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiYiListener.py" user 16/11/04 20:21:54
+ read, cam 34: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiYiListener.py" kii 16/11/04 20:21:54
 	detect buffer underrun
 
-+transit 35: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\byteTransit.py" user 16/11/05 04:51:40
++transit 35: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\byteTransit.py" kii 16/11/05 04:51:40
 	add trigger functionality
 
-+transit, clean 37: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\byteTransit.py" user 16/11/05 18:07:26
++transit, clean 37: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\byteTransit.py" kii 16/11/05 18:07:26
 	remove dried context more precisely
 
-+cam 39: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiYiListener.py" user 16/11/06 00:41:16
++cam 39: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiYiListener.py" kii 16/11/06 00:41:16
 	add on-off, live-dead callbacks to start()
 
-+cam 40: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiYiListener.py" user 16/11/06 00:44:37
++cam 40: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiYiListener.py" kii 16/11/06 00:44:37
 	add mp4Buffer argument to live()
 
-!cam 41: +0 "" user 16/11/06 00:45:39
+!cam 41: +0 "" kii 16/11/06 00:45:39
 	spoiled
 
-+recover 44: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/11/07 03:33:04
++recover 44: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" kii 16/11/07 03:33:04
 	move start position as data recovered
 
 +stage 46: +0 "" kii 16/11/06 15:45:43
@@ -71,155 +71,158 @@
 -stage, output 50: +0 "" kii 16/11/06 15:47:34
 	stage: rtmp server
 
- cam 53: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiYiListener.py" user 16/11/07 02:49:46
+ cam 53: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiYiListener.py" kii 16/11/07 02:49:46
 	force kill data sending at dead()
 
-+recover, callback 55: +1 "..\..\Application Data\Sublime Text 3\Packages\stryim\mp4RecoverExe.py" user 16/11/08 19:21:09
++recover, callback 55: +1 "..\..\Application Data\Sublime Text 3\Packages\stryim\mp4RecoverExe.py" kii 16/11/08 19:21:09
 	send atom data, not only meta
 
-+speed, bytes 61: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\byteTransit.py" user 16/11/08 17:15:04
++speed, bytes 61: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\byteTransit.py" kii 16/11/08 17:15:04
 	dont use adding bytes
 
- speed, bytes 62: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\byteTransit.py" user 16/11/30 19:12:37
+ speed, bytes 62: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\byteTransit.py" kii 16/11/30 19:12:37
 	read more quickly maybe
 
 !general 63: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\mp4RecoverExe.py" kii 16/11/09 10:34:21
 	
 
-+mp4 64: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\mp4RecoverExe.py" user 16/11/16 23:20:08
++mp4 64: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\mp4RecoverExe.py" kii 16/11/16 23:20:08
 	allow start only from IDR frame
 
- cam, stability 68: -1 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiYiListener.py" user 16/11/10 02:46:42
+ cam, stability 68: -1 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiYiListener.py" kii 16/11/10 02:46:42
 	found other way to forget stopped file as live
 
-!mp4 79: +0 "" user 16/11/20 15:04:24
+!mp4 79: +0 "" kii 16/11/20 15:04:24
 	redundant
 
--flv 90: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/11/21 06:22:44
+-flv 90: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" kii 16/11/21 06:22:44
 	construct META
 
-+flv 91: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/11/20 01:28:05
++flv 91: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" kii 16/11/20 01:28:05
 	construct AVCDecoderConfigurationRecord
 
-+flv 92: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/11/19 07:15:35
++flv 92: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" kii 16/11/19 07:15:35
 	make class non-static
 
-+flv 93: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/11/19 08:23:59
++flv 93: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" kii 16/11/19 08:23:59
 	make data flow without overhead
 
-+app 94: +2 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/11/26 06:40:45
++app 94: +2 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" kii 16/11/26 06:40:45
 	handle start-stops
 
-+bytes 95: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\mp4RecoverExe.py" user 16/11/21 01:57:58
++bytes 95: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\mp4RecoverExe.py" kii 16/11/21 01:57:58
 	move use of byteTransit inside mp4RecoverExe
 
--flv 98: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/11/21 06:22:57
+-flv 98: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" kii 16/11/21 06:22:57
 	build SPS and PPS
 
-!aac 99: +1 "" user 16/11/23 03:54:25
+!aac 99: +1 "" kii 16/11/23 03:54:25
 	become todo 108
 
-!aac 100: +0 "" user 16/11/20 15:04:38
+!aac 100: +0 "" kii 16/11/20 15:04:38
 	redundant
 
-+recover 101: +2 "..\..\Application Data\Sublime Text 3\Packages\stryim\mp4Recover.py" user 16/12/04 08:37:21
++recover 101: +2 "..\..\Application Data\Sublime Text 3\Packages\stryim\mp4Recover.py" kii 16/12/04 08:37:21
 	use native atoms searching: [h264, aac, ...]
 
-+bytes 102: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\byteTransit.py" user 16/11/21 01:23:24
++bytes 102: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\byteTransit.py" kii 16/11/21 01:23:24
 	make .add() the single public method
 
- clean, release 104: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/11/21 08:33:48
+ clean, release 104: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" kii 16/11/21 08:33:48
 	use 'current' folder for release and hide ffmpeg
 
- sink, unsure 105: -1 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/11/21 08:35:13
+ sink, unsure 105: -1 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" kii 16/11/21 08:35:13
 	hardcode RTMP protocol
 
-+test, recover 107: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\mp4Recover.py" user 16/11/26 06:37:00
++test, recover 107: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\mp4Recover.py" kii 16/11/26 06:37:00
 	collect all interframe AAC into one
 
-+aac 108: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\muxH264AAC.py" user 16/12/11 00:24:15
++aac 108: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\muxH264AAC.py" kii 16/12/11 00:24:15
 	write (optional) ADTS header
 
--read, cam 114: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\yiListener.py" user 16/11/25 03:26:03
+-read, cam 114: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\yiListener.py" kii 16/11/25 03:26:03
 	define maximum read block
 
--mux, flv, bytes, aac 117: +2 "..\..\Application Data\Sublime Text 3\Packages\stryim\muxH264AAC.py" user 16/12/22 12:31:09
+-mux, flv, bytes, aac 117: +2 "..\..\Application Data\Sublime Text 3\Packages\stryim\muxH264AAC.py" kii 16/12/22 12:31:09
 	reveal actual AAC frame length
 
--sink 118: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\muxSink.py" user 16/11/26 06:20:42
+-sink 118: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\muxSink.py" kii 16/11/26 06:20:42
 	make SinkTCP nonblocking, stream-based
 
--sink 119: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\muxSink.py" user 16/11/26 06:21:34
+-sink 119: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\muxSink.py" kii 16/11/26 06:21:34
 	make SinkRTMP nonblocking, stream-based
 
- ui 120: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/12/26 01:32:11
+=ui 120: +0 "src\stryim.py" ki 17/01/02 23:37:36
 	add ui
 
-+log 121: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiLog.py" user 16/11/26 15:28:27
++log 121: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiLog.py" kii 16/11/26 15:28:27
 	add 'verb' level and .verb()
 
-+recover, clean 122: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\mp4Recover.py" user 16/11/28 18:41:18
++recover, clean 122: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\mp4Recover.py" kii 16/11/28 18:41:18
 	remove after going native
 
-+clean 123: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\mp4Recover.py" user 16/12/04 23:12:28
++clean 123: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\mp4Recover.py" kii 16/12/04 23:12:28
 	remove ctx arg
 
-!recover, mp4 124: +0 "" user 16/12/04 08:28:29
+!recover, mp4 124: +0 "" kii 16/12/04 08:28:29
 	obsolete
 
--bytes 128: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\mp4Recover.py" user 16/12/04 08:37:08
+-bytes 128: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\mp4Recover.py" kii 16/12/04 08:37:08
 	use memoryview as binded data
 
-+optimize 140: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiSupport.py" user 16/12/13 01:45:34
++optimize 140: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiSupport.py" kii 16/12/13 01:45:34
 	OPTIMIZE
 
-!feature 177: -1 "..\..\Application Data\Sublime Text 3\Packages\stryim\AACCore.py" user 16/12/18 19:23:51
+!feature 177: -1 "..\..\Application Data\Sublime Text 3\Packages\stryim\AACCore.py" kii 16/12/18 19:23:51
 	decode ATDS AAC
 
- feature 178: -1 "..\..\Application Data\Sublime Text 3\Packages\stryim\AACCore.py" user 16/12/19 00:48:53
+ feature 178: -1 "..\..\Application Data\Sublime Text 3\Packages\stryim\AACCore.py" kii 16/12/19 00:48:53
 	read ADTS header, bitstream seek() must be implemented
 
- feature 179: -1 "..\..\Application Data\Sublime Text 3\Packages\stryim\AACCore.py" user 16/12/19 04:24:45
+ feature 179: -1 "..\..\Application Data\Sublime Text 3\Packages\stryim\AACCore.py" kii 16/12/19 04:24:45
 	not-common_window
 
- feature, aac 180: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\mp4Recover.py" user 16/12/21 04:59:20
+ feature, aac 180: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\mp4Recover.py" kii 16/12/21 04:59:20
 	detect AAC length by native decoding
 
- feature, aac, clean 181: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\AACCore.py" user 16/12/20 17:15:58
+ feature, aac, clean 181: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\AACCore.py" kii 16/12/20 17:15:58
 	remove after full decoding done
 
- feature, aac 182: -1 "..\..\Application Data\Sublime Text 3\Packages\stryim\AACCore.py" user 16/12/20 17:16:33
+ feature, aac 182: -1 "..\..\Application Data\Sublime Text 3\Packages\stryim\AACCore.py" kii 16/12/20 17:16:33
 	add different aac types
 
- aac 183: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\AACSupport.py" user 16/12/20 17:33:11
+ aac 183: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\AACSupport.py" kii 16/12/20 17:33:11
 	fill VLC table
 
- feature, ui 200: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/12/28 00:35:27
+ feature, ui 200: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" kii 16/12/28 00:35:27
 	call from UI
 
-+fix, aac 202: +1 "..\..\Application Data\Sublime Text 3\Packages\stryim\AACDetect.py" user 16/12/22 21:25:13
++fix, aac 202: +1 "..\..\Application Data\Sublime Text 3\Packages\stryim\AACDetect.py" kii 16/12/22 21:25:13
 	make possible to start AAC queue NOT from max_sfb=0
 
- app, feature 218: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/12/27 01:24:09
+ app, feature 218: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" kii 16/12/27 01:24:09
 	allow reconfiguration
 
- app, clean, feature 219: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" user 16/12/26 11:14:13
-	wait for .live to stop
+!app, clean, feature 219: +0 "" ki 17/01/03 01:05:20
+	redundant
 
- Yi 225: +0 "src\yiControl.py" user 16/12/30 23:40:45
+ Yi 225: +0 "src\yiControl.py" kii 16/12/30 23:40:45
 	detect real command ending
 
--Yi, fix 227: +0 "src\yiListener.py" user 16/12/31 04:40:24
+-Yi, fix 227: +0 "src\yiListener.py" kii 16/12/31 04:40:24
 	deleted files remains in camera file list till restart
 
--Yi, fix 228: +0 "src\yiControl.py" user 16/12/31 04:50:01
-	detect YiAPI errors: playback mode, busy switching
+-Yi, fix 228: +0 "src\yiControl.py" kii 17/01/02 15:35:36
+	detect Yi4kAPI errors: playback mode, busy switching
 
-=Yi 229: +0 "src\yiControl.py" user 16/12/31 04:50:42
++Yi 229: +0 "src\yiControl.py" kii 16/12/31 05:23:30
 	set loop length to 5min
 
-=Yi 230: +0 "src\yiControl.py" user 16/12/31 04:53:01
+=Yi 230: +0 "src\yiControl.py" kii 16/12/31 04:53:01
 	detect error when stopping stopped cam
 
+-Yi 232: +0 "src\stryim.py" ki 17/01/02 23:19:43
+	add video formats
 
-Reserved: 231
+
+Reserved: 235

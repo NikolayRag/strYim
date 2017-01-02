@@ -8,8 +8,8 @@ Connect to camera WiFi for app to work.
 
 
 
-#  todo 120 (ui) +0: add ui
-
+# =todo 120 (ui) +0: add ui
+# -todo 232 (Yi) +0: add video formats
 import time, os
 
 from yiControl import *
@@ -101,7 +101,6 @@ def stop():
 	camStreamer.stop()
 	camControl.stop()
 
-#  todo 219 (app, clean,feature) +0: wait for .live to stop
 
 
 
@@ -116,7 +115,7 @@ def cbConn(_mode):
 
 '''
 Callback fired when camera starts/stops recording apropriate file.
-There's nothing special to do with it, 'cause data is flown through YiListener.live() callback.
+There's nothing special to do with it, 'cause data is flown through YiAgent.live() callback.
 '''
 def cbLive(_mode):
 	if _mode==1:
