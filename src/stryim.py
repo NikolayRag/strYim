@@ -48,7 +48,7 @@ control= None
 '''
 App entry point, should be called once.
 '''
-def start(_dst=None, _nonstop=False):
+def start(_gui=True, _dst=None, _nonstop=False):
 	#pass args
 	if _dst!=None:
 		destination= _dst

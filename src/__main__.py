@@ -15,14 +15,20 @@ Example:
 	Dont exit when camera pauses.
  ''')
 
+	cParser.add_argument('-nogui', action='store_true', help='Dont exit when camera pauses.')
+
 	cParser.add_argument('-nonstop', action='store_true', help='Dont exit when camera pauses.')
 	cParser.add_argument('-logverb', type=str, nargs='+', help='Classes to log verb-level.')
 	cParser.add_argument('-logwarn', type=str, nargs='+', help='Classes to log warn-level.')
-	cParser.add_argument('dst', type=str, help='streaming destination; file or rtmp://')
+	cParser.add_argument('dst', type=str, nargs='?', help='required for commandline mode: streaming destination; rtmp://server/path')
 	
 	try:
 		args= cParser.parse_args()
 	except:
+		sys.exit(0)
+
+	if args.nogui and not args.dst:
+		cParser.print_help()
 		sys.exit(0)
 
 
@@ -35,6 +41,6 @@ Example:
 		kiLog.states(c, warn=True)
 
 
-	stryim.start(args.dst, args.nonstop)
+	stryim.start(not args.nogui, args.dst, args.nonstop)
 
 
