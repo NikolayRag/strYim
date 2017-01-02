@@ -1,6 +1,6 @@
 import time
 
-from yi.yiAPI import *
+import Yi4kAPI
 from kiLog import *
 
 
@@ -27,23 +27,23 @@ class YiControl():
 			return False
 
 
-# -todo 228 (Yi, fix) +0: detect YiAPI errors: playback mode, busy switching
-		yi= YiAPI()
+# -todo 228 (Yi, fix) +0: detect Yi4kAPI errors: playback mode, busy switching
+		yi= Yi4kAPI.YiAPI()
 		if yi.res==False:
 			kiLog.err('Camera not found')
 			return
 
-		self.settings= yi.cmd(YiAPI.getSettings)
+		self.settings= yi.cmd(Yi4kAPI.getSettings)
 
-		yi.cmd(YiAPI.setSystemMode, 'record')
-		yi.cmd(YiAPI.setRecordMode, 'record_loop')
-		yi.cmd(YiAPI.setLoopDuration, '5 minutes')
-		yi.cmd(YiAPI.setVideoQuality, quality)
-		yi.cmd(YiAPI.setVideoStandard, self.presets[_yiFormat])
-		yi.cmd(YiAPI.setVideoResolution, _yiFormat)
+		yi.cmd(Yi4kAPI.setSystemMode, 'record')
+		yi.cmd(Yi4kAPI.setRecordMode, 'record_loop')
+		yi.cmd(Yi4kAPI.setLoopDuration, '5 minutes')
+		yi.cmd(Yi4kAPI.setVideoQuality, quality)
+		yi.cmd(Yi4kAPI.setVideoStandard, self.presets[_yiFormat])
+		yi.cmd(Yi4kAPI.setVideoResolution, _yiFormat)
 
 		time.sleep(1)
-		yi.cmd(YiAPI.startRecording)
+		yi.cmd(Yi4kAPI.startRecording)
 
 		yi.close()
 
@@ -51,23 +51,23 @@ class YiControl():
 
 
 	def stop(self):
-		yi= YiAPI()
+		yi= Yi4kAPI.YiAPI()
 		if yi.res==False:
 			kiLog.err('Camera not found')
 			return
 
 # =todo 230 (Yi) +0: detect error when stopping stopped cam
-		res= yi.cmd(YiAPI.stopRecording)
+		res= yi.cmd(Yi4kAPI.stopRecording)
 #  todo 225 (Yi) +0: detect real command ending
 		time.sleep(2)
 
 		#restore settings
-		yi.cmd(YiAPI.setVideoQuality, self.settings['video_quality'])
-		yi.cmd(YiAPI.setVideoStandard, self.settings['video_standard'])
-		yi.cmd(YiAPI.setVideoResolution, self.settings['video_resolution'])
-		yi.cmd(YiAPI.setVideoFieldOfView, self.settings['fov'])
-		yi.cmd(YiAPI.setLoopDuration, self.settings['loop_rec_duration'])
-		yi.cmd(YiAPI.setRecordMode, self.settings['rec_mode'])
-		yi.cmd(YiAPI.setSystemMode, self.settings['system_mode'])
+		yi.cmd(Yi4kAPI.setVideoQuality, self.settings['video_quality'])
+		yi.cmd(Yi4kAPI.setVideoStandard, self.settings['video_standard'])
+		yi.cmd(Yi4kAPI.setVideoResolution, self.settings['video_resolution'])
+		yi.cmd(Yi4kAPI.setVideoFieldOfView, self.settings['fov'])
+		yi.cmd(Yi4kAPI.setLoopDuration, self.settings['loop_rec_duration'])
+		yi.cmd(Yi4kAPI.setRecordMode, self.settings['rec_mode'])
+		yi.cmd(Yi4kAPI.setSystemMode, self.settings['system_mode'])
 
 		yi.close()
