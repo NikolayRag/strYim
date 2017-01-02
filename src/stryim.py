@@ -75,10 +75,7 @@ class Stryim():
 #  todo 218 (app, feature) +0: allow reconfiguration
 		#apply settings
 		KiTelnet.defaults(address=Stryim.YiIP)
-		YiAPI.defaults(ip=Stryim.YiIP)
-		if os.system("ping -n 1 %s>nul" % Stryim.YiIP):
-			kiLog.warn('Camera ping failed.')
-
+		Yi4kAPI.YiAPI.defaults(ip=Stryim.YiIP)
 
 		#Check for ability to run
 

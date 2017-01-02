@@ -1,0 +1,3 @@
+[submodule "src/Yi4kAPI"]
+	path = src/Yi4kAPI
+	url = https://github.com/NikolayRag/Yi4kAPI
