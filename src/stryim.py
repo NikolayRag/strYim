@@ -14,6 +14,8 @@ import time, os
 
 from yiControl import *
 from yiStreamer import *
+from appGui import *
+
 from mp4.muxH264AAC import *
 from telnet.kiTelnet import *
 from kiLog import *
@@ -72,7 +74,29 @@ def start(_gui=True, _dst=None, _nonstop=False):
 		, cbDie=cbDie
 	)
 
+	if _gui:
+		runGui()
+	else:
+		runCmd()
 
+
+'''
+Gui flow.
+Stream can be restarted with different settings.
+Camera is controlled constantly.
+'''
+def runGui():
+	flow.gui= gui()
+
+	flow.gui.exec()
+
+
+'''
+Commandline flow.
+Streaming is done once using some settings,
+till interrupted or camera stops.
+'''
+def runCmd():
 #  todo 218 (app, feature) +0: allow reconfiguration
 	#apply settings
 	KiTelnet.defaults(address=config.YiIP)
