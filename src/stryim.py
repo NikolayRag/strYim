@@ -55,10 +55,7 @@ flow.camControl= None
 flow.gui= None
 
 
-'''
-App entry point, should be called once.
-'''
-def start(_gui=True, _dst=None, _nonstop=False):
+def init(_dst=None, _nonstop=False):
 	#pass args
 	if _dst!=None:
 		config.destination= _dst
@@ -74,10 +71,11 @@ def start(_gui=True, _dst=None, _nonstop=False):
 		, cbDie=cbDie
 	)
 
-	if _gui:
-		runGui()
-	else:
-		runCmd()
+
+
+'''
+App entry points, should be called once.
+'''
 
 
 '''
@@ -85,10 +83,13 @@ Gui flow.
 Stream can be restarted with different settings.
 Camera is controlled constantly.
 '''
-def runGui():
+def runGui(_args):
+	init(_args.dst, _args.nonstop)
+
 	flow.gui= gui()
 
 	flow.gui.exec()
+
 
 
 '''
@@ -96,7 +97,9 @@ Commandline flow.
 Streaming is done once using some settings,
 till interrupted or camera stops.
 '''
-def runCmd():
+def runCmd(_args):
+	init(_args.dst, _args.nonstop)
+
 #  todo 218 (app, feature) +0: allow reconfiguration
 	#apply settings
 	KiTelnet.defaults(address=config.YiIP)

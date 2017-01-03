@@ -17,6 +17,6 @@ if __name__ == '__main__':
 			kiLog.states(c, warn=True)
 
 
-		stryim.start(False, cArgs.dst, cArgs.nonstop)
+		stryim.runCmd(cArgs)
 
 
