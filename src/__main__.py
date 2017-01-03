@@ -1,46 +1,22 @@
-import argparse, sys
-
 import stryim
+import args
 from kiLog import *
 
 
+
 if __name__ == '__main__':
-	cParser= argparse.ArgumentParser(description= 'Yi 4k lossless streamer.', usage='''
-	%(prog)s -h|--help
-	%(prog)s destination [-nonstop]
-Example:
-	%(prog)s rtmp://a.rtmp.youtube.com/live2/your-secret-key
+	cArgs= args.parse()
 
--nonstop:
-	Dont exit when camera pauses.
- ''')
+	if cArgs:
+		kiLog.states(False, ok=False, warn=False)
+		kiLog.states('', ok=True)
 
-	cParser.add_argument('-nogui', action='store_true', help='Dont exit when camera pauses.')
-
-	cParser.add_argument('-nonstop', action='store_true', help='Dont exit when camera pauses.')
-	cParser.add_argument('-logverb', type=str, nargs='+', help='Classes to log verb-level.')
-	cParser.add_argument('-logwarn', type=str, nargs='+', help='Classes to log warn-level.')
-	cParser.add_argument('dst', type=str, nargs='?', help='required for commandline mode: streaming destination; rtmp://server/path')
-	
-	try:
-		args= cParser.parse_args()
-	except:
-		sys.exit(0)
-
-	if args.nogui and not args.dst:
-		cParser.print_help()
-		sys.exit(0)
+		for c in (cArgs.logverb or []):
+			kiLog.states(c, verb=True)
+		for c in (cArgs.logwarn or []):
+			kiLog.states(c, warn=True)
 
 
-	kiLog.states(False, ok=False, warn=False)
-	kiLog.states('', ok=True)
-
-	for c in (args.logverb or []):
-		kiLog.states(c, verb=True)
-	for c in (args.logwarn or []):
-		kiLog.states(c, warn=True)
-
-
-	stryim.start(not args.nogui, args.dst, args.nonstop)
+		stryim.start(False, cArgs.dst, cArgs.nonstop)
 
 
