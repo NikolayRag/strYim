@@ -19,6 +19,10 @@ from telnet.kiTelnet import *
 from kiLog import *
 
 
+class Object():
+	None
+
+
 '''
 Yi4k stream app.
 Links three flows:
@@ -27,22 +31,26 @@ Links three flows:
 3. UI
 '''
 
-formats= [
+pool= Object()
+pool.formats= [
 	{
 		'fps':30000./1001,
 		'yi':'1920x1080 30P 16:9'
 	}
 ]
 
+state= Object()
+state.flagRun= True
 
-flagRun= True
+config= Object()
+config.YiIP= '192.168.42.1'
+config.destination= ''
+config.nonstop= False
 
-YiIP= '192.168.42.1'
-destination= ''
-nonstop= False
-
-camStreamer= None
-camControl= None
+flow= Object()
+flow.camStreamer= None
+flow.camControl= None
+flow.gui= None
 
 
 '''
@@ -51,13 +59,13 @@ App entry point, should be called once.
 def start(_gui=True, _dst=None, _nonstop=False):
 	#pass args
 	if _dst!=None:
-		destination= _dst
-	nonstop= _nonstop
+		config.destination= _dst
+	config.nonstop= _nonstop
 
 
 	#init
-	camControl= YiControl()
-	camStreamer= YiStreamer(
+	flow.camControl= YiControl()
+	flow.camStreamer= YiStreamer(
 		  cbConn=cbConn
 		, cbLive=cbLive
 		, cbAir=cbAir
@@ -67,28 +75,28 @@ def start(_gui=True, _dst=None, _nonstop=False):
 
 #  todo 218 (app, feature) +0: allow reconfiguration
 	#apply settings
-	KiTelnet.defaults(address=YiIP)
-	Yi4kAPI.YiAPI.defaults(ip=YiIP)
+	KiTelnet.defaults(address=config.YiIP)
+	Yi4kAPI.YiAPI.defaults(ip=config.YiIP)
 
 	#Check for ability to run
 
 
 #  todo 200 (feature, ui) +0: call from UI
-	cFormat= formats[0]
+	cFormat= pool.formats[0]
 	kiLog.ok('Setting ' +str(cFormat['yi']))
-	if not camControl.start(cFormat['yi']):
+	if not flow.camControl.start(cFormat['yi']):
 		cbDie()
 		return
 
-	camStreamer.start(destination, cFormat['fps'])
+	flow.camStreamer.start(config.destination, cFormat['fps'])
 
-	while flagRun:
+	while state.flagRun:
 		try:
 			time.sleep(.1)
 		except KeyboardInterrupt:
 			kiLog.ok('Exit by demand (Ctrl-C)')
 			
-			nonstop= True
+			config.nonstop= True
 			stop()
 			break
 	
@@ -98,8 +106,8 @@ def start(_gui=True, _dst=None, _nonstop=False):
 App cleanup and exit point.
 '''
 def stop():
-	camStreamer.stop()
-	camControl.stop()
+	flow.camStreamer.stop()
+	flow.camControl.stop()
 
 
 
@@ -135,7 +143,7 @@ def cbAir(_mode):
 	if _mode==0:
 		kiLog.ok('Air Off')
 
-		if not nonstop:
+		if not config.nonstop:
 			stop()
 	
 	if _mode==-1:
@@ -145,4 +153,4 @@ def cbAir(_mode):
 def cbDie():
 	kiLog.ok('Exiting')
 
-	flagRun= False
+	state.flagRun= False
