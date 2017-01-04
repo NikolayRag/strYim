@@ -2,6 +2,7 @@ from .muxSink import *
 from .muxH264AAC import *
 from .mp4Recover import *
 from .yiAgent import *
+from .kiTelnet import *
 from kiLog import *
 
 
@@ -16,6 +17,12 @@ class YiStreamer():
 	cbLive= None
 	cbAir= None
 	cbDie= None
+
+	@staticmethod
+	def defaults(ip):
+		if ip:
+			KiTelnet.defaults(address=ip)
+
 
 	def __init__(self, cbConn=None, cbLive=None, cbAir=None, cbDie=None):
 		self.cbConn= cbConn

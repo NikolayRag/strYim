@@ -12,6 +12,12 @@ class YiControl():
 
 
 
+	@staticmethod
+	def defaults(ip):
+		if ip:
+			Yi4kAPI.YiAPI.defaults(ip=ip)
+
+			
 	def __init__(self):
 		None
 

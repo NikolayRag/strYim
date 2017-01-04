@@ -60,6 +60,10 @@ def init(_dst=None, _nonstop=False):
 	config.nonstop= _nonstop
 
 
+	YiControl.defaults(ip=config.YiIP)
+	YiStreamer.defaults(ip=config.YiIP)
+
+
 	#init
 	flow.camControl= YiControl()
 	flow.camStreamer= YiStreamer(
@@ -88,6 +92,8 @@ def runGui(_args):
 
 	flow.gui.exec()
 
+#  todo 218 (app, feature) +0: allow reconfiguration
+
 
 
 '''
@@ -97,11 +103,6 @@ till interrupted or camera stops.
 '''
 def runCmd(_args):
 	init(_args.dst, _args.nonstop)
-
-#  todo 218 (app, feature) +0: allow reconfiguration
-	#apply settings
-	KiTelnet.defaults(address=config.YiIP)
-	Yi4kAPI.YiAPI.defaults(ip=config.YiIP)
 
 	#Check for ability to run
 
