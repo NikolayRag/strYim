@@ -1,4 +1,4 @@
-from byteTransit import *
+from .byteTransit import *
 from .mp4Atom import *
 from .AACDetect import *
 from kiLog import *

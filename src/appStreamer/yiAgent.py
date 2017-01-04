@@ -1,6 +1,6 @@
 import time, re, threading
 
-from telnet.kiTelnet import *
+from .kiTelnet import *
 from kiSupport import *
 from kiLog import *
 

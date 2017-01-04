@@ -12,12 +12,10 @@ Connect to camera WiFi for app to work.
 # -todo 232 (Yi) +0: add video formats
 import time, os
 
-from yiControl import *
-from yiStreamer import *
+from appControl import *
+from appStreamer import *
 from appGui import *
 
-from mp4.muxH264AAC import *
-from telnet.kiTelnet import *
 from kiLog import *
 
 

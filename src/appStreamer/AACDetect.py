@@ -1,4 +1,4 @@
-from aac.AACCore import *
+from .aac.AACCore import *
 from kiLog import *
 
 

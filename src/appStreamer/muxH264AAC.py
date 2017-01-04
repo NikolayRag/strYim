@@ -1,4 +1,4 @@
-from aac.AACSupport import *
+from .aac.AACSupport import *
 from kiSupport import *
 from kiLog import *
 
