@@ -32,36 +32,38 @@ class QWinFilter(QObject):
 
 
 class gui():
-	QApp= None
-	view= None
+	qApp= None
+	qMain= None
+
+
 
 	modulePath= path.abspath(path.dirname(__file__))
 
 	def __init__(self):
-		self.QApp = QApplication('')
-		self.QApp.setStyle(QStyleFactory.create('plastique'))
+		self.qApp = QApplication('')
+		self.qApp.setStyle(QStyleFactory.create('plastique'))
 
 		uiFile= path.join(self.modulePath,'stryim.ui')
-		self.view= QUiLoader().load(uiFile)
+		self.qMain= QUiLoader().load(uiFile)
 
-		self.view.setWindowFlags(Qt.FramelessWindowHint)
-		self.view.installEventFilter( QWinFilter(self.view) )
+		self.qMain.setWindowFlags(Qt.FramelessWindowHint)
+		self.qMain.installEventFilter( QWinFilter(self.qMain) )
 
 
-		self.view.findChild(QWidget, "btnCamStop").hide()
-		self.view.findChild(QWidget, "radioCamAir").toggle()
-		self.view.findChild(QWidget, "radioCamReady").toggle()
-		self.view.findChild(QWidget, "radioCamIdle").toggle()
-		self.view.findChild(QWidget, "radioCamError").toggle()
-		self.view.findChild(QWidget, "radioCamNone").toggle()
+		self.qMain.findChild(QWidget, "btnCamStop").hide()
+		self.qMain.findChild(QWidget, "radioCamAir").toggle()
+		self.qMain.findChild(QWidget, "radioCamReady").toggle()
+		self.qMain.findChild(QWidget, "radioCamIdle").toggle()
+		self.qMain.findChild(QWidget, "radioCamError").toggle()
+		self.qMain.findChild(QWidget, "radioCamNone").toggle()
 		
 
 
-#		self.view= QDeclarativeView()
-#		self.view.setSource(QUrl( os.path.join(self.modulePath,'stryim.qml') ))
-#		self.view.show()
+#		self.qMain= QDeclarativeView()
+#		self.qMain.setSource(QUrl( os.path.join(self.modulePath,'stryim.qml') ))
+#		self.qMain.show()
 
 	def exec(self):
-		self.view.show()
+		self.qMain.show()
 
-		self.QApp.exec_()
+		self.qApp.exec_()
