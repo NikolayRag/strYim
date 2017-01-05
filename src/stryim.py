@@ -14,7 +14,6 @@ import time, os
 
 from appControl import *
 from appStreamer import *
-from appGui import *
 
 from kiLog import *
 
@@ -86,9 +85,12 @@ Stream can be restarted with different settings.
 Camera is controlled constantly.
 '''
 def runGui(_args):
+	#import on demand to allow PyInstaller to exclude it
+	import appGui
+
 	init(_args.dst, _args.nonstop)
 
-	flow.gui= gui()
+	flow.gui= appGui.gui()
 
 	flow.gui.exec()
 

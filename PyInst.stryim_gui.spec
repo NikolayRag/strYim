@@ -3,11 +3,11 @@
 block_cipher = None
 
 
-a = Analysis(['src\\__main__w.py'],
+a = Analysis(['src\\__main__w.pyw'],
              pathex=['C:\\Users\\user\\Documents\\stryim'],
              binaries=None,
-             datas=None,
-             hiddenimports=[],
+	datas=[('src/appGui/stryim.ui', 'appGui')],
+	hiddenimports=['PySide.QtXml'],
              hookspath=[],
              runtime_hooks=[],
              excludes=[],
