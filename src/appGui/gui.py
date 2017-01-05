@@ -5,6 +5,32 @@ from PySide.QtGui import *
 from PySide.QtUiTools import *
 #from PySide.QtDeclarative import QDeclarativeView
 
+
+
+class QWinFilter(QObject):
+	mouseOffset= None
+
+	def eventFilter(self, obj, event):
+		if event.type()==QEvent.MouseButtonPress:
+			self.mouseOffset= event.globalPos()-obj.window().pos()
+			return True
+
+		if event.type()==QEvent.MouseButtonRelease:
+			self.mouseOffset= False
+			return True
+
+		if event.type()==QEvent.MouseMove and self.mouseOffset:
+			obj.window().move(event.globalPos()-self.mouseOffset)
+			return True
+
+
+		try:
+			return QObject.eventFilter(self, obj, event)
+		except:
+			return False
+
+
+
 class gui():
 	QApp= None
 	view= None
@@ -17,7 +43,10 @@ class gui():
 
 		uiFile= path.join(self.modulePath,'stryim.ui')
 		self.view= QUiLoader().load(uiFile)
+
 		self.view.setWindowFlags(Qt.FramelessWindowHint)
+		self.view.installEventFilter( QWinFilter(self.view) )
+
 
 		self.view.findChild(QWidget, "btnCamStop").hide()
 		self.view.findChild(QWidget, "radioCamAir").toggle()
