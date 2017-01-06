@@ -34,7 +34,7 @@ class QWinFilter(QObject):
 class gui():
 	qApp= None
 	qMain= None
-
+	qCamState= None
 
 
 	modulePath= path.abspath(path.dirname(__file__))
@@ -51,11 +51,12 @@ class gui():
 
 
 		self.qMain.findChild(QWidget, "btnCamStop").hide()
-		self.qMain.findChild(QWidget, "radioCamAir").toggle()
-		self.qMain.findChild(QWidget, "radioCamReady").toggle()
-		self.qMain.findChild(QWidget, "radioCamIdle").toggle()
-		self.qMain.findChild(QWidget, "radioCamError").toggle()
-		self.qMain.findChild(QWidget, "radioCamNone").toggle()
+
+		self.qCamState= {}
+		for state in ["Air", "Ready", "Idle", "Error", "None"]:
+			self.qCamState[state]= self.qMain.findChild(QWidget, ('radioCam'+state))
+			self.camState(state)
+		self.camState('None')
 		
 
 
@@ -67,3 +68,8 @@ class gui():
 		self.qMain.show()
 
 		self.qApp.exec_()
+
+
+	def camState(self,_state):
+		self.qCamState[_state].toggle()
+
