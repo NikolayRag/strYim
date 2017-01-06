@@ -8,7 +8,7 @@ class YiControl():
 	presets= {"3840x2160 30P 16:9":'NTSC', "3840x2160 30P 16:9 super":'NTSC', "2560x1920 30P 4:3":'NTSC', "1920x1440 60P 4:3":'NTSC', "1920x1440 30P 4:3":'NTSC', "1920x1080 120P 16:9":'NTSC', "1920x1080 120P 16:9 super":'NTSC', "1920x1080 60P 16:9":'NTSC', "1920x1080 60P 16:9 super":'NTSC', "1920x1080 30P 16:9":'NTSC', "1920x1080 30P 16:9 super":'NTSC', "1280x960 120P 4:3":'NTSC', "1280x960 60P 4:3":'NTSC', "1280x720 240P 16:9":'NTSC', "1280x720 120P 16:9 super":'NTSC', "1280x720 60P 16:9 super":'NTSC', "840x480 240P 16:9":'NTSC'}
 
 
-	settings= {}
+	settings= None
 
 
 
@@ -68,12 +68,14 @@ class YiControl():
 		time.sleep(2)
 
 		#restore settings
-		yi.cmd(Yi4kAPI.setVideoQuality, self.settings['video_quality'])
-		yi.cmd(Yi4kAPI.setVideoStandard, self.settings['video_standard'])
-		yi.cmd(Yi4kAPI.setVideoResolution, self.settings['video_resolution'])
-		yi.cmd(Yi4kAPI.setVideoFieldOfView, self.settings['fov'])
-		yi.cmd(Yi4kAPI.setLoopDuration, self.settings['loop_rec_duration'])
-		yi.cmd(Yi4kAPI.setRecordMode, self.settings['rec_mode'])
-		yi.cmd(Yi4kAPI.setSystemMode, self.settings['system_mode'])
+		#fallback if camera was in record already
+		if settings:
+			yi.cmd(Yi4kAPI.setVideoQuality, self.settings['video_quality'])
+			yi.cmd(Yi4kAPI.setVideoStandard, self.settings['video_standard'])
+			yi.cmd(Yi4kAPI.setVideoResolution, self.settings['video_resolution'])
+			yi.cmd(Yi4kAPI.setVideoFieldOfView, self.settings['fov'])
+			yi.cmd(Yi4kAPI.setLoopDuration, self.settings['loop_rec_duration'])
+			yi.cmd(Yi4kAPI.setRecordMode, self.settings['rec_mode'])
+			yi.cmd(Yi4kAPI.setSystemMode, self.settings['system_mode'])
 
 		yi.close()
