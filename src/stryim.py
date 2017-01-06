@@ -147,7 +147,13 @@ Callback fired when camera is connected/disconnected over WiFi(TCP).
 In case of very weak sygnal it can be fired 'disconnected', just ensure camera is close to PC.
 '''
 def cbConn(_mode):
-	kiLog.ok('Connected' if _mode else 'Disconnected')
+	if _mode:
+		kiLog.ok('Connected')
+		flow.gui and flow.gui.camState('Idle')
+
+	if not _mode:
+		kiLog.ok('Disconnected')
+		flow.gui and flow.gui.camState('None')
 
 '''
 Callback fired when camera starts/stops recording apropriate file.
@@ -156,10 +162,14 @@ There's nothing special to do with it, 'cause data is flown through YiAgent.live
 def cbLive(_mode):
 	if _mode==1:
 		kiLog.ok('Live')
+		flow.gui and flow.gui.camState('Ready')
+
 	if _mode==0:
 		kiLog.ok('Live split')
+
 	if _mode==-1:
 		kiLog.ok('Dead')
+		flow.gui and flow.gui.camState('Idle')
 
 '''
 Callback fired when data flows to recoverer.
@@ -167,15 +177,18 @@ Callback fired when data flows to recoverer.
 def cbAir(_mode):
 	if _mode==1:
 		kiLog.ok('Air On')
+		flow.gui and flow.gui.camState('Air')
 
 	if _mode==0:
 		kiLog.ok('Air Off')
+		flow.gui and flow.gui.camState('Ready')
 
 		if not config.nonstop:
 			stop()
 	
 	if _mode==-1:
 		kiLog.err('Air bad')
+		flow.gui and flow.gui.camState('Error')
 
 
 def cbDie():
