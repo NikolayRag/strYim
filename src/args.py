@@ -1,20 +1,38 @@
-import argparse
+import argparse, os
 
 
-def parse(_gui=False):
-	cParser= argparse.ArgumentParser(description= 'Yi 4k lossless streamer.')
 
-	cParser.add_argument('-nonstop', action='store_true', help='Dont exit when camera pauses.')
-	cParser.add_argument('dst', type=str, nargs=('?' if _gui else None), help='streaming destination: rtmp://server/path')
-
-	cParser.add_argument('-logverb', type=str, nargs='+', help=argparse.SUPPRESS)
-	cParser.add_argument('-logwarn', type=str, nargs='+', help=argparse.SUPPRESS)
-
+class CmdLine():
+	args= None
 	
-	try:
-		args= cParser.parse_args()
-	except:
-		return
+	def __init__(self, _reuseOld=True):
+		self.formArgs(not _reuseOld)
+
+		
+
+	def save(self):
+		None
 
 
-	return args
+
+	def formArgs(self, _forceDst):
+		cParser= argparse.ArgumentParser(description= 'Yi 4k lossless streamer.')
+
+		cParser.add_argument('-nonstop', action='store_true', help='Dont exit when camera pauses.')
+		cParser.add_argument('dst', type=str, nargs=(None if _forceDst else '?'), help='streaming destination: rtmp://server/path')
+
+		cParser.add_argument('-logverb', type=str, nargs='+', help=argparse.SUPPRESS)
+		cParser.add_argument('-logwarn', type=str, nargs='+', help=argparse.SUPPRESS)
+
+		
+		try:
+			self.args= cParser.parse_args()
+
+			return True
+		
+		except:
+			self.args= False
+
+			return False
+
+

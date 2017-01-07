@@ -4,9 +4,9 @@ import args
 
 
 if __name__ == '__main__':
-	cArgs= args.parse(True)
+	cArgs= args.CmdLine(True)
 
-	if cArgs:
+	if cArgs.args:
 		stryim.runGui(cArgs)
 
 
