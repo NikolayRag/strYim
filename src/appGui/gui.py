@@ -50,6 +50,8 @@ class gui():
 		self.qMain.installEventFilter( QWinFilter(self.qMain) )
 
 
+		#update widgets state
+
 		self.qMain.findChild(QWidget, "btnCamStop").hide()
 
 		self.qCamState= {}
@@ -64,12 +66,31 @@ class gui():
 #		self.qMain.setSource(QUrl( os.path.join(self.modulePath,'stryim.qml') ))
 #		self.qMain.show()
 
+
+	'''
+	Display UI and enter QT app loop
+	'''
 	def exec(self):
+		#minimize window
+		sizeAspect= self.qMain.size().width()/self.qMain.size().height()
+		self.qMain.resize(0,0)
+
 		self.qMain.show()
+
+		#restore explicit aspect
+		cSize= self.qMain.size()
+		cSize.setWidth(cSize.height()*sizeAspect)
+		cSize.setHeight(cSize.width()/sizeAspect)
+		self.qMain.resize(cSize)
+
 
 		self.qApp.exec_()
 
 
+
+	'''
+	Toggle camera state
+	'''
 	def camState(self,_state):
 		self.qCamState[_state].toggle()
 
