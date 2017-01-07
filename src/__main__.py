@@ -11,9 +11,9 @@ if __name__ == '__main__':
 		kiLog.states(False, ok=False, warn=False)
 		kiLog.states('', ok=True)
 
-		for c in (cArgs.args.logverb or []):
+		for c in (cArgs.args['logverb'] or []):
 			kiLog.states(c, verb=True)
-		for c in (cArgs.args.logwarn or []):
+		for c in (cArgs.args['logwarn'] or []):
 			kiLog.states(c, warn=True)
 
 
