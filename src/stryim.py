@@ -88,7 +88,7 @@ def runGui(_args):
 	#import on demand to allow PyInstaller to exclude it
 	import appGui
 
-	init(_args.args.dst, _args.args.nonstop)
+	init(_args.args['dst'], _args.args['nonstop'])
 
 	flow.gui= appGui.gui()
 
@@ -104,7 +104,7 @@ Streaming is done once using some settings,
 till interrupted or camera stops.
 '''
 def runCmd(_args):
-	init(_args.args.dst, _args.args.nonstop)
+	init(_args.args['dst'], _args.args['nonstop'])
 
 	#Check for ability to run
 

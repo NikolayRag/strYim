@@ -26,7 +26,7 @@ class CmdLine():
 
 		
 		try:
-			self.args= cParser.parse_args()
+			self.args= vars(cParser.parse_args())
 
 			return True
 		
