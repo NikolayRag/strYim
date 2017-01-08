@@ -10,6 +10,10 @@ from PySide.QtUiTools import *
 class QWinFilter(QObject):
 	mouseOffset= None
 
+	def __init__(self, _base):
+		super().__init__(_base)
+
+
 	def eventFilter(self, obj, event):
 		if event.type()==QEvent.MouseButtonPress:
 			self.mouseOffset= event.globalPos()-obj.window().pos()
