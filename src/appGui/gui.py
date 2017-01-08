@@ -36,6 +36,8 @@ class QWinFilter(QObject):
 
 
 class gui():
+	camStates= ["Air", "Ready", "Idle", "Error", "None"]
+
 	qApp= None
 	qMain= None
 	qCamState= None
@@ -59,7 +61,7 @@ class gui():
 		self.qMain.findChild(QWidget, "btnCamStop").hide()
 
 		self.qCamState= {}
-		for state in ["Air", "Ready", "Idle", "Error", "None"]:
+		for state in self.camStates:
 			self.qCamState[state]= self.qMain.findChild(QWidget, ('radioCam'+state))
 			self.camState(state)
 		self.camState('None')
