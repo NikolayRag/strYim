@@ -3,9 +3,13 @@ from os import path
 from PySide.QtCore import *
 from PySide.QtGui import *
 from PySide.QtUiTools import *
-#from PySide.QtDeclarative import QDeclarativeView
+
+class Object():
+	None
 
 
+
+# -todo 239 (gui, feature) +0: make customizable destination list 
 
 class QWinFilter(QObject):
 	mouseOffset= None
@@ -27,50 +31,84 @@ class QWinFilter(QObject):
 			obj.window().move(event.globalPos()-self.mouseOffset)
 			return True
 
+		return False
 
-		try:
-			return QObject.eventFilter(self, obj, event)
-		except:
-			return False
 
 
 
 class Gui():
-	camStates= ["Air", "Ready", "Idle", "Error", "None"]
-
 	qApp= None
-	qMain= None
-	qCamState= None
 
+	layout= Object()
+	layout.main= None
+	layout.drag= None
+	layout.dest= None
+	layout.stream= None
+	layout.camStates= {"Air":None, "Ready":None, "Idle":None, "Error":None, "None":None}
+	layout.play= None
+	layout.choose= None
+	layout.addSrc= None
+
+	playCB= None
+	streamCB= None
+	destCB= None
 
 	modulePath= path.abspath(path.dirname(__file__))
 
-	def __init__(self):
+
+
+	def __init__(self, _playCB=None, _streamCB=None, _destCB=None):
+		self.playCB= _playCB
+		self.streamCB= _streamCB
+		self.destCB= _destCB
+
+
 		self.qApp = QApplication('')
 		self.qApp.setStyle(QStyleFactory.create('plastique'))
 
 		uiFile= path.join(self.modulePath,'stryim.ui')
-		self.qMain= QUiLoader().load(uiFile)
+		cMain= self.layout.main= QUiLoader().load(uiFile)
 
-		self.qMain.setWindowFlags(Qt.FramelessWindowHint)
-		self.qMain.installEventFilter( QWinFilter(self.qMain) )
+
+		#capture widgets
+		self.layout.drag= cMain.findChild(QWidget, "outerFrame")
+
+
+		self.layout.dest= cMain.findChild(QWidget, "editRtmpUrl")
+		self.layout.stream= cMain.findChild(QWidget, "btnStreamGo")
+
+
+		self.layout.choose= cMain.findChild(QWidget, "btnOnCamera")
+		self.layout.play= cMain.findChild(QWidget, "btnCamPlay")
+		for state in self.layout.camStates:
+			self.layout.camStates[state]= cMain.findChild(QWidget, ('radioCam'+state))
+
+
+		self.layout.addSrc= cMain.findChild(QWidget, "btnAddSource")
+
+
 
 
 		#update widgets state
+		cMain.setWindowFlags(Qt.FramelessWindowHint)
+		
+		self.layout.drag.installEventFilter( QWinFilter(cMain) )
 
-		self.qMain.findChild(QWidget, "btnCamStop").hide()
 
-		self.qCamState= {}
-		for state in self.camStates:
-			self.qCamState[state]= self.qMain.findChild(QWidget, ('radioCam'+state))
+		for state in self.layout.camStates:
 			self.camState(state)
 		self.camState('None')
-		
 
 
-#		self.qMain= QDeclarativeView()
-#		self.qMain.setSource(QUrl( os.path.join(self.modulePath,'stryim.qml') ))
-#		self.qMain.show()
+#  todo 241 (gui, feature) +0: add/remove sources
+		self.layout.choose.hide()
+		self.layout.addSrc.hide()
+
+
+		if callable(_destCB):
+			self.layout.dest.textChanged.connect(_destCB)
+
+
 
 
 	'''
@@ -78,16 +116,16 @@ class Gui():
 	'''
 	def exec(self):
 		#minimize window
-		sizeAspect= self.qMain.size().width()/self.qMain.size().height()
-		self.qMain.resize(0,0)
+		sizeAspect= self.layout.main.size().width()/self.layout.main.size().height()
+		self.layout.main.resize(0,0)
 
-		self.qMain.show()
+		self.layout.main.show()
 
 		#restore explicit aspect
-		cSize= self.qMain.size()
+		cSize= self.layout.main.size()
 		cSize.setWidth(cSize.height()*sizeAspect)
 		cSize.setHeight(cSize.width()/sizeAspect)
-		self.qMain.resize(cSize)
+		self.layout.main.resize(cSize)
 
 
 		self.qApp.exec_()
@@ -97,6 +135,10 @@ class Gui():
 	'''
 	Toggle camera state
 	'''
-	def camState(self,_state):
-		self.qCamState[_state].toggle()
+	def camState(self, _state):
+		self.layout.camStates[_state].toggle()
 
+
+
+	def destination(self, _dst):
+		self.layout.dest.setText(_dst)
