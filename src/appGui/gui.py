@@ -35,7 +35,7 @@ class QWinFilter(QObject):
 
 
 
-class gui():
+class Gui():
 	camStates= ["Air", "Ready", "Idle", "Error", "None"]
 
 	qApp= None

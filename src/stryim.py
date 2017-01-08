@@ -90,7 +90,7 @@ def runGui(_args):
 
 	init(_args.args['dst'], _args.args['nonstop'])
 
-	flow.gui= appGui.gui()
+	flow.gui= appGui.Gui()
 
 	flow.gui.exec()
 
