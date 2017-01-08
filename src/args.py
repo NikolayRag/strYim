@@ -2,7 +2,7 @@ import argparse, os
 
 
 
-class CmdLine():
+class Args():
 	args= None
 	
 	def __init__(self, _reuseOld=True):

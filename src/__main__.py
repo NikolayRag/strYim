@@ -1,11 +1,11 @@
 import stryim
-import args
+from args import *
 from kiLog import *
 
 
 
 if __name__ == '__main__':
-	cArgs= args.CmdLine(False)
+	cArgs= Args(False)
 
 	if cArgs.args:
 		kiLog.states(False, ok=False, warn=False)
