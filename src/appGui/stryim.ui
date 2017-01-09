@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>920</width>
+    <width>768</width>
     <height>386</height>
    </rect>
   </property>
@@ -64,17 +64,14 @@
               <number>0</number>
              </property>
              <item>
-              <spacer name="horizontalSpacer_2">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
+              <widget class="QLabel" name="_uiscalehint">
+               <property name="styleSheet">
+                <string notr="true">color: rgba(255, 255, 255, 0);</string>
                </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
+               <property name="text">
+                <string>___________________________________________________________________</string>
                </property>
-              </spacer>
+              </widget>
              </item>
              <item>
               <widget class="QLabel" name="labCaption">

@@ -121,12 +121,6 @@ class Gui():
 
 		self.layout.main.show()
 
-		#restore explicit aspect
-		cSize= self.layout.main.size()
-		cSize.setWidth(cSize.height()*sizeAspect)
-		cSize.setHeight(cSize.width()/sizeAspect)
-		self.layout.main.resize(cSize)
-
 
 		self.qApp.exec_()
 
