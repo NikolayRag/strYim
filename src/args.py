@@ -10,8 +10,16 @@ class Args():
 	appName='stryim'
 	settingsFile= os.path.join(os.path.expanduser('~'), ".%s/%s.ini" % (appName,appName))
 
-	args= None
+	formats= [
+		{
+			'fps':30000./1001,
+			'yi':'1920x1080 30P 16:9'
+		}
+	]
 	
+
+	args= None
+
 
 
 	'''
