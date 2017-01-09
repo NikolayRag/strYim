@@ -3,7 +3,7 @@
 block_cipher = None
 
 
-a = Analysis(['src\\__main__w.pyw'],
+a = Analysis(['src\\__main__w.py'],
              pathex=['C:\\Users\\user\\Documents\\stryim'],
              binaries=None,
 	datas=[('src/appGui/stryim.ui', 'appGui')],
@@ -28,4 +28,4 @@ exe = EXE(pyz,
           debug=False,
           strip=False,
           upx=True,
-          console=False )
+          console=True )
