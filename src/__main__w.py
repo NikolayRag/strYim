@@ -94,6 +94,7 @@ def runGui(_args):
 
 
 	#init
+	global flowСamControl, flowСamStreamer
 	flowСamControl= YiControl()
 	flowСamStreamer= YiStreamer(
 		  cbConn=cbConn
