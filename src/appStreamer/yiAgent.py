@@ -230,9 +230,9 @@ class YiAgent():
 				time.sleep(.5)
 
 
-# =todo 31 (read, cam) +1: check 999+ file switch
-			fParts['num']= (fParts['num'] +1) %1000
-			if fParts['num']==0:
+			fParts['num']+= 1
+			if fParts['num']==1000:
+				fParts['num']= 1
 				fParts['dir']+= 1
 
 			fName= self.buildName(fParts)
