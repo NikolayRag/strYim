@@ -89,6 +89,44 @@ Commandline flow.
 Streaming is done once using some settings,
 till interrupted or camera stops (if not -nonstop).
 '''
+def runCmdline(_args):
+	YiControl.defaults(ip=_args.args['YiIP'])
+	YiStreamer.defaults(ip=_args.args['YiIP'])
+
+
+	#init
+	flowCamControl= YiControl()
+	flowCamStreamer= YiStreamer(
+		  cbConn=cbConn
+		, cbLive=cbLive
+		, cbAir=cbAir
+		, cbDie=cbDie
+	)
+
+	#Check for ability to run
+
+
+
+	cFormat= _args.formats[0]
+	kiLog.ok('Setting ' +str(cFormat['yi']))
+	if not flowCamControl.start(cFormat['yi']):
+		cbDie()
+		return
+
+	flowCamStreamer.start(_args.args['dst'], cFormat['fps'])
+
+	while flagRun:
+		try:
+			time.sleep(.1)
+		except KeyboardInterrupt:
+			kiLog.ok('Exit by demand (Ctrl-C)')
+			
+			_args.args['nonstop']= True
+			stop()
+			break
+
+
+
 if __name__ == '__main__':
 	cArgs= Args(False)
 
@@ -101,38 +139,5 @@ if __name__ == '__main__':
 		for c in (cArgs.args['logwarn'] or []):
 			kiLog.states(c, warn=True)
 
+		runCmdline(cArgs)
 
-
-		YiControl.defaults(ip=cArgs.args['YiIP'])
-		YiStreamer.defaults(ip=cArgs.args['YiIP'])
-
-
-		#init
-		flowCamControl= YiControl()
-		flowCamStreamer= YiStreamer(
-			  cbConn=cbConn
-			, cbLive=cbLive
-			, cbAir=cbAir
-			, cbDie=cbDie
-		)
-
-		#Check for ability to run
-
-
-
-		cFormat= cArgs.formats[0]
-		kiLog.ok('Setting ' +str(cFormat['yi']))
-		if not flowCamControl.start(cFormat['yi']):
-			cbDie()
-		else:
-			flowCamStreamer.start(cArgs.args['dst'], cFormat['fps'])
-
-			while flagRun:
-				try:
-					time.sleep(.1)
-				except KeyboardInterrupt:
-					kiLog.ok('Exit by demand (Ctrl-C)')
-					
-					cArgs.args['nonstop']= True
-					stop()
-					break
