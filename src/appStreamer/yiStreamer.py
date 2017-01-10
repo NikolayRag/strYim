@@ -5,6 +5,7 @@ from .yiAgent import *
 from .kiTelnet import *
 from kiLog import *
 
+# -todo 237 (yi, core) +1: make agent to run at Yi side
 
 '''
 Live control class.

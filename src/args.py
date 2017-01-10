@@ -10,6 +10,8 @@ class Args():
 	appName='stryim'
 	settingsFile= os.path.join(os.path.expanduser('~'), ".%s/%s.ini" % (appName,appName))
 
+# -todo 232 (Yi) +0: add video formats
+#  todo 244 (feature, v2) -1: get available formats from current In module
 	formats= [
 		{
 			'fps':30000./1001,

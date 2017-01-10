@@ -1,3 +1,6 @@
+# -todo 238 (app, clean) +1: simplify cmdline flow
+
+
 from args import *
 from appControl import *
 from appStreamer import *
@@ -6,14 +9,6 @@ from kiLog import *
 
 
 
-
-'''
-Yi4k stream app.
-Links three flows:
-1. Camera live streaming
-2. Camera control
-3. UI
-'''
 
 flowCamStreamer= None
 flowCamControl= None

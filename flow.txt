@@ -1,5 +1,5 @@
-Stryim should be (todo) a modular 264/AAC to RTMP live remuxer.
-Default (and main) input module is Yi4k lossless stream reader.
+Stryim is a (todo:modular) 264/AAC to RTMP live remuxer.
+Default and main input module is Yi4k lossless stream reader.
 
 
 App:
