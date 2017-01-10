@@ -1,33 +1,66 @@
-start:
-	check telnet
-		invite :set telnet access
-			console_enable.script
-go:
-	set shooting params
-	if telnet:
-		set file to actual
-		set start to 0
-		go :telnet loop
-	not telnet:
-		<as html5>
+Stryim should be (todo) a modular 264/AAC to RTMP live remuxer.
+Default (and main) input module is Yi4k lossless stream reader.
 
 
-telnet:
-	read part
-		>telnet (telnet.py)
-			connect
-			split
-			send to tcp OR file
-	>restore 264
-		send 264 and aac :mux
-		set start to mp4 end
-	
-	loop :telnet
+App:
+	if gui:
+		{Gui}
+
+	{AVIn}[]
+	{OutFLV}
+	{Switch}
+
+	if cmdline:
+		switch {Switch} to specified {AVIn}
+		switch {Switch} to {OutFLV}
+
+		start specified {AVIn}
+		start {OutFLV}
+
+		wait exit
 
 
-mux:
-	>make stream
-	if rtmp push:
-		send rtmp
-	else
-		>make available to server
+Gui:
+	- add/remove {AVIn}
+	- switch {Switch} to {AVIn}
+	- start/stop {OutFLV}
+
+
+Switch:
+	- assign {AVIn} to {OutFLV} audio
+	- assign {AVIn} to {OutFLV} video
+
+
+AVIn:
+	: {InYi4k} ;default
+	todo:
+		: {inComposed}
+		: {inFile}
+		: {inRTMPServer}
+		: {inRTMPReader}
+
+
+OutFLV:
+	recieve 264/AAC atoms
+	mux FLV
+	sink:
+		- push to RTMP
+		- save file
+		todo:
+			- serve RTMP
+
+
+RawMP4:
+	get raw mp4 data
+	recover 264/AAC
+
+
+InYi4k (RawMP4):
+	- deliver stream
+		monitor camera actual saved file
+		read actual file sequence continously
+
+	- operate camera:
+		- set mode
+		- start/stop
+
