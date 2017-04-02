@@ -1,4 +1,3 @@
-
 !test 2: +0 "src\kiTelnet.py" kii 16/10/28 20:48:47
 	test
 
@@ -29,7 +28,7 @@
 !telnet 23: +0 "" kii 16/10/31 03:58:52
 	add timeout for blankNone
 
-+read, cam 31: +1 "src\appStreamer\yiAgent.py" ki 17/01/05 03:14:45
++read, cam 31: +1 "src\appStreamer\yiAgent.py" kii 17/01/05 03:14:45
 	check 999+ file switch
 
  read, cam 33: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiYiListener.py" kii 16/11/04 20:21:34
@@ -152,7 +151,7 @@
 -sink 119: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\muxSink.py" kii 16/11/26 06:21:34
 	make SinkRTMP nonblocking, stream-based
 
-=ui 120: +0 "src\stryim.py" ki 17/01/09 03:56:04
+=ui 120: +0 "src\stryim.py" kii 17/01/09 03:56:04
 	add ui
 
 +log 121: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiLog.py" kii 16/11/26 15:28:27
@@ -194,16 +193,16 @@
  aac 183: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\AACSupport.py" kii 16/12/20 17:33:11
 	fill VLC table
 
-!feature, ui 200: +0 "" ki 17/01/09 03:27:40
+!feature, ui 200: +0 "" kii 17/01/09 03:27:40
 	outdated
 
 +fix, aac 202: +1 "..\..\Application Data\Sublime Text 3\Packages\stryim\AACDetect.py" kii 16/12/22 21:25:13
 	make possible to start AAC queue NOT from max_sfb=0
 
- app, feature 218: +0 "src\stryim.py" ki 17/01/09 03:27:45
+ app, feature 218: +0 "src\stryim.py" kii 17/01/09 03:27:45
 	allow reconfiguration
 
-!app, clean, feature 219: +0 "" ki 17/01/03 01:05:20
+!app, clean, feature 219: +0 "" kii 17/01/03 01:05:20
 	redundant
 
  Yi 225: +0 "src\yiControl.py" kii 16/12/30 23:40:45
@@ -221,35 +220,33 @@
 =Yi 230: +0 "src\yiControl.py" kii 16/12/31 04:53:01
 	detect error when stopping stopped cam
 
--Yi 232: +0 "src\args.py" ki 17/01/10 06:40:56
+-Yi 232: +0 "src\args.py" kii 17/01/10 06:40:56
 	add video formats
 
-+gui, feature 235: +0 "src\stryim.py" ki 17/01/08 22:19:47
++gui, feature 235: +0 "src\stryim.py" kii 17/01/08 22:19:47
 	store and reuse settings
 
-+gui, feature 236: +0 "src\stryim.py" ki 17/01/09 03:52:46
++gui, feature 236: +0 "src\stryim.py" kii 17/01/09 03:52:46
 	accept commandline settings
 
--yi, core 237: +1 "src\appStreamer\yiStreamer.py" ki 17/01/07 05:30:48
+-Yi, core 237: +1 "src\appStreamer\yiStreamer.py" kii 17/01/07 05:30:48
 	make agent to run at Yi side
 
--app, clean 238: +1 "src\stryim.py" ki 17/01/09 03:55:54
+-app, clean 238: +1 "src\stryim.py" kii 17/01/09 03:55:54
 	simplify cmdline flow
 
--gui, feature 239: +0 "src\appGui\gui.py" ki 17/01/09 02:51:14
+-gui, feature 239: +0 "src\appGui\gui.py" kii 17/01/09 02:51:14
 	make customizable destination list 
 
 - 240: +0 "" kii 17/01/08 06:31:45
 	catch keyboard interrupt at blocked network operations
 
- gui, feature 241: +0 "src\appGui\gui.py" ki 17/01/09 02:31:26
+ gui, feature 241: +0 "src\appGui\gui.py" kii 17/01/09 02:31:26
 	add/remove sources
 
- feature 242: +0 "src\stryim.py" ki 17/01/09 03:54:02
+ feature 242: +0 "src\__main__w.py" kii 17/01/10 17:03:23
 	check destination
 
- feature, v2 244: -1 "src\args.py" ki 17/01/10 06:41:51
+ feature, v2 244: -1 "src\args.py" kii 17/01/10 06:41:51
 	get available formats from current In module
 
-
-Reserved: 245

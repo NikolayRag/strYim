@@ -45,7 +45,6 @@ $RECYCLE.BIN/
 Network Trash Folder
 Temporary Items
 .apdisk
-stryim.do
 *.sublime-project
 *.sublime-workspace
 *.sublime-commands
@@ -55,3 +54,6 @@ tmp.py
 __pycache__
 build
 dist
+.gitignore
+.do.cfg
+.do.state
