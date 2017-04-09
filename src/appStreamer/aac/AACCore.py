@@ -1,5 +1,6 @@
 from .AACSupport import *
 from .AACTables import *
+from .AACHuffman import *
 from kiSupport import *
 
 
