@@ -1,4 +1,5 @@
 from .AACSupport import *
+from .AACTables import *
 from kiSupport import *
 
 
@@ -194,9 +195,9 @@ class AACCore():
 					_ics.num_window_groups+= 1;
 					_ics.group_len[_ics.num_window_groups -1]= 1
 
-			_ics.swb_offset= AACStatic.ff_swb_offset_128[self.ac_m4ac.sampling_index]
-			_ics.num_swb= AACStatic.ff_aac_num_swb_128[self.ac_m4ac.sampling_index]
-			_ics.tns_max_bands= AACStatic.ff_tns_max_bands_128[self.ac_m4ac.sampling_index]
+			_ics.swb_offset= AACStaticTables.ff_swb_offset_128[self.ac_m4ac.sampling_index]
+			_ics.num_swb= AACStaticTables.ff_aac_num_swb_128[self.ac_m4ac.sampling_index]
+			_ics.tns_max_bands= AACStaticTables.ff_tns_max_bands_128[self.ac_m4ac.sampling_index]
 
 			_ics.num_windows= 8
 			_ics.predictor_present= 0
@@ -221,9 +222,9 @@ class AACCore():
 					return AVERROR_BUG;
 				'''
 			else:
-				_ics.swb_offset= AACStatic.ff_swb_offset_1024[self.ac_m4ac.sampling_index]
-				_ics.num_swb= AACStatic.ff_aac_num_swb_1024[self.ac_m4ac.sampling_index]
-				_ics.tns_max_bands= AACStatic.ff_tns_max_bands_1024[self.ac_m4ac.sampling_index]
+				_ics.swb_offset= AACStaticTables.ff_swb_offset_1024[self.ac_m4ac.sampling_index]
+				_ics.num_swb= AACStaticTables.ff_aac_num_swb_1024[self.ac_m4ac.sampling_index]
+				_ics.tns_max_bands= AACStaticTables.ff_tns_max_bands_1024[self.ac_m4ac.sampling_index]
 
 			if True:	#(aot != AOT_ER_AAC_ELD)
 				_ics.predictor_present= self.bits.get(1)
