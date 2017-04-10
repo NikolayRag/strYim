@@ -48,7 +48,7 @@ result()
 import telnetlib, socket, threading
 
 from kiSupport import *
-from kiLog import *
+import logging
 
 
 
@@ -118,19 +118,19 @@ class KiTelnet():
 		if _telAddr!=None:
 			self.telnetAddr= _telAddr
 		if self.telnetAddr==None:
-			kiLog.err('missing telnet address')
+			logging.error('missing telnet address')
 			return
 
 		if _telUser!=None:
 			self.telnetUser= _telUser
 		if self.telnetUser==None:
-			kiLog.err('missing telnet user')
+			logging.error('missing telnet user')
 			return
 
 		if _telPass!=None:
 			self.telnetPass= _telPass
 		if self.telnetPass==None:
-			kiLog.err('missing telnet pass')
+			logging.error('missing telnet pass')
 			return
 
 		if not _selfAddr:
@@ -139,13 +139,13 @@ class KiTelnet():
 		if _selfAddr!=None:
 			self.selfAddr= _selfAddr
 		if self.selfAddr==None:
-			kiLog.err('missing self address')
+			logging.error('missing self address')
 			return
 
 		if _selfPort!=None:
 			self.selfPortA= _selfPort
 		if self.selfPortA==None:
-			kiLog.err('missing self port')
+			logging.error('missing self port')
 			return
 
 		return True
@@ -227,7 +227,7 @@ class KiTelnet():
 
 		for self.selfPortOne in list(self.selfPortA)+[None]:
 			if not self.selfPortOne:
-				kiLog.err('Cannot listen to ports: %s' % self.selfPortA)
+				logging.error('Cannot listen to ports: %s' % self.selfPortA)
 				self.reset()
 				return
 				
@@ -240,7 +240,7 @@ class KiTelnet():
 
 		self.tcpSock.listen(1)
 
-		kiLog.ok('Tcp listening to port %s...' % self.selfPortOne)
+		logging.info('Tcp listening to port %s...' % self.selfPortOne)
 
 		return True
 
@@ -258,12 +258,12 @@ class KiTelnet():
 		try:
 			c, a= self.tcpSock.accept()
 		except:
-			kiLog.err('Tcp timeIn')
+			logging.error('Tcp timeIn')
 			self.reset()
 			return
 
 		tcpTimein.cancel()
-		kiLog.ok('Tcp in from ' +a[0])
+		logging.info('Tcp in from ' +a[0])
 
 
 		if not _cbRes:
@@ -283,7 +283,7 @@ class KiTelnet():
 					_cbRes(iIn)
 					self.tcpResult+= len(iIn)
 				except:
-					kiLog.err('Tcp callback exception')
+					logging.error('Tcp callback exception')
 					self.tcpResult= -1
 					break
 
@@ -298,13 +298,13 @@ class KiTelnet():
 			self.sendTelnet(_command)
 		except:
 			if not self.blockedFlag.isSet(): #not after end
-				kiLog.err('Telnet error')
+				logging.error('Telnet error')
 				self.reset()
 
 
 	def sendTelnet(self, _command):
 		self.telnet.open(self.telnetAddr)
-		kiLog.ok("Telnet running:\n%s" % _command)
+		logging.info("Telnet running:\n%s" % _command)
 
 		self.telnet.read_until(self.telnetPromptLog)
 		self.telnet.write( (self.telnetUser +"\n").encode() )

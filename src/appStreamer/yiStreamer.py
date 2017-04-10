@@ -3,7 +3,7 @@ from .muxH264AAC import *
 from .mp4Recover import *
 from .yiAgent import *
 from .kiTelnet import *
-from kiLog import *
+import logging
 
 # -todo 237 (yi, core) +1: make agent to run at Yi side
 
@@ -64,7 +64,7 @@ class YiStreamer():
 
 	def start(self, _dst, fps=30000./1001):
 		if self.agent:
-			kiLog.warn('Agent already on')
+			logging.warning('Agent already on')
 			return
 
 		self.setDest(_dst, fps)
@@ -90,7 +90,7 @@ class YiStreamer():
 
 	def stop(self):
 		if not self.agent:
-			kiLog.warn('Agent already off')
+			logging.warning('Agent already off')
 			return
 
 		#additional protect from loop

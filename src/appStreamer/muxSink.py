@@ -1,4 +1,4 @@
-from kiLog import *
+import logging
 
 '''
 Mux-suitable sink for sending binary data to file
@@ -29,7 +29,7 @@ class SinkTCP():
 	def __init__(self, port, ip='127.0.0.1'):
 		self.cSocket= socket.create_connection((ip,port))
 
-		kiLog.ok('Connected to %s, %d' % (ip,port))
+		logging.info('Connected to %s, %d' % (ip,port))
 
 
 	def add(self, _data):
@@ -40,7 +40,7 @@ class SinkTCP():
 			self.cSocket.sendall(_data)
 
 		except:
-			kiLog.err('Socket error')
+			logging.error('Socket error')
 
 
 	def close(self):
@@ -81,7 +81,7 @@ class SinkRTMP():
 		try:
 			self.tcp.sendall(_data)
 		except:
-			kiLog.err('Socket error')
+			logging.error('Socket error')
 			self.tcp= None
 
 

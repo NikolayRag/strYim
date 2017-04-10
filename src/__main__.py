@@ -1,12 +1,12 @@
 # -todo 238 (app, clean) +1: simplify cmdline flow
 
+import logging
 
 from args import *
 from appControl import *
 from appStreamer import *
 
-from kiLog import *
-
+import kiLog
 
 
 
@@ -35,9 +35,9 @@ In case of very weak sygnal it can be fired 'disconnected', just ensure camera i
 '''
 def cbConn(_mode):
 	if _mode:
-		kiLog.ok('Connected')
+		logging.info('Connected')
 	if not _mode:
-		kiLog.ok('Disconnected')
+		logging.info('Disconnected')
 
 '''
 Callback fired when camera starts/stops recording apropriate file.
@@ -45,32 +45,32 @@ There's nothing special to do with it, 'cause data is flown through YiAgent.live
 '''
 def cbLive(_mode):
 	if _mode==1:
-		kiLog.ok('Live')
+		logging.info('Live')
 
 	if _mode==0:
-		kiLog.ok('Live split')
+		logging.info('Live split')
 
 	if _mode==-1:
-		kiLog.ok('Dead')
+		logging.info('Dead')
 
 '''
 Callback fired when data flows to recoverer.
 '''
 def cbAir(_mode):
 	if _mode==1:
-		kiLog.ok('Air On')
+		logging.info('Air On')
 
 	if _mode==0:
-		kiLog.ok('Air Off')
+		logging.info('Air Off')
 		if not cArgs.args['nonstop']:
 			stop()
 	
 	if _mode==-1:
-		kiLog.err('Air bad')
+		logging.error('Air bad')
 
 
 def cbDie():
-	kiLog.ok('Exiting')
+	logging.info('Exiting')
 
 	global flagRun
 	flagRun= False
@@ -103,7 +103,7 @@ def runCmdline(_args):
 
 
 	cFormat= _args.formats[0]
-	kiLog.ok('Setting ' +str(cFormat['yi']))
+	logging.info('Setting ' +str(cFormat['yi']))
 	if not flowCamControl.start(cFormat['yi']):
 		cbDie()
 		return
@@ -114,7 +114,7 @@ def runCmdline(_args):
 		try:
 			time.sleep(.1)
 		except KeyboardInterrupt:
-			kiLog.ok('Exit by demand (Ctrl-C)')
+			logging.info('Exit by demand (Ctrl-C)')
 			
 			_args.args['nonstop']= True
 			stop()
@@ -126,13 +126,13 @@ if __name__ == '__main__':
 	cArgs= Args(False)
 
 	if cArgs.args:
-		kiLog.states(False, ok=False, warn=False)
-		kiLog.states('', ok=True)
+		kiLog.state(False, kiLog.ERROR)
+		kiLog.state('', kiLog.INFO)
 
 		for c in (cArgs.args['logverb'] or []):
-			kiLog.states(c, verb=True)
+			kiLog.state(c, kiLog.DEBUG)
 		for c in (cArgs.args['logwarn'] or []):
-			kiLog.states(c, warn=True)
+			kiLog.state(c, kiLog.WARING)
 
 		runCmdline(cArgs)
 

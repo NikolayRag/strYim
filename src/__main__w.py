@@ -4,7 +4,7 @@ from args import *
 from appControl import *
 from appStreamer import *
 
-from kiLog import *
+import logging
 
 
 
@@ -37,11 +37,11 @@ In case of very weak sygnal it can be fired 'disconnected', just ensure camera i
 '''
 def cbConn(_mode):
 	if _mode:
-		kiLog.ok('Connected')
+		logging.info('Connected')
 		flowGui and flowGui.camState('Idle')
 
 	if not _mode:
-		kiLog.ok('Disconnected')
+		logging.info('Disconnected')
 		flowGui and flowGui.camState('None')
 
 '''
@@ -50,14 +50,14 @@ There's nothing special to do with it, 'cause data is flown through YiAgent.live
 '''
 def cbLive(_mode):
 	if _mode==1:
-		kiLog.ok('Live')
+		logging.info('Live')
 		flowGui and flowGui.camState('Ready')
 
 	if _mode==0:
-		kiLog.ok('Live split')
+		logging.info('Live split')
 
 	if _mode==-1:
-		kiLog.ok('Dead')
+		logging.info('Dead')
 		flowGui and flowGui.camState('Idle')
 
 '''
@@ -65,20 +65,20 @@ Callback fired when data flows to recoverer.
 '''
 def cbAir(_mode):
 	if _mode==1:
-		kiLog.ok('Air On')
+		logging.info('Air On')
 		flowGui and flowGui.camState('Air')
 
 	if _mode==0:
-		kiLog.ok('Air Off')
+		logging.info('Air Off')
 		flowGui and flowGui.camState('Ready')
 
 	if _mode==-1:
-		kiLog.err('Air bad')
+		logging.error('Air bad')
 		flowGui and flowGui.camState('Error')
 
 
 def cbDie():
-	kiLog.ok('Exiting')
+	logging.info('Exiting')
 
 
 

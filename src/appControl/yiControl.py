@@ -1,7 +1,7 @@
 import time
 
 import Yi4kAPI
-from kiLog import *
+import logging
 
 
 class YiControl():
@@ -36,7 +36,7 @@ class YiControl():
 # -todo 228 (Yi, fix) +0: detect Yi4kAPI errors: playback mode, busy switching
 		yi= Yi4kAPI.YiAPI()
 		if yi.res==False:
-			kiLog.err('Camera not found')
+			logging.error('Camera not found')
 			return
 
 		self.settings= yi.cmd(Yi4kAPI.getSettings)
@@ -59,7 +59,7 @@ class YiControl():
 	def stop(self):
 		yi= Yi4kAPI.YiAPI()
 		if yi.res==False:
-			kiLog.err('Camera not found')
+			logging.error('Camera not found')
 			return
 
 # =todo 230 (Yi) +0: detect error when stopping stopped cam

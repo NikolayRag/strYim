@@ -1,7 +1,7 @@
 from .byteTransit import *
 from .mp4Atom import *
 from .AACDetect import *
-from kiLog import *
+import logging
 
 
 
@@ -163,12 +163,12 @@ class Mp4Recover():
 		
 		
 		if len(atomBlock):
-			kiLog.verb('%d atoms found%s' % (len(atomBlock), ', finaly' if not KFrameLast else ''))
+			logging.debug('%d atoms found%s' % (len(atomBlock), ', finaly' if not KFrameLast else ''))
 		if foundFalse:
 			if KFrameLast:
-				kiLog.warn('%d false atoms in %d bytes' % (foundFalse, len(_data)))
+				logging.warning('%d false atoms in %d bytes' % (foundFalse, len(_data)))
 			else:
-				kiLog.verb('%d false atoms in %d bytes' % (foundFalse, len(_data)))
+				logging.debug('%d false atoms in %d bytes' % (foundFalse, len(_data)))
 
 
 		return atomBlock
@@ -252,7 +252,7 @@ class Mp4Recover():
 				return AACA
 
 
-			kiLog.warn('AAC data should be phased out by accident')
+			logging.warning('AAC data should be phased out by accident')
 
 			#fallback if all AACs are "bad".
 			return [Atom(_inPos,outPos).setAAC()]

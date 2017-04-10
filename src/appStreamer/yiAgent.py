@@ -2,7 +2,7 @@ import time, re, threading
 
 from .kiTelnet import *
 from kiSupport import *
-from kiLog import *
+import logging
 
 
 
@@ -63,7 +63,7 @@ class YiAgent():
 	'''
 	def start(self, _connectCB=None, _liveCB=None, _deadCB= None):
 		if self.flagRun:
-			kiLog.warn('Already running')
+			logging.warning('Already running')
 			return
 
 		self.connectCB= _connectCB
@@ -98,11 +98,11 @@ class YiAgent():
 	'''
 	def live(self, _mp4CB, _airCB=None):
 		if not self.flagRun:
-			kiLog.warn('Agent is currently idle')
+			logging.warning('Agent is currently idle')
 			return
 
 		if self.flagLive:
-			kiLog.warn('Already live')
+			logging.warning('Already live')
 			return
 
 		self.mp4CB= _mp4CB
@@ -117,23 +117,23 @@ class YiAgent():
 
 	def checkTriger(self, _fOld, _fNew):
 		if _fOld==False and _fNew!=False:
-			kiLog.ok('connected')
+			logging.info('connected')
 			callable(self.connectCB) and self.connectCB(True)
 
 		if not _fOld and _fNew:
-			kiLog.ok('found: %s' % _fNew)
+			logging.info('found: %s' % _fNew)
 			callable(self.liveCB) and self.liveCB(1)
 
 		if _fOld and _fNew and _fNew['fname']!=_fOld['fname']:
-			kiLog.ok('refresh: %s' % _fNew)
+			logging.info('refresh: %s' % _fNew)
 			callable(self.liveCB) and self.liveCB(0)
 
 		if _fOld and not _fNew:
-			kiLog.ok('lost')
+			logging.info('lost')
 			callable(self.liveCB) and self.liveCB(-1)
 
 		if _fOld!=False and _fNew==False:
-			kiLog.err('disconnected')
+			logging.error('disconnected')
 			callable(self.connectCB) and self.connectCB(False)
 
 
@@ -143,7 +143,7 @@ class YiAgent():
 	Initial state is error.
 	'''
 	def check(self):
-		kiLog.ok('start')
+		logging.info('start')
 
 		fileNew= fileOld= False
 		while self.flagRun:
@@ -156,14 +156,14 @@ class YiAgent():
 				and fileNew
 				and fileNew['size'] > self.liveTriggerSize
 			):
-				kiLog.ok('ON AIR')
+				logging.info('ON AIR')
 				callable(self.airCB) and self.airCB(1)
 
 				if self.camAirStart(fileNew):
-					kiLog.ok('OFF AIR')
+					logging.info('OFF AIR')
 					callable(self.airCB) and self.airCB(0)
 				else:
-					kiLog.err('BAD AIR')
+					logging.error('BAD AIR')
 					callable(self.airCB) and self.airCB(-1)
 
 				self.mp4CB(None,None) #reset
@@ -175,7 +175,7 @@ class YiAgent():
 			time.sleep(.5)
 
 
-		kiLog.ok('stop')
+		logging.info('stop')
 
 		callable(self.deadCB) and self.deadCB()
 
@@ -206,20 +206,20 @@ class YiAgent():
 #  todo 33 (read, cam) +0: detect buffer overrun
 #  todo 34 (read, cam) +0: detect buffer underrun
 		while True:
-			kiLog.ok('Read %s from %d ...' % (fName, fPos))
+			logging.info('Read %s from %d ...' % (fName, fPos))
 			self.camFilesA.append(fName)
 
 			while True:
 # -todo 114 (read, cam) +0: define maximum read block
 				if not self.flagLive:
-					kiLog.warn("... stop at %d" % fPos)
+					logging.warning("... stop at %d" % fPos)
 					return True #stopped by demand
 
 				self.mp4CB(None,'%s_%s' % (pad(fParts['dir'],3), pad(fParts['num'],4)))
 				readBytes= self.camReadFile(fName, fPos)
 
 				if readBytes==-1:
-					kiLog.err("... error at %d" % fPos)
+					logging.error("... error at %d" % fPos)
 					return False
 
 				if not readBytes: #no more, move to next
@@ -240,12 +240,12 @@ class YiAgent():
 			#current file dried but no next one
 			checkNext= KiTelnet("ls %s/%s" % (self.camRoot, fName)).result()
 			if not checkNext:
-				kiLog.warn("... finish at %d" % fPos)
+				logging.warning("... finish at %d" % fPos)
 #  todo 68 (cam, stability) -1: found other way to forget stopped file as live
 				time.sleep(self.liveOldAge-1) #wait till stopped file will get old to not treat it as live at next cycle
 				return True #stopped by camera
 
-			kiLog.ok("... to %d" % fPos)
+			logging.info("... to %d" % fPos)
 
 			fPos= 0
 
@@ -304,7 +304,7 @@ class YiAgent():
 	'''
 # -todo 227 (Yi, fix) +0: deleted files remains in camera file list till restart
 	def	cleanFiles(self):
-		kiLog.ok('Attempt to clean %d files' % len(self.camFilesA))
+		logging.info('Attempt to clean %d files' % len(self.camFilesA))
 
 		filesKill= ' '.join((self.camRoot+'/'+fn+' '+self.camRoot+'/'+fn[:-4]+'_thm'+fn[-4:]) for fn in self.camFilesA)
 		telCmd= 'rm -f %s' % filesKill

@@ -1,5 +1,5 @@
 import argparse, os, json
-from kiLog import *
+import logging
 
 
 '''
@@ -67,7 +67,7 @@ class Args():
 			f= open(self.settingsFile, 'w')
 			f.write(settings)
 		except:
-			kiLog.warn('Settings could not be saved.')
+			logging.warning('Settings could not be saved.')
 			return
 
 
@@ -81,14 +81,14 @@ class Args():
 		try:
 			f= open(self.settingsFile, 'r')
 		except:
-			kiLog.warn('No stored settings found.')
+			logging.warning('No stored settings found.')
 			return
 
 
 		try:
 			settingsStr= f.read()
 		except:
-			kiLog.warn('Setting file couldnt\'t be read')
+			logging.warning('Setting file couldnt\'t be read')
 			return
 
 		f.close()
@@ -97,7 +97,7 @@ class Args():
 		try:
 			return json.loads(settingsStr)
 		except:
-			kiLog.warn('Setting file corrupt')
+			logging.warning('Setting file corrupt')
 			return
 
 

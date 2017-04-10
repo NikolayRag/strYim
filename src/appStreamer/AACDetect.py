@@ -1,5 +1,5 @@
 from .aac.AACCore import *
-from kiLog import *
+import logging
 
 
 '''
@@ -56,7 +56,7 @@ class AACDetect():
 				continue
 
 			if not self.started and not aac.ics0.max_sfb:
-				kiLog.warn('AAC started from mid')
+				logging.warning('AAC started from mid')
 
 			aacStartA.append(aacPos)
 

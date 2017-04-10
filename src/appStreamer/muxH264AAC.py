@@ -1,6 +1,6 @@
 from .aac.AACSupport import *
 from kiSupport import *
-from kiLog import *
+import logging
 
 '''
 FLV Muxer class
@@ -41,7 +41,7 @@ class MuxFLV():
 		self.sink= _sink
 
 		if not self.sink:
-			kiLog.err('Sink not specified')
+			logging.error('Sink not specified')
 			return
 
 
@@ -64,7 +64,7 @@ class MuxFLV():
 
 		if self.useAudio and _atom.typeAAC:
 			if len(_atom.data)>2040:
-				kiLog.warn('Too big AAC found, skipped: %d' % len(_atom.data))
+				logging.warning('Too big AAC found, skipped: %d' % len(_atom.data))
 				return
 
 			flvTag= self.audioTag(1, _atom.data, self.stampA(_atom.AACSamples))
@@ -90,7 +90,7 @@ class MuxFLV():
 	'''
 	def stampV(self):
 		if self.stampVideoNext < self.stampCurrent:
-			kiLog.warn('Video stamp underrun %fmsec' % precision(self.stampCurrent-self.stampVideoNext,1) )
+			logging.warning('Video stamp underrun %fmsec' % precision(self.stampCurrent-self.stampVideoNext,1) )
 			self.stampVideoNext = self.stampCurrent
 
 		self.stampCurrent= self.stampVideoNext
@@ -105,7 +105,7 @@ class MuxFLV():
 	'''
 	def stampA(self, _bytes):
 		if self.stampAudioNext < self.stampCurrent:
-			kiLog.warn('Audio stamp underrun %fmsec' % precision(self.stampCurrent-self.stampAudioNext,1) )
+			logging.warning('Audio stamp underrun %fmsec' % precision(self.stampCurrent-self.stampAudioNext,1) )
 			self.stampAudioNext= self.stampCurrent
 
 		self.stampCurrent= self.stampAudioNext
@@ -119,7 +119,7 @@ class MuxFLV():
 	#FLVTAG, including 4 bytes size
 	def tag(self, _type, _stamp=0, _data=[b'']):
 		if _stamp<0 or _stamp>0x7fffffff:
-			kiLog.err('Stamp out of range: %f' % precision(_stamp,1) )
+			logging.error('Stamp out of range: %f' % precision(_stamp,1) )
 			_stamp= 0
 
 
@@ -269,7 +269,7 @@ class MuxH264():
 		self.sink= _sink
 
 		if not self.sink:
-			kiLog.err('Sink not specified')
+			logging.error('Sink not specified')
 			return
 
 	def add(self, _atom):
@@ -330,7 +330,7 @@ class MuxAAC():
 		self.sink= _sink
 
 		if not self.sink:
-			kiLog.err('Sink not specified')
+			logging.error('Sink not specified')
 			return
 
 
@@ -344,7 +344,7 @@ class MuxAAC():
 
 		if _atom.typeAAC:
 			if len(_atom.data)>(0b1111111111111):
-				kiLog.warn('Too big AAC found, skipped: %d' % len(_atom.data))
+				logging.warning('Too big AAC found, skipped: %d' % len(_atom.data))
 				return
 
 			if self.doADTS:
