@@ -35,7 +35,7 @@ class YiControl():
 
 # -todo 228 (Yi, fix) +0: detect Yi4kAPI errors: playback mode, busy switching
 		yi= Yi4kAPI.YiAPI()
-		if yi.res==False:
+		if not yi.sock:
 			logging.error('Camera not found')
 			return
 
@@ -48,7 +48,6 @@ class YiControl():
 		yi.cmd(Yi4kAPI.setVideoStandard, self.presets[_yiFormat])
 		yi.cmd(Yi4kAPI.setVideoResolution, _yiFormat)
 
-		time.sleep(1)
 		yi.cmd(Yi4kAPI.startRecording)
 
 		yi.close()
@@ -64,8 +63,6 @@ class YiControl():
 
 # =todo 230 (Yi) +0: detect error when stopping stopped cam
 		res= yi.cmd(Yi4kAPI.stopRecording)
-#  todo 225 (Yi) +0: detect real command ending
-		time.sleep(2)
 
 		#restore settings
 		#fallback if camera was in record already
