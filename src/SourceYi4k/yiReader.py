@@ -1,6 +1,7 @@
 import logging
 
 from .yiReaderTelnet import *
+from .yiReaderAgent import *
 
 
 class yiReader():
