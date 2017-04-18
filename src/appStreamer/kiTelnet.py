@@ -25,9 +25,8 @@ class KiTelnet(cmd, callback, address, user, pass, localport, localip)
 	pass
 		Default ''
 
-	localport, int or iterable int
-		Default range(8081, 8089)
-		Params for connecting to self from telnet.
+	localport, int
+		Params for connecting to self from telnet when using callback.
 		Should be firewall-enabled if telnet is remote.
 
 	localip
@@ -69,8 +68,7 @@ class KiTelnet():
 	telnet= None
 
 	selfAddr= None
-	selfPortA= range(8081,8089)
-	selfPortOne= None
+	selfPort= None
 
 
 
@@ -102,7 +100,7 @@ class KiTelnet():
 		if localip!=None:
 			KiTelnet.selfAddr= localip
 		if localport!=None:
-			KiTelnet.selfPortA= localport
+			KiTelnet.selfPort= localport
 
 		if address!=None:
 			KiTelnet.telnetAddr= address
@@ -111,7 +109,7 @@ class KiTelnet():
 		if password!=None:
 			KiTelnet.telnetPass= password
 
-		return (KiTelnet.selfAddr, KiTelnet.selfPortA)
+		return (KiTelnet.selfAddr, KiTelnet.selfPort)
 
 
 	def argsFill(self, _telAddr, _telUser, _telPass, _selfAddr, _selfPort):
@@ -143,8 +141,8 @@ class KiTelnet():
 			return
 
 		if _selfPort!=None:
-			self.selfPortA= _selfPort
-		if self.selfPortA==None:
+			self.selfPort= _selfPort
+		if self.selfPort==None:
 			logging.error('missing self port')
 			return
 
@@ -222,25 +220,21 @@ class KiTelnet():
 	def tcpPrepare(self):
 		self.tcpSock= socket.socket()
 
-		if isinstance(self.selfPortA, int):
-			self.selfPortA= [self.selfPortA,]
+		try:
+			self.tcpSock.bind((self.selfAddr,self.selfPort))
 
-		for self.selfPortOne in list(self.selfPortA)+[None]:
-			if not self.selfPortOne:
-				logging.error('Cannot listen to ports: %s' % self.selfPortA)
-				self.reset()
-				return
-				
-			try:
-				self.tcpSock.bind((self.selfAddr,self.selfPortOne))
-				break
-			except:
-				None
+		except:
+			logging.error('Cannot listen to ports: %s' % self.selfPort)
+
+			self.selfPort= None
+			self.reset()
+
+			return
 
 
 		self.tcpSock.listen(1)
 
-		logging.info('Tcp listening to port %s...' % self.selfPortOne)
+		logging.info('Tcp listening to port %s...' % self.selfPort)
 
 		return True
 
@@ -314,4 +308,4 @@ class KiTelnet():
 			self.telnet.write( (self.telnetPass +"\n").encode() )
 
 		self.telnet.read_until(self.telnetPrompt)
-		self.telnet.write( ("(%s)| nc %s %s; exit\n" % (_command, self.selfAddr, self.selfPortOne)).encode() )
+		self.telnet.write( ("(%s)| nc %s %s; exit\n" % (_command, self.selfAddr, self.selfPort)).encode() )
