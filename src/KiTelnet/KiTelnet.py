@@ -115,7 +115,6 @@ class KiTelnet():
 			return
 
 
-		self.telnet= telnetlib.Telnet()
 		threading.Timer(0, lambda:self.tryTelnet(_command)).start()
 
 
@@ -172,7 +171,10 @@ class KiTelnet():
 		self.finish(result)
 
 
+
 	def runTelnet(self, _command):
+		self.telnet= telnetlib.Telnet()
+
 		self.telnet.open(self.telnetAddr)
 		logging.info("Telnet running: %s" % _command)
 
