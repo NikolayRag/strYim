@@ -1,6 +1,6 @@
 import logging
 
-import base64
+import base64, threading
 
 from KiTelnet import *
 
@@ -13,6 +13,8 @@ class YiPy():
 
 	userCB= None
 	result= None
+
+	resultBlock= None
 
 
 	@staticmethod
@@ -27,6 +29,9 @@ class YiPy():
 	def __init__(self, filename=None):
 		self.filename= filename or self.filename
 
+		self.resultBlock= threading.Event()
+		self.resultBlock.set()	#default nonblocking
+
 
 
 	def run(self, _content, _cb=None):
@@ -35,6 +40,8 @@ class YiPy():
 			return
 
 
+		#start over
+		self.resultBlock.clear()
 		self.userCB= _cb
 
 		_content= base64.b64encode(_content.encode('ascii')).decode()
@@ -46,6 +53,16 @@ class YiPy():
 
 
 
+
+
+	def wait(self):
+		self.resultBlock.wait()
+
+		return self.result
+
+
+
+
 	def resCB(self, _res):
 		self.result= _res
 
@@ -54,6 +71,8 @@ class YiPy():
 
 		if callable(self.userCB):
 			self.userCB(_res)
+
+		self.resultBlock.set()
 
 
 
