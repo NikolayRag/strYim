@@ -34,7 +34,7 @@ class YiPy():
 
 
 
-	def run(self, _content, _cb=None):
+	def run(self, _content):
 		if not self.filename:
 			logging.error('No Py file target specified')
 			return
@@ -42,7 +42,7 @@ class YiPy():
 
 		#start over
 		self.resultBlock.clear()
-		self.userCB= _cb
+
 
 		_content= base64.b64encode(_content.encode('ascii')).decode()
 
@@ -56,7 +56,13 @@ class YiPy():
 
 
 
-	def wait(self):
+	def wait(self, _cb=None):
+		if callable(_cb):
+			self.userCB= _cb
+
+			return
+
+
 		self.resultBlock.wait()
 
 		return self.result
