@@ -1,6 +1,6 @@
 import logging
 
-from KiTelnet import *
+from .YiPy import *
 
 from .yiReaderAgent import *
 
@@ -30,7 +30,7 @@ class yiReader():
 	telnet= None
 
 	def __init__(self, _ip='192.168.42.1'):
-		KiTelnet.defaults(_ip)
+		YiPy.defaults(_ip)
 		
 		logging.info('Reader inited')
 
