@@ -52,6 +52,7 @@ class YiPy():
 		logging.info('Yi Py sent')
 
 
+		return self
 
 
 
