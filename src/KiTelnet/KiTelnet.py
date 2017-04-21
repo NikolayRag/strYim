@@ -165,14 +165,14 @@ class KiTelnet():
 	def tryTelnet(self, _command):
 		result= False
 		try:
-			result= self.sendTelnet(_command)
+			result= self.runTelnet(_command)
 		except:
 			logging.error('Telnet error')
 
 		self.finish(result)
 
 
-	def sendTelnet(self, _command):
+	def runTelnet(self, _command):
 		self.telnet.open(self.telnetAddr)
 		logging.info("Telnet running: %s" % _command)
 
