@@ -1,6 +1,7 @@
 import logging
 
-from .yiReaderTelnet import *
+from KiTelnet import *
+
 from .yiReaderAgent import *
 
 
@@ -29,7 +30,7 @@ class yiReader():
 	telnet= None
 
 	def __init__(self, _ip='192.168.42.1'):
-		self.telnet= yiReaderTelnet(_ip)
+		KiTelnet.defaults(_ip)
 		
 		logging.info('Reader inited')
 
@@ -38,5 +39,9 @@ class yiReader():
 
 
 	def test(self):
-		logging.info('test telnet')
+		self.telnet= KiTelnet('cat /tmp/wifi.conf')
+		logging.info('test telnet in')
+		logging.debug(len(self.telnet.result().decode()))
+		logging.info('test telnet out')
+
 		
