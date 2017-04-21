@@ -1,14 +1,13 @@
 import logging
 
 from .YiPy import *
-
-from .yiReaderAgent import *
+from .YiReaderAgent import *
 
 
 '''
-yiReader controls camera to provide h264+aac byte stream.
+YiReader controls camera to provide h264+aac byte stream.
 
-yiReader flow:
+YiReader flow:
 
 * send agent to camera
 * run agent at camera side
@@ -26,7 +25,7 @@ yiReader flow:
 # =todo 259 (feature, YiAgent) +0: Make camera agent
 
 
-class yiReader():
+class YiReader():
 	telnet= None
 
 	def __init__(self, _ip='192.168.42.1'):
