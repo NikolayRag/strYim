@@ -24,15 +24,23 @@ class YiPy():
 
 
 
-	def __init__(self, _content, _cb=None, filename=None):
+	def __init__(self, filename=None):
+		self.filename= filename or self.filename
+
+
+
+	def run(self, _content, _cb=None):
+		if not self.filename:
+			logging.error('No Py file target specified')
+			return
+
+
 		self.userCB= _cb
 
 		_content= base64.b64encode(_content.encode('ascii')).decode()
 
-		filename= filename or self.filename
-
-		telnet= KiTelnet('echo %s | base64 -d > %s; python %s' % (_content, filename, filename))
-		res= telnet.result(self.resCB)
+		telnet= KiTelnet('echo %s | base64 -d > %s; python %s' % (_content, self.filename, self.filename))
+		telnet.result(self.resCB)
 
 		logging.info('Yi Py sent')
 
