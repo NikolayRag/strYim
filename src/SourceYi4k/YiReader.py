@@ -1,7 +1,7 @@
 import logging
 
 from .YiPy import *
-from .YiReaderAgent import *
+from .YiAgent import *
 
 
 '''
