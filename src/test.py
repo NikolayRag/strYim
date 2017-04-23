@@ -6,7 +6,7 @@ Yi4k camera required to be available at 192.168.42.1 and telnet-enabled
 import kiLog
 kiLog.state('YiReader', kiLog.DEBUG)
 #kiLog.state('YiPy', kiLog.DEBUG)
-kiLog.state('', kiLog.DEBUG)
+kiLog.state('', kiLog.INFO)
 
 
 import logging, threading
@@ -28,6 +28,12 @@ yipy.wait(yiRes)
 yipyBlock.wait()
 
 logging.info('YiPy ok')
+
+
+
+yi= SourceYi4k.YiReader()
+yi.test()
+logging.info('YiReader ok')
 
 
 

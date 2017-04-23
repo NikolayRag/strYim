@@ -1,4 +1,4 @@
-import logging
+import logging, inspect
 
 from .YiPy import *
 from .YiAgent import *
@@ -38,9 +38,11 @@ class YiReader():
 
 
 	def test(self):
-		self.telnet= KiTelnet('cat /tmp/wifi.conf')
-		logging.info('test telnet in')
-		logging.debug(len(self.telnet.result().decode()))
-		logging.info('test telnet out')
+		agentSrc= inspect.getsourcelines(YiAgent)[0]
+		agentSrc= ''.join(agentSrc)
 
+		yipy= YiPy()
+		yipy.run('%s\nYiAgent()' % agentSrc)
+		yiRes= yipy.wait()
 		
+		logging.info(yiRes)
