@@ -24,9 +24,9 @@ class YiPy():
 
 
 
-
-	def __init__(self, filename=None):
+	def __init__(self, addr=None, filename=None):
 		self.filename= filename or self.filename
+		self.addr= addr or self.addr
 
 		self.resultBlock= threading.Event()
 		self.resultBlock.set()	#default nonblocking
