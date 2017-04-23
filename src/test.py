@@ -15,15 +15,14 @@ import SourceYi4k
 
 
 
-yi= SourceYi4k.YiReader()
-
-
 def yiRes(_res):
 	logging.debug('Yi Py res: %s' % _res)
 
-yipy= SourceYi4k.YiPy()
+yipy= SourceYi4k.YiPy(filename='/tmp/agent.py')
 yipy.run('print(2+2)')
 yipy.wait(yiRes)
+logging.info('YiPy ok')
+
 
 
 logging.info('End')
