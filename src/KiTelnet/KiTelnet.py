@@ -186,7 +186,7 @@ class KiTelnet():
 			self.telnet.write( (self.telnetPass +"\n").encode() )
 
 		self.telnet.read_until(self.telnetPrompt)
-		self.telnet.write( (_command +";exit\n").encode() )
-		self.telnet.read_until(b'\n')
+		self.telnet.write( (_command +";exit\r\n").encode() )
+		self.telnet.read_until(b';exit\r\n')
 
 		return self.telnet.read_all()
