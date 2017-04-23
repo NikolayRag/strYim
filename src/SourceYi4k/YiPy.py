@@ -22,7 +22,6 @@ class YiPy():
 		YiPy.addr= addr
 		YiPy.filename= filename
 
-		KiTelnet.defaults(YiPy.addr)
 
 
 
@@ -46,7 +45,7 @@ class YiPy():
 
 		_content= base64.b64encode(_content.encode('ascii')).decode()
 
-		telnet= KiTelnet('echo %s | base64 -d > %s; python %s' % (_content, self.filename, self.filename))
+		telnet= KiTelnet('echo %s | base64 -d > %s; python %s' % (_content, self.filename, self.filename), self.addr)
 		telnet.result(self.resCB)
 
 		logging.info('Yi Py sent')
