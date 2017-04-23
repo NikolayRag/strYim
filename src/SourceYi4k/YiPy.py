@@ -18,9 +18,9 @@ class YiPy():
 
 
 	@staticmethod
-	def defaults(_addr='192.168.42.1', _filename=None):
-		YiPy.addr= _addr
-		YiPy.filename= _filename
+	def defaults(addr='192.168.42.1', filename=None):
+		YiPy.addr= addr
+		YiPy.filename= filename
 
 		KiTelnet.defaults(YiPy.addr)
 
