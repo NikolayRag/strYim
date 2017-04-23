@@ -28,8 +28,8 @@ YiReader flow:
 class YiReader():
 	telnet= None
 
-	def __init__(self, _ip='192.168.42.1'):
-		YiPy.defaults(_ip, '/tmp/agent.py')
+	def __init__(self, addr='192.168.42.1'):
+		YiPy.defaults(addr, '/tmp/agent.py')
 		
 		logging.info('Reader inited')
 
