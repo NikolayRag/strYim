@@ -10,7 +10,7 @@ Agent flow:
 '''
 class YiAgent():
 	import socket
-	tcpSockOne= None
+	tcpSocket= None
 
 
 
@@ -38,11 +38,12 @@ class YiAgent():
 			print(x)
 			return
 
-		self.tcpSockOne= c
+		self.tcpSocket= c
 
 		return True
 
 
+
 	def start(self):
 		f= open('/dev/random', 'rb')
-		self.tcpSockOne.send(f.read(12))
+		self.tcpSocket.send(f.read(12))
