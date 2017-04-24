@@ -47,7 +47,7 @@ class YiReader():
 
 		res= self.yiSocket.recv(16384)
 
-		logging.debug('Yi response: %s' % res.decode())
+		logging.debug('Yi response: %s' % res)
 
 		return res
 

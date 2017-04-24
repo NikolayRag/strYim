@@ -17,7 +17,7 @@ class YiAgent():
 
 	def __init__(self, _port):
 		if self.tcpInit(_port):
-			self.tcpSockOne.send(b'12ddd34')
+			self.start()
 
 
 
@@ -42,3 +42,8 @@ class YiAgent():
 		self.tcpSockOne= c
 
 		return True
+
+
+	def start(self):
+		f= open('/dev/random', 'rb')
+		self.tcpSockOne.send(f.read(12))
