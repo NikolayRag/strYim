@@ -44,8 +44,13 @@ class YiPy():
 
 
 		_content= base64.b64encode(_content.encode('ascii')).decode()
+		tString= 'echo %s | base64 -d > %s; python %s' % (_content, self.filename, self.filename)
+		if len(tString)>1023:
+			logging.error('Command too long')
+			return
+			
 
-		telnet= KiTelnet('echo %s | base64 -d > %s; python %s' % (_content, self.filename, self.filename), self.addr)
+		telnet= KiTelnet(tString, self.addr)
 		telnet.result(self.resCB)
 
 		logging.info('Yi Py sent')
