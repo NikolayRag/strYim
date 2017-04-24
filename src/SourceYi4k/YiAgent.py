@@ -26,7 +26,7 @@ class YiAgent():
 		self.tcpSockListen.setsockopt(YiAgent.socket.SOL_SOCKET, YiAgent.socket.SO_REUSEADDR, 1)
 
 		try:
-			self.tcpSockListen.bind(('192.168.42.1',_port))
+			self.tcpSockListen.bind(('0.0.0.0',_port))
 		except Exception as x:
 			print(x)
 			return
