@@ -26,9 +26,11 @@ YiReader flow:
 
 
 class YiReader():
+	yiAddr= None
 	yiSocket= None
 
 	def __init__(self, addr='192.168.42.1'):
+		self.yiAddr= addr
 		YiPy.defaults(addr, '/tmp/agent.py')
 		
 		logging.info('Reader inited')
@@ -38,7 +40,7 @@ class YiReader():
 	def yiListen(self, _port):
 		self.yiSocket= socket.socket()
 		try:
-			self.yiSocket.connect(('192.168.42.1',_port))
+			self.yiSocket.connect((self.yiAddr,_port))
 		except Exception as x:
 			logging.error('Yi connection')
 			return
@@ -50,7 +52,7 @@ class YiReader():
 		return res
 
 
-	def yiRun(self, _port):
+	def yiRunAgent(self, _port):
 		agentSrc= inspect.getsourcelines(YiAgent)[0]
 		agentSrc= ''.join(agentSrc)
 
