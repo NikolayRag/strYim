@@ -72,7 +72,11 @@ class YiReader():
 		agentSrc= ''.join(agentSrc)
 
 		yipy= YiPy()
-		yipy.run('%s\nYiAgent(%d)' % (agentSrc, _port))
+		if not yipy.run('%s\nYiAgent(%d)' % (agentSrc, _port)):
+			logging.error('Running Yi')
+			return True
+
+
 		res= yipy.wait()
 
 		self.yiClose()
