@@ -47,7 +47,7 @@ class YiReader():
 			return
 
 
-		threading.Timer(1, self.yiSocket.close).start() #temp
+#		threading.Timer(5, self.yiSocket.close).start() #temp
 
 
 		while True:

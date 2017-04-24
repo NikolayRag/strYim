@@ -9,7 +9,7 @@ Agent flow:
 		* make Atoms available to read from socket 
 '''
 class YiAgent():
-	import socket
+	import socket, threading
 	tcpSocket= None
 
 
@@ -17,6 +17,8 @@ class YiAgent():
 	def __init__(self, _port):
 		if self.tcpInit(_port):
 			self.start()
+
+			YiAgent.threading.Timer(2, self.close).start() #temp
 
 
 
@@ -47,3 +49,8 @@ class YiAgent():
 	def start(self):
 		f= open('/dev/random', 'rb')
 		self.tcpSocket.send(f.read(12))
+
+
+
+	def close(self):
+		self.tcpSocket.close()
