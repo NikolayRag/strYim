@@ -23,6 +23,7 @@ class YiAgent():
 
 	def tcpInit(self, _port):
 		self.tcpSockListen= YiAgent.socket.socket()
+		self.tcpSockListen.setsockopt(YiAgent.socket.SOL_SOCKET, YiAgent.socket.SO_REUSEADDR, 1)
 
 		try:
 			self.tcpSockListen.bind(('192.168.42.1',_port))
