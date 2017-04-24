@@ -10,7 +10,6 @@ Agent flow:
 '''
 class YiAgent():
 	import socket
-	tcpSockListen= None
 	tcpSockOne= None
 
 
@@ -22,19 +21,19 @@ class YiAgent():
 
 
 	def tcpInit(self, _port):
-		self.tcpSockListen= YiAgent.socket.socket()
-		self.tcpSockListen.setsockopt(YiAgent.socket.SOL_SOCKET, YiAgent.socket.SO_REUSEADDR, 1)
+		cListen= YiAgent.socket.socket()
+		cListen.setsockopt(YiAgent.socket.SOL_SOCKET, YiAgent.socket.SO_REUSEADDR, 1)
 
 		try:
-			self.tcpSockListen.bind(('0.0.0.0',_port))
+			cListen.bind(('0.0.0.0',_port))
 		except Exception as x:
 			print(x)
 			return
 
-		self.tcpSockListen.listen(1)
+		cListen.listen(1)
 
 		try:
-			c, a= self.tcpSockListen.accept()
+			c, a= cListen.accept()
 		except Exception as x:
 			print(x)
 			return
