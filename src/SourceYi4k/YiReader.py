@@ -39,17 +39,26 @@ class YiReader():
 
 	def yiListen(self, _port):
 		self.yiSocket= socket.socket()
+
 		try:
 			self.yiSocket.connect((self.yiAddr,_port))
 		except Exception as x:
 			logging.error('Yi connection')
 			return
 
-		res= self.yiSocket.recv(16384)
 
-		logging.debug('Yi response: %s' % res)
+		threading.Timer(1, self.yiSocket.close).start() #temp
 
-		return res
+
+		while True:
+			try:
+				res= self.yiSocket.recv(16384)
+			except:
+				break
+
+			if res:
+				logging.debug('Yi response: %s bytes' % len(res))
+
 
 
 	def yiRunAgent(self, _port):
