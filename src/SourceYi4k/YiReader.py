@@ -43,7 +43,7 @@ class YiReader():
 		try:
 			self.yiSocket.connect((self.yiAddr,_port))
 		except Exception as x:
-			logging.error('Yi connection')
+			logging.error('Yi connection, %s' % x)
 			return
 
 
