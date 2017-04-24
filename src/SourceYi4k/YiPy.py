@@ -78,6 +78,11 @@ class YiPy():
 		if callable(self.userCB):
 			self.userCB(_res)
 
+		self.close()
+
+
+
+	def close(self):
 		self.resultBlock.set()
 
 
