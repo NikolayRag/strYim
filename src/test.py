@@ -32,8 +32,12 @@ logging.info('YiPy ok')
 
 
 yi= SourceYi4k.YiReader()
-yi.test()
-logging.info('YiReader ok')
+threading.Timer(.5, lambda:yi.yiListen(1235)).start()
+yiRes= yi.yiRun(1235)
+if not yiRes:
+	logging.info('YiReader ok')
+else:
+	logging.error('YiReader err')
 
 
 

@@ -1,4 +1,4 @@
-import logging, inspect
+import logging, inspect, socket, threading
 
 from .YiPy import *
 from .YiAgent import *
@@ -26,7 +26,7 @@ YiReader flow:
 
 
 class YiReader():
-	telnet= None
+	yiSocket= None
 
 	def __init__(self, addr='192.168.42.1'):
 		YiPy.defaults(addr, '/tmp/agent.py')
@@ -35,14 +35,30 @@ class YiReader():
 
 
 
+	def yiListen(self, _port):
+		self.yiSocket= socket.socket()
+		try:
+			self.yiSocket.connect(('192.168.42.1',_port))
+		except Exception as x:
+			logging.error('Yi connection')
+			return
+
+		res= self.yiSocket.recv(16384)
+
+		logging.debug('Yi response: %s' % res.decode())
+
+		return res
 
 
-	def test(self):
+	def yiRun(self, _port):
 		agentSrc= inspect.getsourcelines(YiAgent)[0]
 		agentSrc= ''.join(agentSrc)
 
 		yipy= YiPy()
-		yipy.run('%s\nYiAgent()' % agentSrc)
-		yiRes= yipy.wait()
-		
-		logging.info(yiRes)
+		yipy.run('%s\nYiAgent(%d)' % (agentSrc, _port))
+		res= yipy.wait()
+
+		if res:
+			logging.error(res)
+
+		return res
