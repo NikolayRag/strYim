@@ -61,6 +61,12 @@ class YiReader():
 
 
 
+	def yiClose(self):
+		if self.yiSocket:
+			self.yiSocket.close()
+
+
+
 	def yiRunAgent(self, _port):
 		agentSrc= inspect.getsourcelines(YiAgent)[0]
 		agentSrc= ''.join(agentSrc)
@@ -68,6 +74,9 @@ class YiReader():
 		yipy= YiPy()
 		yipy.run('%s\nYiAgent(%d)' % (agentSrc, _port))
 		res= yipy.wait()
+
+		self.yiClose()
+
 
 		if res:
 			logging.error(res)
