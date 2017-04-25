@@ -104,17 +104,17 @@ class YiPy():
 	Send Python code for execution to opened by NC connection.
 	'''
 	def	sendPyCode(self, _content):
-		s= socket.socket()
-		s.settimeout(10)
+		cSock= socket.socket()
+		cSock.settimeout(10)
 
 		try:
-			s.connect((self.addr,self.port))
+			cSock.connect((self.addr,self.port))
 		except Exception as x:
 			logging.debug(x)
 			return True
 
-		s.send(_content.encode())
-		s.close()
+		cSock.send(_content.encode())
+		cSock.close()
 
 
 
