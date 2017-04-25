@@ -20,10 +20,6 @@ YiReader flow:
 #  todo 260 (YiAgent, check) +0: catch recording stops or cannot start
 #  todo 261 (YiAgent, check) +0: set camera settings
 
-# =todo 257 (feature, YiAgent) +0: Send agent to camera
-# =todo 258 (feature, YiAgent) +0: Run agent at camera
-# =todo 259 (feature, YiAgent) +0: Make camera agent
-
 
 class YiReader():
 	yiAddr= None

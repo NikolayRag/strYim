@@ -40,5 +40,4 @@ else:
 	logging.error('YiReader err')
 
 
-
 logging.info('End')
