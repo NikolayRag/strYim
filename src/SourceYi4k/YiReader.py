@@ -29,9 +29,9 @@ class YiReader():
 	yiAddr= None
 	yiSocket= None
 
-	def __init__(self, addr='192.168.42.1'):
+	def __init__(self, addr='192.168.42.1', port=1231):
 		self.yiAddr= addr
-		YiPy.defaults(addr, '/tmp/agent.py')
+		YiPy.defaults(addr, port, '/tmp/agent.py')
 		
 		logging.info('Reader inited')
 

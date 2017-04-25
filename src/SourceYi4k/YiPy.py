@@ -18,15 +18,17 @@ class YiPy():
 
 
 	@staticmethod
-	def defaults(addr='192.168.42.1', filename=None):
+	def defaults(addr='192.168.42.1', port=1231, filename=None):
 		YiPy.addr= addr
+		YiPy.port= port
 		YiPy.filename= filename
 
 
 
-	def __init__(self, addr=None, filename=None):
+	def __init__(self, addr=None, port=None, filename=None):
 		self.filename= filename or self.filename
 		self.addr= addr or self.addr
+		self.port= port or self.port
 
 		self.resultBlock= threading.Event()
 		self.resultBlock.set()	#default nonblocking
@@ -44,11 +46,11 @@ class YiPy():
 
 
 		#recieve Python code over TCP and execute it
-		tString= 'nc -l -p 1231 -w 10 > %s; python %s' % (self.filename, self.filename)
+		tString= 'nc -l -p %d -w 10 > %s; python %s' % (self.port, self.filename, self.filename)
 		telnet= KiTelnet(tString, self.addr)
 		telnet.result(self.resCB)
 
-		self.sendPyCode(_content, 1231)
+		self.sendPyCode(_content)
 
 		logging.info('Yi Py sent')
 
@@ -91,9 +93,9 @@ class YiPy():
 	'''
 	Send Python code for execution to opened by NC connection.
 	'''
-	def	sendPyCode(self, _content, _port):
+	def	sendPyCode(self, _content):
 		s= socket.socket()
-		s.connect((self.addr,_port))
+		s.connect((self.addr,self.port))
 		s.send(_content.encode())
 		s.close()
 
