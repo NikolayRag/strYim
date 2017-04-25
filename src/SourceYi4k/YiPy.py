@@ -54,8 +54,8 @@ class YiPy():
 		telnet= KiTelnet(tString, self.addr)
 		telnet.result(self.resCB)
 
-		if self.sendPyCode(_content):
-			logging.error('Python code haven\'t sent')
+		if not self.sendPyCode(_content):
+			self.close()
 			return
 
 		logging.info('Python code sent')
@@ -117,10 +117,12 @@ class YiPy():
 
 		if not cSock:
 			logging.error('Not connected')
-			return True
+			return
 
 		cSock.send(_content.encode())
 		cSock.close()
+
+		return True
 
 
 
