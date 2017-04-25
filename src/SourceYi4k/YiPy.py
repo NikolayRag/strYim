@@ -1,6 +1,6 @@
 import logging
 
-import base64, threading
+import base64, threading, random
 
 from KiTelnet import *
 
@@ -24,19 +24,19 @@ class YiPy():
 
 
 	@staticmethod
-	def defaults(addr='192.168.42.1', port=1231, filename=None):
+	def defaults(addr='192.168.42.1', port=1231):
 		YiPy.addr= addr
 		YiPy.port= port
-		YiPy.filename= filename
 
 
 
 	'''
 	Prepare YiPy object.
-	Filename is mandatory and point to teporary file to hold Python code.
+	Filename is used to hold Python code being executed,
+	 and is random-generated is not specified at YiPy() or .defaults().
 	'''
 	def __init__(self, addr=None, port=None, filename=None):
-		self.filename= filename or self.filename
+		self.filename= filename or ('/tmp/YiPy%s' % str(random.random())[2:])
 		self.addr= addr or self.addr
 		self.port= port or self.port
 

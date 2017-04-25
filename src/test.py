@@ -20,7 +20,7 @@ def yiRes(_res):
 	logging.debug('Yi Py res: %s' % _res)
 	yipyBlock.set()
 
-yipy= SourceYi4k.YiPy(filename='/tmp/agent.py')
+yipy= SourceYi4k.YiPy()
 yipy.run('print(2+2)')
 
 logging.debug('YiPy wait')
