@@ -50,6 +50,7 @@ class YiReader():
 #		threading.Timer(5, self.yiSocket.close).start() #temp
 
 
+		resCnt= 0
 		while True:
 			try:
 				res= self.yiSocket.recv(16384)
@@ -57,7 +58,11 @@ class YiReader():
 				break
 
 			if res:
-				logging.debug('Yi response: %s bytes' % len(res))
+				resCnt+= len(res)
+				logging.debug('Yi response, %s bytes' % len(res))
+
+		logging.debug('Yi total %s bytes' % resCnt)
+
 
 
 
