@@ -41,7 +41,7 @@ class YiPy():
 
 	def run(self, _content):
 		if not self.filename:
-			logging.error('No Py file target specified')
+			logging.error('No target Python file specified')
 			return
 
 
@@ -56,7 +56,7 @@ class YiPy():
 
 		self.sendPyCode(_content)
 
-		logging.info('Yi Py sent')
+		logging.info('Python code sent')
 
 
 		return self
