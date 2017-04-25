@@ -189,6 +189,6 @@ class KiTelnet():
 
 		cCmd= (_command +";exit\r\n").encode()
 		self.telnet.write(cCmd)
-		self.telnet.read_until(cCmd) #skip command echo
+		self.telnet.read_until(b';exit\r\n') #skip command echo
 
 		return self.telnet.read_all()
