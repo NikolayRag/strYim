@@ -186,7 +186,9 @@ class KiTelnet():
 			self.telnet.write( (self.telnetPass +"\n").encode() )
 
 		self.telnet.read_until(self.telnetPrompt)
-		self.telnet.write( (_command +";exit\r\n").encode() )
-		self.telnet.read_until(b';exit\r\n')
+
+		cCmd= (_command +";exit\r\n").encode()
+		self.telnet.write(cCmd)
+		self.telnet.read_until(cCmd) #skip command echo
 
 		return self.telnet.read_all()
