@@ -6,6 +6,10 @@ from KiTelnet import *
 
 
 '''
+Run Python code at Yi4k side.
+Telnet at Yi4k should be switched on (using console_enable.script in root).
+
+
 '''
 class YiPy():
 	addr= None
@@ -86,6 +90,10 @@ class YiPy():
 
 
 	def close(self):
+		telnet= KiTelnet('rm %s' % self.filename, self.addr)
+		telnet.result()
+
+
 		self.resultBlock.set()
 
 
