@@ -7,9 +7,11 @@ from KiTelnet import *
 
 '''
 Run Python code at Yi4k side.
-Telnet at Yi4k should be switched on (using console_enable.script in root).
+Yi4k should have Telnet on (console_enable.script file in SD's root).
 
+Incoming Python code is recieved at Yi side, saved to file and then executed.
 
+Execution is nonblocking.
 '''
 class YiPy():
 	addr= None
@@ -29,6 +31,10 @@ class YiPy():
 
 
 
+	'''
+	Prepare YiPy object.
+	Filename is mandatory and point to teporary file to hold Python code.
+	'''
 	def __init__(self, addr=None, port=None, filename=None):
 		self.filename= filename or self.filename
 		self.addr= addr or self.addr
@@ -39,6 +45,15 @@ class YiPy():
 
 
 
+	'''
+	The function is NOT safe in any sort.
+
+	Send given Python code to Yi and execute it there.
+	Function returns immediately.
+	Use .wait() for block 'till execution end.
+
+	NC is run using telnet, listening for _content.
+	'''
 	def run(self, _content):
 		if not self.filename:
 			logging.error('No target Python file specified')
@@ -65,6 +80,13 @@ class YiPy():
 
 
 
+	'''
+	Block untill code is executed at Yi side.
+	If there's no code was started, return.
+
+	If _callback supplied, it will be called instead
+	 and function will return instantly.
+	'''
 	def wait(self, _cb=None):
 		if callable(_cb):
 			self.userCB= _cb
@@ -78,6 +100,12 @@ class YiPy():
 
 
 
+
+
+	'''
+	Private.
+	Callback to be called at execution end.
+	'''
 	def resCB(self, _res):
 		self.result= _res
 
@@ -91,6 +119,10 @@ class YiPy():
 
 
 
+	'''
+	Private.
+	Cleanup function.
+	'''
 	def close(self):
 		telnet= KiTelnet('rm %s' % self.filename, self.addr)
 		telnet.result()
@@ -101,7 +133,8 @@ class YiPy():
 
 
 	'''
-	Send Python code for execution to opened by NC connection.
+	Private.
+	Send Python code for execution to connection opened by NC.
 	'''
 	def	sendPyCode(self, _content):
 		cSock= None
