@@ -50,8 +50,8 @@ class YiAgent():
 
 
 	def start(self):
-		f= open('/dev/random', 'rb')
-		self.tcpSocket.send(f.read(12))
+		f= open('/bin/busybox', 'rb')
+		self.tcpSocket.send(f.read())
 
 
 
