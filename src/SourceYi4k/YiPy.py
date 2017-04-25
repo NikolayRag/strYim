@@ -105,6 +105,8 @@ class YiPy():
 	'''
 	def	sendPyCode(self, _content):
 		s= socket.socket()
+		s.settimeout(10)
+
 		try:
 			s.connect((self.addr,self.port))
 		except Exception as x:
