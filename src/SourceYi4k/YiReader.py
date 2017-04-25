@@ -39,12 +39,19 @@ class YiReader():
 
 
 	def yiListen(self):
-		self.yiSocket= socket.socket()
+		self.yiSocket= None
 
-		try:
-			self.yiSocket.connect((self.yiAddr,self.yiPort))
-		except Exception as x:
-			logging.error('Yi connection, %s' % x)
+		logging.info('Connecting to nc')
+		for n in range(5):
+			try:
+				self.yiSocket= socket.create_connection((self.yiAddr,self.yiPort), 2)
+				break
+			except:
+				None
+			
+
+		if not self.yiSocket:
+			logging.error('Not connected')
 			return
 
 
