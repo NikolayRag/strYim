@@ -15,10 +15,13 @@ class YiAgent():
 
 
 	def __init__(self, _port):
-		if self.tcpInit(_port):
-			self.start()
+		if not self.tcpInit(_port):
+			return
 
-			YiAgent.threading.Timer(2, self.close).start() #temp
+		self.start()
+
+		YiAgent.threading.Timer(2, self.close).start() #temp
+
 
 
 
@@ -53,4 +56,7 @@ class YiAgent():
 
 
 	def close(self):
+		if not self.tcpSocket:
+			return
+
 		self.tcpSocket.close()
