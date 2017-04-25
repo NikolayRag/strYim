@@ -31,17 +31,18 @@ class YiReader():
 
 	def __init__(self, addr='192.168.42.1', port=1231):
 		self.yiAddr= addr
+		self.yiPort= port
 		YiPy.defaults(addr, port, '/tmp/agent.py')
 		
 		logging.info('Reader inited')
 
 
 
-	def yiListen(self, _port):
+	def yiListen(self):
 		self.yiSocket= socket.socket()
 
 		try:
-			self.yiSocket.connect((self.yiAddr,_port))
+			self.yiSocket.connect((self.yiAddr,self.yiPort))
 		except Exception as x:
 			logging.error('Yi connection, %s' % x)
 			return
@@ -72,12 +73,12 @@ class YiReader():
 
 
 
-	def yiRunAgent(self, _port):
+	def yiRunAgent(self):
 		agentSrc= inspect.getsourcelines(YiAgent)[0]
 		agentSrc= ''.join(agentSrc)
 
 		yipy= YiPy()
-		if not yipy.run('%s\nYiAgent(%d)' % (agentSrc, _port)):
+		if not yipy.run('%s\nYiAgent(%d)' % (agentSrc, self.yiPort)):
 			logging.error('Running Yi')
 			return True
 

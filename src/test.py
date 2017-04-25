@@ -32,8 +32,8 @@ logging.info('YiPy ok')
 
 
 yi= SourceYi4k.YiReader()
-threading.Timer(0, lambda:yi.yiListen(1235)).start()
-yiRes= yi.yiRunAgent(1235)
+threading.Timer(0, lambda:yi.yiListen()).start()
+yiRes= yi.yiRunAgent()
 if not yiRes:
 	logging.info('YiReader ok')
 else:
