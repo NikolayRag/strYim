@@ -63,7 +63,6 @@ class YiReader():
 
 			if res:
 				resCnt+= len(res)
-				logging.debug('Yi response, %s bytes' % len(res))
 
 		logging.debug('Yi total %s bytes' % resCnt)
 
