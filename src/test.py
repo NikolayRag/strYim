@@ -38,7 +38,6 @@ else:
 
 yi= SourceYi4k.YiReader()
 threading.Timer(0, yi.yiListen).start()
-yiRes= yi.yiRunAgent('test')
 threading.Timer(5, yi.yiClose).start()
 
 if not yiRes:
