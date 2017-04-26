@@ -90,7 +90,8 @@ class YiReader():
 		self.yiClose()
 
 
-		if res:
+		error= res not in [b'',  b'stop\r\n']
+		if error:
 			logging.error(res)
 
-		return res
+		return not error
