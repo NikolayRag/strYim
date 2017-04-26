@@ -51,7 +51,6 @@ class YiReader():
 			return
 
 
-#		threading.Timer(5, self.yiSocket.close).start() #temp
 
 		logging.info('Yi begin')
 
