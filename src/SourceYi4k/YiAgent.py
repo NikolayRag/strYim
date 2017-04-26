@@ -50,8 +50,15 @@ class YiAgent():
 
 
 	def start(self):
-		f= open('/bin/busybox', 'rb')
-		self.tcpSocket.send(f.read())
+		f= open('/tmp/fuse_d/DCIM/110MEDIA/YDXJ0083.MP4', 'rb')
+		
+		block= 1000000
+		while True:
+			b= f.read(block)
+			self.tcpSocket.send(b)
+
+			if len(b)<block:
+				break
 
 
 
