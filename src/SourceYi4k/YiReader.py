@@ -75,12 +75,12 @@ class YiReader():
 
 
 
-	def yiRunAgent(self):
+	def yiRunAgent(self, _agentParam=''):
 		agentSrc= inspect.getsourcelines(YiAgent)[0]
 		agentSrc= ''.join(agentSrc)
 
 		yipy= YiPy()
-		if not yipy.run('%s\nYiAgent(%d)' % (agentSrc, self.yiPort)):
+		if not yipy.run('%s\nYiAgent(%d,"%s")' % (agentSrc, self.yiPort, _agentParam)):
 			logging.error('Running Yi')
 			return True
 
