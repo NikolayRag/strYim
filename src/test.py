@@ -35,14 +35,18 @@ else:
 	logging.error('YiPy err')
 
 
+resCnt= [0]
+def agentCB(res):
+	if res:
+		resCnt[0]+= len(res)
 
 yi= SourceYi4k.YiReader()
-threading.Timer(0, yi.yiListen).start()
+threading.Timer(0, lambda:yi.yiListen(agentCB)).start()
 threading.Timer(5, yi.yiClose).start()
 yiReaderRes= yi.yiTestAgent()
 
-	logging.info('YiReader ok')
 if yiReaderRes:
+	logging.info('YiReader ok, total %s bytes' % resCnt[0])
 else:
 	logging.error('YiReader err')
 

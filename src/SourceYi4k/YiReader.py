@@ -34,7 +34,7 @@ class YiReader():
 
 
 
-	def yiListen(self):
+	def yiListen(self, _cb=None):
 		self.yiSocket= None
 
 		logging.info('Connecting to nc')
@@ -54,17 +54,13 @@ class YiReader():
 
 		logging.info('Yi begin')
 
-		resCnt= 0
 		while True:
 			try:
 				res= self.yiSocket.recv(16384)
 			except:
 				break
 
-			if res:
-				resCnt+= len(res)
-
-		logging.debug('Yi total %s bytes' % resCnt)
+			callable(_cb) and _cb(res)
 
 
 
