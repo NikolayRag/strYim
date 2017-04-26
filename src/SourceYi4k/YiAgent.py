@@ -35,7 +35,7 @@ class YiAgent():
 		try:
 			cListen.bind(('0.0.0.0',_port))
 		except Exception as x:
-			print(x)
+			print('error: %s' % x)
 			return
 
 		cListen.listen(1)
@@ -43,7 +43,7 @@ class YiAgent():
 		try:
 			c, a= cListen.accept()
 		except Exception as x:
-			print(x)
+			print('error: %s' % x)
 			return
 
 		self.tcpSocket= c
