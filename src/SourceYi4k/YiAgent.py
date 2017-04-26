@@ -23,7 +23,7 @@ class YiAgent():
 		else:
 			self.start()
 
-		YiAgent.threading.Timer(2, self.close).start() #temp
+		self.close()
 
 
 
