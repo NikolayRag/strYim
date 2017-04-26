@@ -95,3 +95,8 @@ class YiReader():
 			logging.error(res)
 
 		return not error
+
+
+
+	def yiTestAgent(self):
+		return self.yiRunAgent('test')

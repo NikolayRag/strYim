@@ -39,10 +39,10 @@ else:
 yi= SourceYi4k.YiReader()
 threading.Timer(0, yi.yiListen).start()
 threading.Timer(5, yi.yiClose).start()
-yiRes= yi.yiRunAgent('test')
+yiReaderRes= yi.yiTestAgent()
 
-if yiRes:
 	logging.info('YiReader ok')
+if yiReaderRes:
 else:
 	logging.error('YiReader err')
 
