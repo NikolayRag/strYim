@@ -14,11 +14,14 @@ class YiAgent():
 
 
 
-	def __init__(self, _port):
+	def __init__(self, _port, _test=None):
 		if not self.tcpInit(_port):
 			return
 
-		self.start()
+		if _test:
+			self.test()
+		else:
+			self.start()
 
 		YiAgent.threading.Timer(2, self.close).start() #temp
 
@@ -49,16 +52,28 @@ class YiAgent():
 
 
 
-	def start(self):
-		f= open('/tmp/fuse_d/DCIM/110MEDIA/YDXJ0083.MP4', 'rb')
+	def test(self):
+		f= open('/dev/random', 'rb')
 		
 		block= 1000000
 		while True:
 			b= f.read(block)
-			self.tcpSocket.send(b)
+			
+			if not self.send(b):
+				print('stop')
+				return
 
 			if len(b)<block:
 				break
+
+
+
+	def send(self, _data):
+		try:
+			self.tcpSocket.send(_data)
+			return True
+		except:
+			None
 
 
 
