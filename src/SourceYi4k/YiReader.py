@@ -53,6 +53,7 @@ class YiReader():
 
 #		threading.Timer(5, self.yiSocket.close).start() #temp
 
+		logging.info('Yi begin')
 
 		resCnt= 0
 		while True:
