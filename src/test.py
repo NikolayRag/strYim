@@ -37,7 +37,7 @@ else:
 
 
 yi= SourceYi4k.YiReader()
-threading.Timer(0, lambda:yi.yiListen()).start()
+threading.Timer(0, yi.yiListen).start()
 yiRes= yi.yiRunAgent()
 threading.Timer(5, yi.yiClose).start()
 
