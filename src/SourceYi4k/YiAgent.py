@@ -55,7 +55,7 @@ class YiAgent():
 	def test(self):
 		f= open('/dev/random', 'rb')
 		
-		block= 1000000
+		block= 100000
 		while True:
 			b= f.read(block)
 			
