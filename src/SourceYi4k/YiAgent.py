@@ -52,22 +52,6 @@ class YiAgent():
 
 
 
-	def test(self):
-		f= open('/dev/random', 'rb')
-		
-		block= 100000
-		while True:
-			b= f.read(block)
-			
-			if not self.send(b):
-				print('stop')
-				return
-
-			if len(b)<block:
-				break
-
-
-
 	def send(self, _data):
 		try:
 			self.tcpSocket.send(_data)
@@ -82,3 +66,23 @@ class YiAgent():
 			return
 
 		self.tcpSocket.close()
+
+
+
+
+
+
+
+	def test(self):
+		f= open('/dev/random', 'rb')
+		
+		block= 100000
+		while True:
+			b= f.read(block)
+			
+			if not self.send(b):
+				print('stop')
+				return
+
+			if len(b)<block:
+				break
