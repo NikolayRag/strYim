@@ -1,7 +1,10 @@
 '''
+Detect 'loop' file being recorded and continuously read it,
+ switching to next in sequence when current is exhaused.
+
 Agent is run at Yi4k side.
 
-Agent flow:
+Flow:
 * loop record
 	* detect file being recorded
 	* read tail till end
@@ -59,6 +62,11 @@ class YiAgent():
 
 
 
+	'''
+	Close socket.
+	If called while running, cause exception in sending data,
+	 resulting stop execution.
+	'''
 	def close(self):
 		if not self.tcpSocket:
 			return
@@ -92,6 +100,9 @@ class YiAgent():
 
 
 
+	'''
+	Test function.
+	'''
 	def test(self):
 		f= open('/dev/random', 'rb')
 		
