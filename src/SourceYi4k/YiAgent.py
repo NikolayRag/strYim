@@ -39,6 +39,7 @@ class YiAgent():
 			return
 
 		cListen.listen(1)
+		cListen.settimeout(5)
 
 		try:
 			c, a= cListen.accept()
