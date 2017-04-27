@@ -67,6 +67,27 @@ class YiAgent():
 
 
 
+	'''
+	Normal execution after caller is connected.
+	'''
+	def start(self):
+		f= open('/dev/random', 'rb')
+		
+		block= 100000
+		for n in range(10):
+			b= f.read(block)
+			
+			if not self.send(b):
+				print('stop')
+				return
+
+			if len(b)<block:
+				break
+
+
+
+
+
 
 
 
