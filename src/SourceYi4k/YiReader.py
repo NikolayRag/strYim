@@ -40,7 +40,7 @@ class YiReader():
 		logging.info('Connecting to nc')
 		for n in range(5):
 			try:
-				self.yiSocket= socket.create_connection((self.yiAddr,self.yiPort), 2)
+				self.yiSocket= socket.create_connection((self.yiAddr,self.yiPort), 1)
 				break
 			except:
 				None

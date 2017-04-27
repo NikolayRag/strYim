@@ -142,7 +142,7 @@ class YiPy():
 		logging.info('Connecting to nc')
 		for n in range(5):
 			try:
-				cSock= socket.create_connection((self.addr,self.port), 2)
+				cSock= socket.create_connection((self.addr,self.port), 1)
 				break
 			except:
 				None
