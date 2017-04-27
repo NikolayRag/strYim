@@ -23,9 +23,6 @@ class YiAgent():
 		else:
 			self.start()
 
-		self.close()
-
-
 
 
 	def tcpInit(self, _port):
