@@ -11,7 +11,13 @@ Flow:
 		* repeat read
 '''
 class YiAgent():
-	import socket, threading, time, os
+	camRoot= '/tmp/fuse_d/DCIM'
+	camMask= '???MEDIA/L???????.MP4'
+
+	liveOldAge= 4 #maximum number of seconds to consider tested file 'live'
+
+
+	import socket, threading, time, os, glob
 	tcpSocket= None
 
 
@@ -83,12 +89,42 @@ class YiAgent():
 		#terminated by socket
 		while True:
 			fileOld= fileNew
-			if not self.send('123'):
+			fileNew= self.detectActiveFile()
+			if not self.send(str(fileNew)):
+				print('error')
 				return
 
 			YiAgent.time.sleep(.5)
 
 		return
+
+
+
+	'''
+	Return file assumed to be currently recorded in Loop mode.
+	That is file with specific name, updated recently.
+	'''
+	def detectActiveFile(self):
+		mp4Mask= "%s/%s" % (self.camRoot, self.camMask)
+
+		lastStamp= 0
+		activeFile= None
+		
+		for mp4File in YiAgent.glob.glob(mp4Mask):
+			mtime= YiAgent.os.path.getmtime(mp4File)
+			
+			if mtime>lastStamp:
+				lastStamp= mtime
+				activeFile= mp4File
+
+		if not activeFile:
+			return
+
+		if YiAgent.time.time()-lastStamp > self.liveOldAge: #too old
+			return
+
+
+		return {'fname': activeFile, 'size': int(YiAgent.os.path.getsize(mp4File))}
 
 
 
