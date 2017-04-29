@@ -12,7 +12,7 @@ Flow:
 		*? make Atoms available to read from socket 
 '''
 class YiAgent():
-	import socket, threading
+	import socket, threading, time, os
 	tcpSocket= None
 
 
@@ -24,7 +24,7 @@ class YiAgent():
 		if _test:
 			self.test()
 		else:
-			self.start()
+			self.check()
 
 
 
@@ -78,7 +78,22 @@ class YiAgent():
 	'''
 	Normal execution after caller is connected.
 	'''
-	def start(self):
+	def check(self):
+		fileNew= fileOld= False
+		
+		#terminated by socket
+		while True:
+			fileOld= fileNew
+			if not self.send('123'):
+				return
+
+			YiAgent.time.sleep(.5)
+
+		return
+
+
+
+	def xxx(self):
 		f= open('/dev/random', 'rb')
 		
 		block= 100000

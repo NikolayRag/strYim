@@ -25,12 +25,38 @@ class YiReader():
 	yiAddr= None
 	yiSocket= None
 
+	resCnt= 0
+
 	def __init__(self, addr='192.168.42.1', port=1231):
 		self.yiAddr= addr
 		self.yiPort= port
 		YiPy.defaults(addr, port+1)
 		
 		logging.info('Reader inited')
+
+
+
+
+	def agentCB(self, res):
+		if res:
+			logging.debug(res)
+			self.resCnt+= len(res)
+
+
+
+	def start(self):
+		threading.Timer(0, lambda:self.yiListen(self.agentCB)).start()
+		wdog= threading.Timer(10, self.yiClose)
+		wdog.start()
+
+		self.yiRunAgent()
+
+		wdog.cancel()
+
+		return self.resCnt
+
+
+
 
 
 
@@ -92,7 +118,3 @@ class YiReader():
 
 		return not error
 
-
-
-	def yiTestAgent(self):
-		return self.yiRunAgent('test')
