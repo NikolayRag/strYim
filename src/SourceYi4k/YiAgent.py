@@ -1,15 +1,14 @@
 '''
-Detect 'loop' file being recorded and continuously read it,
- switching to next in sequence when current is exhaused.
+Continuously read loop-recorded files as soon as record is on.
+Reading is started every time loop recording is detected.
 
 Agent is run at Yi4k side.
 
 Flow:
-* loop record
-	* detect file being recorded
-	* read tail till end
-		*? split 264/AAC
-		*? make Atoms available to read from socket 
+* continouosly detect file being recorded
+* read tail
+	* till next file in queue is recorded
+		* repeat read
 '''
 class YiAgent():
 	import socket, threading, time, os
