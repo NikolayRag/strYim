@@ -123,10 +123,15 @@ class YiAgent():
 		if YiAgent.time.time()-lastStamp > self.liveOldAge: #too old
 			return
 
-		if YiAgent.os.path.getsize(activeFile) < self.liveTriggerSize: #too small
+		fSize= YiAgent.os.path.getsize(activeFile)
+
+		if fSize < self.liveTriggerSize: #too small
 			return
 
-		return {'fname': activeFile}
+		return {'fname': activeFile, 'size':fSize}
+
+			return
+
 
 
 
