@@ -154,6 +154,9 @@ class YiAgent():
 	Test function.
 	'''
 	def test(self):
+		YiAgent.threading.Timer(10, self.close).start()
+
+
 		f= open('/dev/random', 'rb')
 		
 		block= 100000
