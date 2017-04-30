@@ -88,6 +88,12 @@ class YiAgent():
 		
 		#terminated by socket
 		while True:
+			#check port state
+			if not self.send(b''):
+				print('closed')
+				return
+
+
 			fileOld= fileNew
 			fileNew= self.detectActiveFile()
 			if not self.send(str(fileNew)):
