@@ -124,7 +124,7 @@ class YiAgent():
 			return
 
 
-		return {'fname': activeFile, 'size': int(YiAgent.os.path.getsize(mp4File))}
+		return {'fname': activeFile, 'size': int(YiAgent.os.path.getsize(activeFile))}
 
 
 
