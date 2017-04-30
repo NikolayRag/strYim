@@ -11,14 +11,17 @@ Flow:
 		* repeat read
 '''
 class YiAgent():
+	import socket, threading, time, os, glob, re
+
+
 	camRoot= '/tmp/fuse_d/DCIM'
 	camMask= '???MEDIA/L???????.MP4'
+	camMaskRe= re.compile('^.*(?P<dir>\d\d\d)MEDIA/L(?P<seq>\d\d\d)(?P<num>\d\d\d\d).MP4$')
 
 	liveOldAge= 4 #maximum number of seconds to consider tested file 'live'
 	liveTriggerSize= 1000000 #minimum file size to start reading
+	livePrefetch= 1500000 #file shorter than this will be started from 0
 
-
-	import socket, threading, time, os, glob
 	tcpSocket= None
 
 
@@ -94,6 +97,9 @@ class YiAgent():
 
 			fileNew= self.detectActiveFile()
 
+			if fileNew:
+				if not self.camAirStart(fileNew):
+					return
 			YiAgent.time.sleep(.5)
 
 		return
@@ -130,8 +136,27 @@ class YiAgent():
 
 		return {'fname': activeFile, 'size':fSize}
 
-			return
 
+
+	'''
+	start to read files from _file,
+	assuming it's Loop mode (file name is Laaabbbb.MP4)
+	'''
+	def camAirStart(self, _file):
+		fNameMatch= self.camMaskRe.match(_file['fname'])
+		fParts= {'dir':int(fNameMatch.group('dir')), 'seq':int(fNameMatch.group('seq')), 'num':int(fNameMatch.group('num'))}
+
+		fName= self.buildName(fParts)
+		fPos= max( _file['size']-self.livePrefetch, 0)
+
+		if not self.send('try: %s, %s' % (fName,fPos)):
+			return
+		return True
+
+
+
+	def buildName(self, _fParts):
+		return '%03dMEDIA/L%03d0%03d.MP4' % (_fParts['dir'], _fParts['seq'], _fParts['num'])
 
 
 
