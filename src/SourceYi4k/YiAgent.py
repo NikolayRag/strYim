@@ -83,6 +83,7 @@ class YiAgent():
 
 	'''
 	Normal execution after caller is connected.
+	Terminated by closed socket.
 	'''
 	def check(self):
 		#terminated by socket
