@@ -83,10 +83,13 @@ class YiReader():
 		while True:
 			try:
 				res= self.yiSocket.recv(16384)
-			except:
+				callable(_cb) and _cb(res)
+			except socket.timeout:
+				pass
+			except Exception as x:
+				logging.info('Yi end: %s' % x)
 				break
 
-			callable(_cb) and _cb(res)
 
 
 
