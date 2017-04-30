@@ -15,6 +15,7 @@ class YiAgent():
 	camMask= '???MEDIA/L???????.MP4'
 
 	liveOldAge= 4 #maximum number of seconds to consider tested file 'live'
+	liveTriggerSize= 1000000 #minimum file size to start reading
 
 
 	import socket, threading, time, os, glob
@@ -129,8 +130,10 @@ class YiAgent():
 		if YiAgent.time.time()-lastStamp > self.liveOldAge: #too old
 			return
 
+		if YiAgent.os.path.getsize(activeFile) < self.liveTriggerSize: #too small
+			return
 
-		return {'fname': activeFile, 'size': int(YiAgent.os.path.getsize(activeFile))}
+		return {'fname': activeFile}
 
 
 
