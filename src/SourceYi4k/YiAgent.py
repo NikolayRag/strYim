@@ -86,7 +86,6 @@ class YiAgent():
 	Terminated by closed socket.
 	'''
 	def check(self):
-		#terminated by socket
 		while True:
 			#check port state
 			if not self.send(b''):
@@ -94,9 +93,6 @@ class YiAgent():
 				return
 
 			fileNew= self.detectActiveFile()
-			if not self.send(str(fileNew)):
-				print('error')
-				return
 
 			YiAgent.time.sleep(.5)
 
