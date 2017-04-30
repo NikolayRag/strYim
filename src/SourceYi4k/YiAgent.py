@@ -85,8 +85,6 @@ class YiAgent():
 	Normal execution after caller is connected.
 	'''
 	def check(self):
-		fileNew= fileOld= False
-		
 		#terminated by socket
 		while True:
 			#check port state
@@ -94,8 +92,6 @@ class YiAgent():
 				print('closed')
 				return
 
-
-			fileOld= fileNew
 			fileNew= self.detectActiveFile()
 			if not self.send(str(fileNew)):
 				print('error')
