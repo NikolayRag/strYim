@@ -146,17 +146,74 @@ class YiAgent():
 		fNameMatch= self.camMaskRe.match(_file['fname'])
 		fParts= {'dir':int(fNameMatch.group('dir')), 'seq':int(fNameMatch.group('seq')), 'num':int(fNameMatch.group('num'))}
 
-		fName= self.buildName(fParts)
 		fPos= max( _file['size']-self.livePrefetch, 0)
 
-		if not self.send('try: %s, %s' % (fName,fPos)):
-			return
-		return True
+		while True:
+			fPartsExpect= self.incFile(fParts)
+			
+			if not self.camReadFile(fParts, fPos, fPartsExpect):
+				return
+
+			fParts= fPartsExpect
+			fPos= 0
+
+
+	def incFile(self, _fParts):
+		newParts= {'dir':_fParts['dir'], 'seq':_fParts['seq'], 'num':_fParts['num']}
+
+		newParts['num']+= 1
+		if newParts['num']==1000:
+			newParts['num']= 1
+			newParts['dir']+= 1
+
+		return newParts
 
 
 
 	def buildName(self, _fParts):
 		return '%03dMEDIA/L%03d0%03d.MP4' % (_fParts['dir'], _fParts['seq'], _fParts['num'])
+
+
+
+	'''
+	Read file untill it's exhausted.
+	That is until expected file arrives and current file returns 0 bytes.
+	'''
+	def camReadFile(self, _fParts, _fPos, _fPartsExpect):
+		fName= self.buildName(_fParts)
+		fNameExpect= self.buildName(_fPartsExpect)
+
+		if not self.send('%s from %d' % (fName,_fPos)):
+			return
+
+		f= open('%s/%s' % (self.camRoot, fName), 'rb')
+		f.seek(_fPos)
+
+
+		readResult= True
+		while True:
+			content= f.read()
+
+			if content:
+				_fPos+=len(content)
+				if not self.send('+%d = %d' % (len(content), _fPos)):
+					readResult= False
+					break
+
+			YiAgent.time.sleep(.25)
+
+			if (
+				not content
+				and YiAgent.os.path.isfile('%s/%s' % (self.camRoot, fNameExpect))
+			):
+				break
+
+
+
+
+		f.close()
+
+		return readResult
 
 
 
