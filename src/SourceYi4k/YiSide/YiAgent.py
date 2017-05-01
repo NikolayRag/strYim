@@ -49,7 +49,7 @@ class YiAgent():
 	def check(self):
 		while True:
 			#Check port state while record is paused.
-			if not self.yiSock.send(b''):
+			if not self.yiSock.valid(True):
 				return
 
 

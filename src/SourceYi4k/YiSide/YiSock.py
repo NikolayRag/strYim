@@ -58,6 +58,11 @@ class YiSock():
 
 
 
-	def valid(self):
-		if self.tcpSocket:
-			return True
+	def valid(self, _test=False):
+		if not self.tcpSocket:
+			return
+
+		if _test and not self.send(b''):
+			return
+
+		return True
