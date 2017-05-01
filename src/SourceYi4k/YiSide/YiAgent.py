@@ -12,8 +12,8 @@ Flow:
 		* repeat read
 '''
 class YiAgent():
-	import socket, threading, time, os, glob, re
-	global socket, threading, time, os, glob, re
+	import threading, time, os, glob, re
+	global threading, time, os, glob, re
 
 
 	camRoot= '/tmp/fuse_d/DCIM'
@@ -24,65 +24,21 @@ class YiAgent():
 	liveTriggerSize= 1000000 #minimum file size to start reading
 	livePrefetch= 1500000 #file shorter than this will be started from 0
 
-	tcpSocket= None
+
+	yiSock= None
 
 
 
 	def __init__(self, _port, _test=None):
-		if not self.tcpInit(_port):
+		self.yiSock= YiSock(_port)
+
+		if not self.yiSock.valid():
 			return
 
 		if _test:
 			self.test()
 		else:
 			self.check()
-
-
-
-	def tcpInit(self, _port):
-		cListen= socket.socket()
-		cListen.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-
-		try:
-			cListen.bind(('0.0.0.0',_port))
-		except Exception as x:
-			print('error: %s' % x)
-			return
-
-		cListen.listen(1)
-		cListen.settimeout(5)
-
-		try:
-			c, a= cListen.accept()
-		except Exception as x:
-			print('error: %s' % x)
-			return
-
-		self.tcpSocket= c
-
-		return True
-
-
-
-	def send(self, _data):
-		try:
-			self.tcpSocket.send(_data)
-			return True
-		except:
-			None
-
-
-
-	'''
-	Close socket.
-	If called while running, cause exception in sending data,
-	 resulting stop execution.
-	'''
-	def close(self):
-		if not self.tcpSocket:
-			return
-
-		self.tcpSocket.close()
 
 
 
@@ -93,8 +49,9 @@ class YiAgent():
 	def check(self):
 		while True:
 			#Check port state while record is paused.
-			if not self.send(b''):
+			if not self.yiSock.send(b''):
 				return
+
 
 			fileNew= self.detectActiveFile()
 
@@ -185,7 +142,7 @@ class YiAgent():
 		fName= self.buildName(_fParts)
 		fNameExpect= self.buildName(_fPartsExpect)
 
-		if not self.send('%s from %d' % (fName,_fPos)):
+		if not self.yiSock.send('%s from %d' % (fName,_fPos)):
 			return
 
 		f= open('%s/%s' % (self.camRoot, fName), 'rb')
@@ -198,7 +155,7 @@ class YiAgent():
 
 			if content:
 				_fPos+=len(content)
-				if not self.send('+%d = %d' % (len(content), _fPos)):
+				if not self.yiSock.send('+%d = %d' % (len(content), _fPos)):
 					readResult= False
 					break
 
@@ -232,7 +189,7 @@ class YiAgent():
 	Test function.
 	'''
 	def test(self):
-		threading.Timer(10, self.close).start()
+		threading.Timer(10, self.yiSock.close).start()
 
 
 		f= open('/dev/random', 'rb')
@@ -241,7 +198,7 @@ class YiAgent():
 		while True:
 			b= f.read(block)
 			
-			if not self.send(b):
+			if not self.yiSock.send(b):
 				print('stop')
 				return
 

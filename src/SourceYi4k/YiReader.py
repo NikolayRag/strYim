@@ -96,7 +96,9 @@ class YiReader():
 
 
 	def yiRunAgent(self, _agentParam=''):
-		agentSrc= inspect.getsourcelines(YiAgent)[0]
+		agentSrc= []
+		agentSrc.extend( inspect.getsourcelines(YiAgent)[0] )
+		agentSrc.extend( inspect.getsourcelines(YiSock)[0] )
 		agentSrc= ''.join(agentSrc)
 
 		yipy= YiPy()
