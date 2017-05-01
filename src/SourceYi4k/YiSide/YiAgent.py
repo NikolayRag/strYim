@@ -152,7 +152,7 @@ class YiAgent():
 			content= f.read()
 
 			if content:
-				if not self.yiSock.send(content, fName):
+				if not self.yiSock.send(content, _fParts['num']):
 					readResult= False
 					break
 
