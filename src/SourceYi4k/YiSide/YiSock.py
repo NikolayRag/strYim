@@ -63,7 +63,10 @@ class YiSock():
 		if not self.tcpSocket:
 			return
 
-		if _test and not self.send(b''):
-			return
+		if _test:
+			try:
+				self.tcpSocket.send(b'')
+			except:
+				return
 
 		return True
