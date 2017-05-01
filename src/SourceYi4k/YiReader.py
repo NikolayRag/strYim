@@ -1,7 +1,7 @@
 import logging, inspect, socket, threading
 
 from .YiPy import *
-from .YiAgent import *
+from .YiSide import *
 
 
 '''
