@@ -39,7 +39,7 @@ class YiReader():
 
 	def agentCB(self, res):
 		if res:
-			logging.debug(res)
+			logging.debug(len(res))
 			self.resCnt+= len(res)
 
 

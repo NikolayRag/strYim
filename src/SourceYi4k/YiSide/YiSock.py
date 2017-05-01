@@ -36,9 +36,9 @@ class YiSock():
 
 
 
-	def send(self, _data):
+	def send(self, _binary, _meta=None):
 		try:
-			self.tcpSocket.send(_data)
+			self.tcpSocket.send(_binary)
 			return True
 		except:
 			None

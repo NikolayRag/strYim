@@ -142,8 +142,6 @@ class YiAgent():
 		fName= self.buildName(_fParts)
 		fNameExpect= self.buildName(_fPartsExpect)
 
-		if not self.yiSock.send('%s from %d' % (fName,_fPos)):
-			return
 
 		f= open('%s/%s' % (self.camRoot, fName), 'rb')
 		f.seek(_fPos)
@@ -154,8 +152,7 @@ class YiAgent():
 			content= f.read()
 
 			if content:
-				_fPos+=len(content)
-				if not self.yiSock.send('+%d = %d' % (len(content), _fPos)):
+				if not self.yiSock.send(content, fName):
 					readResult= False
 					break
 
