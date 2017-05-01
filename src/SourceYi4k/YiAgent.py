@@ -1,6 +1,7 @@
 '''
-Continuously read loop-recorded files as soon as record is on.
-Reading is started every time loop recording is detected.
+Continuously detect loop-recorded files as soon as record is on.
+Then read files in chain as they grow and sequentally switched.
+Read data is send over accepted connection.
 
 Agent is run at Yi4k side.
 
@@ -91,7 +92,7 @@ class YiAgent():
 	'''
 	def check(self):
 		while True:
-			#check port state
+			#Check port state while record is paused.
 			if not self.send(b''):
 				print('closed')
 				return
