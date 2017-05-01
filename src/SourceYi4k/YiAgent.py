@@ -12,6 +12,7 @@ Flow:
 '''
 class YiAgent():
 	import socket, threading, time, os, glob, re
+	global socket, threading, time, os, glob, re
 
 
 	camRoot= '/tmp/fuse_d/DCIM'
@@ -38,8 +39,8 @@ class YiAgent():
 
 
 	def tcpInit(self, _port):
-		cListen= YiAgent.socket.socket()
-		cListen.setsockopt(YiAgent.socket.SOL_SOCKET, YiAgent.socket.SO_REUSEADDR, 1)
+		cListen= socket.socket()
+		cListen.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
 		try:
 			cListen.bind(('0.0.0.0',_port))
@@ -100,7 +101,7 @@ class YiAgent():
 			if fileNew:
 				if not self.camAirStart(fileNew):
 					return
-			YiAgent.time.sleep(.5)
+			time.sleep(.5)
 
 		return
 
@@ -116,20 +117,21 @@ class YiAgent():
 		lastStamp= 0
 		activeFile= None
 		
-		for mp4File in YiAgent.glob.glob(mp4Mask):
-			mtime= YiAgent.os.path.getmtime(mp4File)
+		for mp4File in glob.glob(mp4Mask):
+			mtime= os.path.getmtime(mp4File)
 			
 			if mtime>lastStamp:
 				lastStamp= mtime
 				activeFile= mp4File
 
+
 		if not activeFile:
 			return
 
-		if YiAgent.time.time()-lastStamp > self.liveOldAge: #too old
+		if time.time()-lastStamp > self.liveOldAge: #too old
 			return
 
-		fSize= YiAgent.os.path.getsize(activeFile)
+		fSize= os.path.getsize(activeFile)
 
 		if fSize < self.liveTriggerSize: #too small
 			return
@@ -200,11 +202,11 @@ class YiAgent():
 					readResult= False
 					break
 
-			YiAgent.time.sleep(.5)
+			time.sleep(.5)
 
 			if (
 				not content
-				and YiAgent.os.path.isfile('%s/%s' % (self.camRoot, fNameExpect))
+				and os.path.isfile('%s/%s' % (self.camRoot, fNameExpect))
 			):
 				break
 
@@ -243,7 +245,7 @@ class YiAgent():
 	Test function.
 	'''
 	def test(self):
-		YiAgent.threading.Timer(10, self.close).start()
+		threading.Timer(10, self.close).start()
 
 
 		f= open('/dev/random', 'rb')
