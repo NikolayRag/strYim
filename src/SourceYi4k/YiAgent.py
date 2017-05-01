@@ -94,7 +94,6 @@ class YiAgent():
 		while True:
 			#Check port state while record is paused.
 			if not self.send(b''):
-				print('closed')
 				return
 
 			fileNew= self.detectActiveFile()
