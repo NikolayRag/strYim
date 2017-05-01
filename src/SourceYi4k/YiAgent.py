@@ -18,7 +18,7 @@ class YiAgent():
 	camMask= '???MEDIA/L???????.MP4'
 	camMaskRe= re.compile('^.*(?P<dir>\d\d\d)MEDIA/L(?P<seq>\d\d\d)(?P<num>\d\d\d\d).MP4$')
 
-	liveOldAge= 4 #maximum number of seconds to consider tested file 'live'
+	liveOldAge= 8 #maximum number of seconds to consider tested file 'live'
 	liveTriggerSize= 1000000 #minimum file size to start reading
 	livePrefetch= 1500000 #file shorter than this will be started from 0
 
@@ -200,7 +200,7 @@ class YiAgent():
 					readResult= False
 					break
 
-			YiAgent.time.sleep(.25)
+			YiAgent.time.sleep(.5)
 
 			if (
 				not content
