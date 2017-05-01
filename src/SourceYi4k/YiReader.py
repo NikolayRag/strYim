@@ -25,7 +25,6 @@ class YiReader():
 	yiAddr= None
 	yiSocket= None
 
-	resCnt= 0
 
 	def __init__(self, addr='192.168.42.1', port=1231):
 		self.yiAddr= addr
@@ -36,19 +35,12 @@ class YiReader():
 
 
 
+	def start(self, _dataCB=None):
+		yiData= YiData(_dataCB)
 
-	def agentCB(self, res):
-		if res:
-			logging.debug(len(res))
-			self.resCnt+= len(res)
-
-
-
-	def start(self):
-		threading.Timer(0, lambda:self.yiListen(self.agentCB)).start()
-		self.yiRunAgent()
-
-		return self.resCnt
+		threading.Timer(0, lambda:self.yiListen(yiData.restore)).start()
+		
+		return self.yiRunAgent()
 
 
 
@@ -97,8 +89,9 @@ class YiReader():
 
 	def yiRunAgent(self, _agentParam=''):
 		agentSrc= []
-		agentSrc.extend( inspect.getsourcelines(YiAgent)[0] )
+		agentSrc.extend( inspect.getsourcelines(YiData)[0] )
 		agentSrc.extend( inspect.getsourcelines(YiSock)[0] )
+		agentSrc.extend( inspect.getsourcelines(YiAgent)[0] )
 		agentSrc= ''.join(agentSrc)
 
 		yipy= YiPy()
