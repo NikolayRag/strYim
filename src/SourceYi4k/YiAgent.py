@@ -204,11 +204,13 @@ class YiAgent():
 
 			time.sleep(.5)
 
+			fNext= '%s/%s' % (self.camRoot, fNameExpect)
 			if (
 				not content
-				and os.path.isfile('%s/%s' % (self.camRoot, fNameExpect))
+				and os.path.isfile(fNext)
 			):
-				break
+				if time.time()-os.path.getmtime(fNext) < self.liveOldAge: #young ehough
+					break
 
 
 
