@@ -46,12 +46,7 @@ class YiReader():
 
 	def start(self):
 		threading.Timer(0, lambda:self.yiListen(self.agentCB)).start()
-		wdog= threading.Timer(10, self.yiClose)
-		wdog.start()
-
 		self.yiRunAgent()
-
-		wdog.cancel()
 
 		return self.resCnt
 
