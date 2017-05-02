@@ -39,27 +39,42 @@ class YiData():
 			return
 
 
-		dataPos= 0
-		
-		if self.metaRemain:
-			dataPos= min(self.metaRemain, len(_data))
-			self.meta+= _data[:dataPos]
+		dataPos= self.pickMeta(_data)
 
-			self.metaRemain-= dataPos
+		self.pickData(_data, dataPos)
 
 
-			if not self.metaRemain:
-				self.dataRemain= int(self.meta[3:])
 
-				self.restoreCB(self.meta)
+	def pickMeta(self, _data):
+		if not self.metaRemain:
+			return 0
 
 
-		if self.dataRemain:
-			dataAvail= min(self.dataRemain, max(len(_data)-dataPos,0) )
-			self.dataRemain-= dataAvail
+		endPos= min(self.metaRemain, len(_data))
+		self.meta+= _data[:endPos]
+		self.metaRemain-= endPos
 
-			if not self.dataRemain:
-				self.reset()
+
+		if not self.metaRemain:
+			self.dataRemain= int(self.meta[3:])
+
+			self.restoreCB(self.meta)
+
+
+		return endPos
+
+
+
+	def pickData(self, _data, _pos):
+		if not self.dataRemain:
+			return
+
+
+		dataAvail= min(self.dataRemain, len(_data)-_pos )
+		self.dataRemain-= dataAvail
+
+		if not self.dataRemain:
+			self.reset()
 
 
 
