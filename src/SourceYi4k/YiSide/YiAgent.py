@@ -114,7 +114,7 @@ class YiAgent():
 				return
 
 			if fileRes==0: 
-				if not self.yiSock.send(None, 0):
+				if not self.yiSock.send(b'\0', 0):
 					return
 
 				return True
