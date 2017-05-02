@@ -9,6 +9,7 @@ class YiData():
 	meta= b''
 	metaRemain= 0
 	binaryRemain= 0
+	dataPos= 0
 
 	restoreCB= None
 
@@ -38,21 +39,24 @@ class YiData():
 		if not _data or not callable(self.restoreCB):
 			return
 
+		while self.dataPos<len(_data):
+			self.pickMeta(_data)
+			self.pickData(_data)
 
-		dataPos= self.pickMeta(_data)
-
-		self.pickData(_data, dataPos)
+		self.dataPos= 0
 
 
 
 	def pickMeta(self, _data):
 		if not self.metaRemain:
-			return 0
+			return
 
+		#read
+		cAmt= min(self.metaRemain, len(_data)-self.dataPos )
 
-		endPos= min(self.metaRemain, len(_data))
-		self.meta+= _data[:endPos]
-		self.metaRemain-= endPos
+		self.meta+= _data[self.dataPos:self.dataPos+cAmt]
+		self.dataPos+= cAmt
+		self.metaRemain-= cAmt
 
 
 		if not self.metaRemain:
@@ -61,24 +65,23 @@ class YiData():
 			self.restoreCB(self.meta)
 
 
-		return endPos
 
-
-
-	def pickData(self, _data, _pos):
+	def pickData(self, _data):
 		if not self.dataRemain:
 			return
 
+		cAmt= min(self.dataRemain, len(_data)-self.dataPos )
 
-		dataAvail= min(self.dataRemain, len(_data)-_pos )
-		self.dataRemain-= dataAvail
+		self.data= _data[self.dataPos:self.dataPos+cAmt]
+		self.dataPos+= cAmt
+		self.dataRemain-= cAmt
 
 		if not self.dataRemain:
 			self.reset()
 
 
 
-
 	def reset(self):
 		self.meta= b''
 		self.metaRemain= 13 #refer meta mask
+		self.dataRemain= 0
