@@ -20,13 +20,12 @@ class YiAgent():
 	camMask= '???MEDIA/L???????.MP4'
 	camMaskRe= re.compile('^.*(?P<dir>\d\d\d)MEDIA/L(?P<seq>\d\d\d)(?P<num>\d\d\d\d).MP4$')
 
-	liveOldAge= 8 #maximum number of seconds to consider tested file 'live'
+	liveOldAge= 5 #maximum number of seconds to consider tested file 'live'
 	liveTriggerSize= 1000000 #minimum file size to start reading
 	livePrefetch= 1500000 #file shorter than this will be started from 0
 
 
 	yiSock= None
-
 
 
 	def __init__(self, _port, _test=None):
@@ -54,10 +53,10 @@ class YiAgent():
 
 
 			fileNew= self.detectActiveFile()
-
 			if fileNew:
 				if not self.camAirStart(fileNew):
 					return
+
 			time.sleep(.5)
 
 		return
@@ -110,8 +109,15 @@ class YiAgent():
 		while True:
 			fPartsExpect= self.incFile(fParts)
 			
-			if not self.camReadFile(fParts, fPos, fPartsExpect):
+			fileRes= self.camReadFile(fParts, fPos, fPartsExpect)
+			if fileRes==-1:
 				return
+
+			if fileRes==0: 
+				if not self.yiSock.send(None, 0):
+					return
+
+				return True
 
 			fParts= fPartsExpect
 			fPos= 0
@@ -147,23 +153,33 @@ class YiAgent():
 		f.seek(_fPos)
 
 
-		readResult= True
+		readResult= 1
+		blankTry= 0
 		while True:
 			content= f.read()
 
 			if content:
+				blankTry= 0
 				if not self.yiSock.send(content, _fParts['num']):
-					readResult= False
+					readResult= -1
 					break
 
 			time.sleep(.5)
 
-			fNext= '%s/%s' % (self.camRoot, fNameExpect)
-			if (
-				not content
-				and os.path.isfile(fNext)
-			):
-				if time.time()-os.path.getmtime(fNext) < self.liveOldAge: #young ehough
+			if not content:
+				blankTry+= 1
+				if blankTry>11: #5.5 sec
+					readResult= 0
+					break
+
+
+				fNext= '%s/%s' % (self.camRoot, fNameExpect)
+				
+				#next file created recently
+				if (
+					os.path.isfile(fNext)
+					and time.time()-os.path.getmtime(fNext) < self.liveOldAge
+				):
 					break
 
 

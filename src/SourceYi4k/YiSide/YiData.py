@@ -15,6 +15,9 @@ class YiData():
 
 	@staticmethod
 	def build(_binary, _ctx):
+		if not _binary:
+			_binary= b''
+
 		return json.dumps({'ctx':_ctx, 'len':len(_binary)})
 
 
