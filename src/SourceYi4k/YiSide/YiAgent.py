@@ -149,24 +149,24 @@ class YiAgent():
 		fNameExpect= self.buildName(_fPartsExpect)
 
 
-		f= open('%s/%s' % (self.camRoot, fName), 'rb')
-		f.seek(_fPos)
+		with open('%s/%s' % (self.camRoot, fName), 'rb') as f:
+			f.seek(_fPos)
 
 
-		readResult= 1
-		blankTry= 0
-		while True:
-			content= f.read()
+			blankTry= 0
+			while True:
+				content= f.read()
 
-			if content:
-				blankTry= 0
-				if not self.yiSock.send(content, _fParts['num']):
-					readResult= -1
-					break
-			else:
+				if content:
+					blankTry= 0
+					if not self.yiSock.send(content, _fParts['num']):
+						return -1
+
+					continue
+
+
 				if blankTry>25: #5 sec
-					readResult= 0
-					break
+					return 0
 
 				blankTry+= 1
 				time.sleep(.2)
@@ -179,16 +179,7 @@ class YiAgent():
 					os.path.isfile(fNext)
 					and time.time()-os.path.getmtime(fNext) < self.liveOldAge
 				):
-					break
-
-
-
-
-		f.close()
-
-		return readResult
-
-
+					return 1
 
 
 
