@@ -163,14 +163,13 @@ class YiAgent():
 				if not self.yiSock.send(content, _fParts['num']):
 					readResult= -1
 					break
-
-			time.sleep(.5)
-
-			if not content:
-				blankTry+= 1
-				if blankTry>11: #5.5 sec
+			else:
+				if blankTry>25: #5 sec
 					readResult= 0
 					break
+
+				blankTry+= 1
+				time.sleep(.2)
 
 
 				fNext= '%s/%s' % (self.camRoot, fNameExpect)
