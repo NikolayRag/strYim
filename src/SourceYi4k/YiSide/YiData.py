@@ -18,7 +18,8 @@ class YiData():
 		if not _binary:
 			_binary= b''
 
-		return json.dumps({'ctx':_ctx, 'len':len(_binary)})
+		meta= b'%3d%10d' % (_ctx, len(_binary))
+		return [meta, _binary]
 
 
 
