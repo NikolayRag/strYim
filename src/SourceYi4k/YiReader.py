@@ -101,7 +101,10 @@ class YiReader():
 
 
 
-	def yiRunAgent(self, _agentParam=''):
+	'''
+	Run YiAgent and related code at Yi4k.
+	'''
+	def yiRunAgent(self, _agentRoute='check'):
 		agentSrc= []
 		agentSrc.extend( inspect.getsourcelines(YiData)[0] )
 		agentSrc.extend( inspect.getsourcelines(YiSock)[0] )
@@ -109,7 +112,7 @@ class YiReader():
 		agentSrc= ''.join(agentSrc)
 
 		yipy= YiPy(self.yiAddr, self.yiPort+1) #Use different ports for YiPy and YiAgent to avoid interferention
-		if not yipy.run('%s\nYiAgent(%d,"%s")' % (agentSrc, self.yiPort, _agentParam)):
+		if not yipy.run('%s\nYiAgent(%d).%s()' % (agentSrc, self.yiPort, _agentRoute)):
 			logging.error('Running Yi')
 			return True
 

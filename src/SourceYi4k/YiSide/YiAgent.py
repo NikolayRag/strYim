@@ -28,16 +28,8 @@ class YiAgent():
 	yiSock= None
 
 
-	def __init__(self, _port, _test=None):
+	def __init__(self, _port):
 		self.yiSock= YiSock(_port)
-
-		if not self.yiSock.valid():
-			return
-
-		if _test:
-			self.test()
-		else:
-			self.check()
 
 
 
@@ -46,20 +38,13 @@ class YiAgent():
 	Terminated by closed socket.
 	'''
 	def check(self):
-		while True:
-			#Check port state while record is paused.
-			if not self.yiSock.valid(True):
-				return
-
-
+		while self.yiSock.valid(True):	#Check port state while record is paused.
 			fileNew= self.detectActiveFile()
 			if fileNew:
 				if not self.chainStart(fileNew):
 					return
 
 			time.sleep(.5)
-
-		return
 
 
 
@@ -192,6 +177,10 @@ class YiAgent():
 	Test function.
 	'''
 	def test(self):
+		if not self.yiSock.valid():
+			return
+
+
 		threading.Timer(1, self.yiSock.close).start()
 
 
