@@ -116,6 +116,8 @@ class YiReader():
 
 		res= yipy.wait()
 
+		self.runFlag= False	#socket could be orphan
+
 
 		if res:
 			logging.error(res)
