@@ -35,8 +35,8 @@ class YiReader():
 
 
 
-	def start(self, _dataCB=None):
-		yiData= YiData(_dataCB)
+	def start(self, _metaCB=None, _dataCB=None):
+		yiData= YiData(_metaCB, _dataCB)
 
 		threading.Timer(0, lambda:self.yiListen(yiData.restore)).start()
 		
