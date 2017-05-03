@@ -31,7 +31,6 @@ class YiReader():
 	def __init__(self, addr='192.168.42.1', port=1231):
 		self.yiAddr= addr
 		self.yiPort= port
-		YiPy.defaults(addr, port+1)
 		
 		logging.info('Reader inited')
 
@@ -109,7 +108,7 @@ class YiReader():
 		agentSrc.extend( inspect.getsourcelines(YiAgent)[0] )
 		agentSrc= ''.join(agentSrc)
 
-		yipy= YiPy()
+		yipy= YiPy(self.yiAddr, self.yiPort+1) #Use different ports for YiPy and YiAgent to avoid interferention
 		if not yipy.run('%s\nYiAgent(%d,"%s")' % (agentSrc, self.yiPort, _agentParam)):
 			logging.error('Running Yi')
 			return True
