@@ -14,7 +14,8 @@ class YiData():
 	binaryRemain= 0
 	dataPos= 0
 
-	restoreCB= None
+	metaCB= None
+	dataCB= None
 
 
 
@@ -28,8 +29,9 @@ class YiData():
 
 
 
-	def __init__(self, _cb=None):
-		self.restoreCB= _cb
+	def __init__(self, _metaCB=None, _dataCB=None):
+		self.metaCB= _metaCB
+		self.dataCB= _dataCB
 
 		self.reset()
 
@@ -39,7 +41,7 @@ class YiData():
 	Pass raw data from socket to .restore() to collect built data.
 	'''
 	def restore(self, _data):
-		if not _data or not callable(self.restoreCB):
+		if not _data:
 			return
 
 		while self.dataPos<len(_data):
@@ -65,7 +67,7 @@ class YiData():
 		if not self.metaRemain:
 			self.dataRemain= int(self.meta[3:])
 
-			self.restoreCB(self.meta)
+			self.metaCB(self.meta)
 
 
 
@@ -75,7 +77,7 @@ class YiData():
 
 		cAmt= min(self.dataRemain, len(_data)-self.dataPos )
 
-		self.data= _data[self.dataPos:self.dataPos+cAmt]
+		self.dataCB(_data[self.dataPos:self.dataPos+cAmt])
 		self.dataPos+= cAmt
 		self.dataRemain-= cAmt
 
