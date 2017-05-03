@@ -1,3 +1,7 @@
+import logging
+
+
+
 '''
 Data wrapper for send/recieve data.
 Provide binary data to build() to create header,
@@ -67,6 +71,7 @@ class YiData():
 
 		if not self.metaRemain:
 			self.dataRemain= int(self.meta[3:])
+			logging.debug('Meta: %s' % self.meta)
 
 			callable(self.metaCB) and self.metaCB(self.meta)
 
