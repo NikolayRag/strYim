@@ -70,10 +70,12 @@ class YiData():
 		self.meta+= _data[dataPosFrom:self.dataPos]
 
 		if not self.metaRemain:
-			self.dataRemain= int(self.meta[3:])
 			logging.debug('Meta: %s' % self.meta)
 
-			callable(self.metaCB) and self.metaCB(self.meta)
+			decodedMeta= {'ctx':int(self.meta[:3]), 'len':int(self.meta[3:])}
+			self.dataRemain= decodedMeta['len']
+
+			callable(self.metaCB) and self.metaCB(decodedMeta)
 
 
 
