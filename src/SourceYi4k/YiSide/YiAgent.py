@@ -201,7 +201,7 @@ class YiAgent():
 		while True:
 			b= f.read(block)
 			
-			if not self.yiSock.send(b):
+			if not self.yiSock.send(b, 0):
 				print('stop')
 				return
 
