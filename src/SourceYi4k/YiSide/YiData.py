@@ -1,5 +1,8 @@
 '''
-Construct/restore network chunk for transfer from Yi.
+Data wrapper for send/recieve data.
+Provide binary data to build() to create header,
+Provede [header,data,...] stream to restore() to split binary data back
+ into original blocks.
 '''
 class YiData():
 	import json
@@ -21,7 +24,7 @@ class YiData():
 			_binary= b''
 
 		meta= b'%3d%10d' % (_ctx, len(_binary))
-		return [meta, _binary]
+		return meta
 
 
 

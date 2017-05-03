@@ -37,10 +37,10 @@ class YiSock():
 
 
 	def send(self, _binary, _ctx=None):
-		dataA= YiData.build(_binary, _ctx)
+		header= YiData.build(_binary, _ctx)
 		try:
-			for cData in dataA:
-				self.tcpSocket.send(cData)
+			self.tcpSocket.send(header)
+			self.tcpSocket.send(_binary or b'')
 			return True
 		except:
 			None
