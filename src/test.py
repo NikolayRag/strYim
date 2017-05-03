@@ -43,7 +43,7 @@ def agentCB(res):
 yi= SourceYi4k.YiReader()
 threading.Timer(0, lambda:yi.yiListen(agentCB)).start()
 threading.Timer(5, yi.yiClose).start()
-yiReaderRes= yi.yiTestAgent()
+yiReaderRes= yi.yiRunAgent('test')
 
 if yiReaderRes:
 	logging.info('YiReader ok, total %s bytes' % resCnt[0])
