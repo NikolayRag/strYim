@@ -192,7 +192,7 @@ class YiAgent():
 	Test function.
 	'''
 	def test(self):
-		threading.Timer(5, self.yiSock.close).start()
+		threading.Timer(1, self.yiSock.close).start()
 
 
 		f= open('/dev/random', 'rb')
@@ -202,7 +202,6 @@ class YiAgent():
 			b= f.read(block)
 			
 			if not self.yiSock.send(b, 0):
-				print('stop')
 				return
 
 			if len(b)<block:

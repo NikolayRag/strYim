@@ -116,12 +116,9 @@ class YiReader():
 
 		res= yipy.wait()
 
-		self.yiClose()
 
-
-		error= res not in [b'',  b'stop\r\n']
-		if error:
+		if res:
 			logging.error(res)
 
-		return not error
+		return not res
 
