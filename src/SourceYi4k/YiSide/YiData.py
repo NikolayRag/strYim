@@ -59,15 +59,16 @@ class YiData():
 		#read
 		cAmt= min(self.metaRemain, len(_data)-self.dataPos )
 
-		self.meta+= _data[self.dataPos:self.dataPos+cAmt]
+		dataPosFrom= self.dataPos
 		self.dataPos+= cAmt
 		self.metaRemain-= cAmt
 
+		self.meta+= _data[dataPosFrom:self.dataPos]
 
 		if not self.metaRemain:
 			self.dataRemain= int(self.meta[3:])
 
-			self.metaCB(self.meta)
+			callable(self.metaCB) and self.metaCB(self.meta)
 
 
 
@@ -77,10 +78,12 @@ class YiData():
 
 		cAmt= min(self.dataRemain, len(_data)-self.dataPos )
 
-		self.dataCB(_data[self.dataPos:self.dataPos+cAmt])
+		dataPosFrom= self.dataPos
 		self.dataPos+= cAmt
 		self.dataRemain-= cAmt
 
+		callable(self.dataCB) and self.dataCB(_data[dataPosFrom:self.dataPos])
+	
 		if not self.dataRemain:
 			self.reset()
 
