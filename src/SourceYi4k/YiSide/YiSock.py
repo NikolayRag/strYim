@@ -65,8 +65,9 @@ class YiSock():
 			return
 
 		if _test:
+			header= YiData.validateMsg()
 			try:
-				self.tcpSocket.send(b'')
+				self.tcpSocket.send(header)
 			except:
 				return
 

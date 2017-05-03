@@ -31,6 +31,10 @@ class YiData():
 		meta= b'%3d%10d' % (_ctx, len(_binary))
 		return meta
 
+	@staticmethod
+	def validateMsg():
+		return b'%3d%10d' % (-1, 0)
+
 
 
 	def __init__(self, _metaCB=None, _dataCB=None):
@@ -75,7 +79,8 @@ class YiData():
 			decodedMeta= {'ctx':int(self.meta[:3]), 'len':int(self.meta[3:])}
 			self.dataRemain= decodedMeta['len']
 
-			callable(self.metaCB) and self.metaCB(decodedMeta)
+			if decodedMeta['ctx']>=0: #skip negative 'connection test' messages
+				callable(self.metaCB) and self.metaCB(decodedMeta)
 
 
 
