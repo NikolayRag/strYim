@@ -36,7 +36,7 @@ class YiSock():
 
 
 
-	def send(self, _binary, _ctx=None):
+	def send(self, _binary, _ctx=0):
 		header= YiData.build(_binary, _ctx)
 		try:
 			self.tcpSocket.send(header)

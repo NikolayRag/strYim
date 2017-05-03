@@ -81,6 +81,9 @@ class YiData():
 
 	def pickData(self, _data):
 		if not self.dataRemain:
+			if not self.metaRemain: #blank data case: meta is done too
+				self.reset()
+
 			return
 
 		cAmt= min(self.dataRemain, len(_data)-self.dataPos )
