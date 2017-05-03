@@ -52,4 +52,16 @@ else:
 
 
 
+def metaCB(_res):
+	logging.info(_res)
+
+yi= SourceYi4k.YiReader()
+threading.Timer(10, yi.yiClose).start()
+yiReaderRes= yi.start(metaCB)
+
+logging.info('YiReader: %s' % yiReaderRes)
+
+
+
+
 logging.info('End')
