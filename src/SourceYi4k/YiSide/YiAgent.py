@@ -192,7 +192,7 @@ class YiAgent():
 	Test function.
 	'''
 	def test(self):
-		threading.Timer(10, self.yiSock.close).start()
+		threading.Timer(5, self.yiSock.close).start()
 
 
 		f= open('/dev/random', 'rb')

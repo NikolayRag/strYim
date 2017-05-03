@@ -15,6 +15,9 @@ import SourceYi4k
 
 
 
+
+
+
 yipyBlock= threading.Event()
 yiPyResult= [None]
 def yiRes(_res):
@@ -30,20 +33,27 @@ yipy.wait(yiRes)
 yipyBlock.wait()
 
 if yiPyResult[0]==b'4\r\n':
-	logging.info('YiPy ok')
+	logging.info('YiPy ok: %s' % yiPyResult[0])
 else:
 	logging.error('YiPy err')
 
 
+
+
+
+
 resCnt= [0]
 def agentCB(res):
-	if res:
-		resCnt[0]+= len(res)
+	resCnt[0]+= len(res or b'')
 
 yi= SourceYi4k.YiReader()
 threading.Timer(0, lambda:yi.yiListen(agentCB)).start()
-threading.Timer(5, yi.yiClose).start()
+
+wdog= threading.Timer(6, yi.yiClose)
+wdog.start()
 yiReaderRes= yi.yiRunAgent('test')
+wdog.cancel()
+
 
 if yiReaderRes:
 	logging.info('YiReader ok, total %s bytes' % resCnt[0])
@@ -52,11 +62,14 @@ else:
 
 
 
+
+
+
 def metaCB(_res):
 	logging.info(_res)
 
 yi= SourceYi4k.YiReader()
-threading.Timer(10, yi.yiClose).start()
+threading.Timer(6, yi.yiClose).start()
 yiReaderRes= yi.start(metaCB)
 
 logging.info('YiReader: %s' % yiReaderRes)
