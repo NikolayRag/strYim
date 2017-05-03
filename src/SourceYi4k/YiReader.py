@@ -25,6 +25,8 @@ class YiReader():
 	yiAddr= None
 	yiSocket= None
 
+	runFlag= False
+
 
 	def __init__(self, addr='192.168.42.1', port=1231):
 		self.yiAddr= addr
@@ -36,6 +38,12 @@ class YiReader():
 
 
 	def start(self, _metaCB=None, _dataCB=None):
+		if self.yiSocket:
+			logging.warning('Already running')
+
+			return False
+
+
 		yiData= YiData(_metaCB, _dataCB)
 
 		threading.Timer(0, lambda:self.yiListen(yiData.restore)).start()
@@ -44,10 +52,22 @@ class YiReader():
 
 
 
+	def yiClose(self):
+		if not self.yiSocket:
+			return
+		
+		logging.info('Close')
+
+		self.runFlag= False
+
+
+
+#PRIVATE
 
 
 
 	def yiListen(self, _cb=None):
+		self.runFlag= True
 		self.yiSocket= None
 
 		logging.info('Connecting to nc')
@@ -67,7 +87,7 @@ class YiReader():
 
 		logging.info('Yi begin')
 
-		while True:
+		while self.runFlag:
 			try:
 				res= self.yiSocket.recv(16384)
 				callable(_cb) and _cb(res)
@@ -77,13 +97,8 @@ class YiReader():
 				logging.info('Yi end: %s' % x)
 				break
 
-
-
-
-
-	def yiClose(self):
-		if self.yiSocket:
-			self.yiSocket.close()
+		self.yiSocket.close()
+		self.yiSocket= None
 
 
 
