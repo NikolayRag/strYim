@@ -54,7 +54,7 @@ class YiAgent():
 
 			fileNew= self.detectActiveFile()
 			if fileNew:
-				if not self.camAirStart(fileNew):
+				if not self.chainStart(fileNew):
 					return
 
 			time.sleep(.5)
@@ -100,7 +100,7 @@ class YiAgent():
 	start to read files from _file,
 	assuming it's Loop mode (file name is Laaabbbb.MP4)
 	'''
-	def camAirStart(self, _file):
+	def chainStart(self, _file):
 		fNameMatch= self.camMaskRe.match(_file['fname'])
 		fParts= {'dir':int(fNameMatch.group('dir')), 'seq':int(fNameMatch.group('seq')), 'num':int(fNameMatch.group('num'))}
 
@@ -109,7 +109,7 @@ class YiAgent():
 		while True:
 			fPartsExpect= self.incFile(fParts)
 			
-			fileRes= self.camReadFile(fParts, fPos, fPartsExpect)
+			fileRes= self.readFile(fParts, fPos, fPartsExpect)
 			if fileRes==-1:
 				return
 
@@ -144,7 +144,7 @@ class YiAgent():
 	Read file untill it's exhausted.
 	That is until expected file arrives and current file returns 0 bytes.
 	'''
-	def camReadFile(self, _fParts, _fPos, _fPartsExpect):
+	def readFile(self, _fParts, _fPos, _fPartsExpect):
 		fName= self.buildName(_fParts)
 		fNameExpect= self.buildName(_fPartsExpect)
 
