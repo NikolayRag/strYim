@@ -92,6 +92,8 @@ class YiData():
 		callable(self.dataCB) and self.dataCB(_data[dataPosFrom:self.dataPos])
 	
 		if not self.dataRemain:
+			logging.debug('Data finished')
+
 			self.reset()
 
 
