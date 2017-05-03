@@ -56,6 +56,7 @@ class YiSock():
 		if not self.tcpSocket:
 			return
 
+		self.tcpSocket.shutdown(socket.SHUT_RDWR)
 		self.tcpSocket.close()
 
 

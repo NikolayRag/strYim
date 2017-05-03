@@ -82,6 +82,7 @@ class YiReader():
 			logging.error('Not connected')
 			return
 
+		self.yiSocket.settimeout(1)
 
 
 		logging.info('Yi begin')
@@ -96,6 +97,8 @@ class YiReader():
 				logging.info('Yi end: %s' % x)
 				break
 
+
+		self.yiSocket.shutdown(socket.SHUT_RDWR)
 		self.yiSocket.close()
 		self.yiSocket= None
 
