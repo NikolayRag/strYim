@@ -91,6 +91,9 @@ class YiPy():
 		if callable(_cb):
 			self.userCB= _cb
 
+			if self.resultBlock.is_set(): #somehow finished, maybe by error
+				self.userCB(None)
+
 			return
 
 
