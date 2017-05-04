@@ -117,7 +117,7 @@ class YiReader():
 		yipy= YiPy(self.yiAddr, self.yiPort+1) #Use different ports for YiPy and YiAgent to avoid interferention
 		if not yipy.run('%s\nYiAgent(%d).%s()' % (agentSrc, self.yiPort, _agentRoute)):
 			logging.error('Running Yi')
-			return True
+			return
 
 
 		res= yipy.wait()
