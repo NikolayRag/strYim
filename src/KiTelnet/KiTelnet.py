@@ -175,8 +175,9 @@ class KiTelnet():
 	def runTelnet(self, _command):
 		self.telnet= telnetlib.Telnet()
 
-		self.telnet.open(self.telnetAddr)
+		self.telnet.open(self.telnetAddr, 23, 7)
 		logging.info("Telnet running: %s" % _command)
+		self.telnet.get_socket().settimeout(None)
 
 		self.telnet.read_until(self.telnetPromptLog)
 		self.telnet.write( (self.telnetUser +"\n").encode() )
