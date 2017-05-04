@@ -15,6 +15,7 @@ class YiData():
 	#message type constants
 	NONE= 0
 	DATA= 1
+	OVERFLOW= 2
 
 
 	metaLength= 16
@@ -43,6 +44,9 @@ class YiData():
 			if not _data:
 				_data= [0, b'']
 			msgBody= b'%4d%11d' % (_data[0], len(_data[1]))
+
+		elif _type==YiData.OVERFLOW:
+			msgBody= (b' '*4) +(b'%11d' % _data)
 
 
 		meta= (b'%1d' % _type) +msgBody
@@ -89,18 +93,18 @@ class YiData():
 		self.meta+= _data[dataPosFrom:self.dataPos]
 
 		if not self.metaRemain:
-			logging.debug('Meta: %s' % self.meta)
-
 			hType= int(self.meta[:1])
-			if hType==YiData.NONE:
-				return
-				
+
 			if hType==YiData.DATA:
 				hCtx= int(self.meta[1:5])
-				hLen= int(self.meta[5:])
-				self.dataRemain= hLen
+				self.dataRemain= int(self.meta[5:])
 
-				callable(self.metaCB) and self.metaCB({'ctx':hCtx, 'len':hLen})
+				logging.debug('Data in: ctx %d, len %d' % (hCtx, self.dataRemain))
+
+				callable(self.metaCB) and self.metaCB({'ctx':hCtx, 'len':self.dataRemain})
+
+			if hType==YiData.OVERFLOW:
+				logging.debug('Data skipped: %d' % int(self.meta[1:]))
 
 
 

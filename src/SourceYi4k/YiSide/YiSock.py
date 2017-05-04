@@ -85,3 +85,13 @@ class YiSock():
 			return
 
 		return True
+
+
+
+	def skip(self, _len):
+		header= YiData.message(YiData.OVERFLOW, _len)
+		try:
+			self.tcpSocket.send(header)
+			return True
+		except:
+			None

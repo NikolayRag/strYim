@@ -30,6 +30,7 @@ class YiAgent():
 	liveTriggerSize= 1000000 #minimum file size to start reading
 	livePrefetch= 1500000 #file shorter than this will be started from 0
 
+	triggerOverflow= 8000000 #chunk collected over this length considered overflow
 
 	yiSock= None
 
@@ -151,7 +152,9 @@ class YiAgent():
 
 				if content:
 					blankTry= 0
-					if not self.yiSock.send(content, _fParts['num']):
+					if len(content)>self.triggerOverflow:
+						self.yiSock.skip(len(content))
+					elif not self.yiSock.send(content, _fParts['num']):
 						return -1
 
 					continue
