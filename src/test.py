@@ -9,7 +9,7 @@ kiLog.state('YiPy', kiLog.DEBUG)
 kiLog.state('', kiLog.INFO)
 
 
-import logging, threading
+import logging, threading, time
 
 import SourceYi4k
 
@@ -61,14 +61,24 @@ def t2():
 
 
 def t3():
+	dataLen=[0]
+
+	t1= [time.time()]
 	def metaCB(_res):
+		if not t1[0]:
+			t1[0]= time.time()
+
 		logging.info(_res)
+
+	def dataCB(_res):
+		dataLen[0]+= len(_res)
+
 
 	yi= SourceYi4k.YiReader()
 	threading.Timer(10, yi.yiClose).start()
-	yiReaderRes= yi.start(metaCB)
+	yiReaderRes= yi.start(metaCB, dataCB)
 
-	logging.info('YiReader: %s' % yiReaderRes)
+	logging.info('YiReader: %s, %d rate' % (yiReaderRes, dataLen[0]/(time.time()-t1[0])))
 
 
 t1()
