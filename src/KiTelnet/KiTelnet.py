@@ -124,6 +124,10 @@ class KiTelnet():
 	def result(self, _cb=None):
 		if callable(_cb):
 			self.telnetCB= _cb
+
+			if self.blockedFlag.is_set(): #somehow finished, maybe by error
+				self.userCB(None)
+
 			return True
 
 
@@ -175,7 +179,7 @@ class KiTelnet():
 	def runTelnet(self, _command):
 		self.telnet= telnetlib.Telnet()
 
-		self.telnet.open(self.telnetAddr, 23, 7)
+		self.telnet.open(self.telnetAddr, 23, 5)
 		logging.info("Telnet running: %s" % _command)
 		self.telnet.get_socket().settimeout(None)
 
