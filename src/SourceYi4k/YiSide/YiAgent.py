@@ -44,7 +44,7 @@ class YiAgent():
 	Terminated by closed socket.
 	'''
 	def check(self):
-		while self.yiSock.valid(True):	#Check port state while record is paused.
+		while self.yiSock.valid():	#Check port state while record is paused.
 			fileNew= self.detectActiveFile()
 			if fileNew:
 				if not self.chainStart(fileNew):
@@ -106,7 +106,7 @@ class YiAgent():
 				return
 
 			if fileRes==0: 
-				if not self.yiSock.send(None):
+				if not self.yiSock.send():
 					return
 
 				return True
@@ -197,7 +197,7 @@ class YiAgent():
 		while True:
 			b= f.read(block)
 			
-			if not self.yiSock.send(b, 0):
+			if not self.yiSock.send(b):
 				return
 
 			if len(b)<block:
