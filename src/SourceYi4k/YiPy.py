@@ -65,7 +65,7 @@ class YiPy():
 
 
 		#recieve Python code over TCP and execute it
-		tString= 'nc -l -p %d -w 10 > %s; python %s' % (self.port, self.filename, self.filename)
+		tString= 'nc -l -p %d -w 10 > %s; python %s; rm -f %s' % (self.port, self.filename, self.filename, self.filename)
 		telnet= KiTelnet(tString, self.addr)
 		telnet.result(self.resCB)
 
@@ -124,10 +124,6 @@ class YiPy():
 	Cleanup function.
 	'''
 	def close(self):
-		telnet= KiTelnet('rm %s' % self.filename, self.addr)
-		telnet.result()
-
-
 		self.resultBlock.set()
 
 
