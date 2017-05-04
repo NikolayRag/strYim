@@ -15,66 +15,67 @@ import SourceYi4k
 
 
 
+def t1():
+	yipyBlock= threading.Event()
+	yiPyResult= [None]
+	def yiRes(_res):
+		yiPyResult[0]= _res
+		logging.debug('Yi Py res: %s' % _res)
+		yipyBlock.set()
 
+	yipy= SourceYi4k.YiPy()
+	yipy.run('print(2+2)')
 
+	logging.debug('YiPy wait')
+	yipy.wait(yiRes)
+	yipyBlock.wait()
 
-yipyBlock= threading.Event()
-yiPyResult= [None]
-def yiRes(_res):
-	yiPyResult[0]= _res
-	logging.debug('Yi Py res: %s' % _res)
-	yipyBlock.set()
-
-yipy= SourceYi4k.YiPy()
-yipy.run('print(2+2)')
-
-logging.debug('YiPy wait')
-yipy.wait(yiRes)
-yipyBlock.wait()
-
-if yiPyResult[0]==b'4\r\n':
-	logging.info('YiPy ok: %s' % yiPyResult[0])
-else:
-	logging.error('YiPy err')
-
-
+	if yiPyResult[0]==b'4\r\n':
+		logging.info('YiPy ok: %s' % yiPyResult[0])
+	else:
+		logging.error('YiPy err')
 
 
 
 
-resCnt= [0]
-def agentCB(res):
-	resCnt[0]+= len(res or b'')
+def t2():
+	resCnt= [0]
+	def agentCB(res):
+		resCnt[0]+= len(res or b'')
 
-yi= SourceYi4k.YiReader()
-threading.Timer(0, lambda:yi.yiListen(agentCB)).start()
+	yi= SourceYi4k.YiReader()
+	threading.Timer(0, lambda:yi.yiListen(agentCB)).start()
 
-wdog= threading.Timer(6, yi.yiClose)
-wdog.start()
-yiReaderRes= yi.yiRunAgent('test')
-wdog.cancel()
-
-
-if yiReaderRes:
-	logging.info('YiReader ok, total %s bytes' % resCnt[0])
-else:
-	logging.error('YiReader err')
+	wdog= threading.Timer(6, yi.yiClose)
+	wdog.start()
+	yiReaderRes= yi.yiRunAgent('test')
+	wdog.cancel()
 
 
-
+	if yiReaderRes:
+		logging.info('YiReader ok, total %s bytes' % resCnt[0])
+	else:
+		logging.error('YiReader err')
 
 
 
-def metaCB(_res):
-	logging.info(_res)
 
-yi= SourceYi4k.YiReader()
-threading.Timer(6, yi.yiClose).start()
-yiReaderRes= yi.start(metaCB)
+def t3():
+	def metaCB(_res):
+		logging.info(_res)
 
-logging.info('YiReader: %s' % yiReaderRes)
+	yi= SourceYi4k.YiReader()
+	threading.Timer(10, yi.yiClose).start()
+	yiReaderRes= yi.start(metaCB)
+
+	logging.info('YiReader: %s' % yiReaderRes)
 
 
-
+t1()
+print()
+t2()
+print()
+t3()
+print()
 
 logging.info('End')
