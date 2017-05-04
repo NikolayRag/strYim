@@ -23,6 +23,9 @@ class YiData():
 
 
 
+	'''
+	Create header out os data provided, to be sent prior that data.
+	'''
 	@staticmethod
 	def build(_binary, _ctx):
 		if not _binary:
@@ -31,6 +34,11 @@ class YiData():
 		meta= b'%3d%10d' % (_ctx, len(_binary))
 		return meta
 
+
+
+	'''
+	Create dummy header, skipped at restore()
+	'''
 	@staticmethod
 	def validateMsg():
 		return b'%3d%10d' % (-1, 0)
@@ -46,7 +54,7 @@ class YiData():
 
 
 	'''
-	Pass raw data from socket to .restore() to collect built data.
+	Pass raw [header,data,...] from socket to collect orignal data chunks.
 	'''
 	def restore(self, _data):
 		if not _data:

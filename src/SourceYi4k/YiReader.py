@@ -5,22 +5,19 @@ from .YiSide import *
 
 
 '''
-YiReader controls camera to provide h264+aac byte stream.
+YiReader drives Yi4k to provide .mp4 raw byte stream,
+ which will then be passed to the mp4 recoverer.
+Telnet must be enabled in the camera, as it is used
+ to run Python agent at camera side.
 
-YiReader flow:
+YiReader flow, with .start():
 
 * send agent to camera
 * run agent at camera side
 * connect to agent
-	* recieve Atom data
-		* decode AAC
-
+	* recieve data
+		* send data to provided callback
 '''
-
-#  todo 260 (YiAgent, check) +0: catch recording stops or cannot start
-#  todo 261 (YiAgent, check) +0: set camera settings
-
-
 class YiReader():
 	yiAddr= None
 	yiSocket= None
@@ -28,6 +25,13 @@ class YiReader():
 	runFlag= False
 
 
+	
+	'''
+	Init with specified camera address and port.
+	Port will be used by camera twice, incremented, to listen over TCP:
+		- first time to recieve Python code to execute YiAgent (by YiPy)
+		- then by YiPy to set streaming connection
+	'''
 	def __init__(self, addr='192.168.42.1', port=1231):
 		self.yiAddr= addr
 		self.yiPort= port
@@ -36,6 +40,14 @@ class YiReader():
 
 
 
+	'''
+	Run YiAgent at camera and run it.
+	Provided _metaCB and _dataCB are callbacks to listen detected .mp4 stream.
+	Stream will be recieved in chunks of arbitrary length (certainly x512Kb).
+	At start of each block _metaCB will be called, provided with
+	 {context, length} dict. Then binary data is sequentally passed
+	 to _dataCB until next chunk.
+	'''
 	def start(self, _metaCB=None, _dataCB=None):
 		if self.yiSocket:
 			logging.warning('Already running')
@@ -51,6 +63,9 @@ class YiReader():
 
 
 
+	'''
+	Close connection to YiAgent. That will stop YiAgent and YiReader normally.
+	'''
 	def yiClose(self):
 		if not self.yiSocket:
 			return
@@ -64,7 +79,9 @@ class YiReader():
 #PRIVATE
 
 
-
+	'''
+	Connect to YiAgent and listen back.
+	'''
 	def yiListen(self, _cb=None):
 		self.runFlag= True
 		self.yiSocket= None

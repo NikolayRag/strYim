@@ -1,11 +1,17 @@
 '''
 Continuously detect loop-recorded files as soon as record is on.
-Then read files in chain as they grow and sequentally switched.
+Then read files as they grow and sequentally switch to next in chain.
 Read data is send over accepted connection.
+When Loop sequence is ended, next loop is waited for,
+ and streaming continues.
 
-Agent is run at Yi4k side.
+Agent can be stopped from client by closing connection.
+
+Agent is run at Yi4k side fully autonomously.
+It is blocked at start until connection from client is made (only one).
 
 Flow:
+* accept connection
 * continouosly detect file being recorded
 * read tail
 	* till next file in queue is recorded
@@ -52,6 +58,7 @@ class YiAgent():
 	Return file assumed to be currently recorded in Loop mode.
 	That is file with specific name, updated recently.
 	'''
+# -todo 270 (YiAgent, clean) +0: detect only file which grown in current session
 	def detectActiveFile(self):
 		mp4Mask= "%s/%s" % (self.camRoot, self.camMask)
 

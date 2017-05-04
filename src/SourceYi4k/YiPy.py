@@ -9,9 +9,14 @@ from KiTelnet import *
 Run Python code at Yi4k side.
 Yi4k should have Telnet on (console_enable.script file in SD's root).
 
-Incoming Python code is recieved at Yi side, saved to file and then executed.
+Incoming Python code is recieved at Yi side by netcat,
+ saved to file and then executed. Result of execution is then returned.
 
 Execution is nonblocking.
+
+WARNING: Switching telnet on and leaving default WIFI password
+makes camera vulnerable.
+Aside from unsafety of running arbitrary Python code itself with camera.
 '''
 class YiPy():
 	addr= None
@@ -33,7 +38,8 @@ class YiPy():
 	'''
 	Prepare YiPy object.
 	Filename is used to hold Python code being executed,
-	 and is random-generated is not specified at YiPy() or .defaults().
+	 and is random-generated if not specified explicitly.
+	File is deleted after execution, if YiPy proccess terminated normally.
 	'''
 	def __init__(self, addr=None, port=None, filename=None):
 		self.filename= filename or ('/tmp/YiPy%s' % str(random.random())[2:])
@@ -46,13 +52,9 @@ class YiPy():
 
 
 	'''
-	The function is NOT safe in any sort.
-
 	Send given Python code to Yi and execute it there.
 	Function returns immediately.
-	Use .wait() for block 'till execution end.
-
-	NC is run using telnet, listening for _content.
+	Use .wait() for block till execution end.
 	'''
 	def run(self, _content):
 		if not self.filename:
@@ -82,10 +84,10 @@ class YiPy():
 
 	'''
 	Block untill code is executed at Yi side.
-	If there's no code was started, return.
+	Return if there's no code was started.
 
-	If _callback supplied, it will be called instead
-	 and function will return instantly.
+	If callback supplied, it will be called in time, provided with result.
+	 Function will return instantly.
 	'''
 	def wait(self, _cb=None):
 		if callable(_cb):
@@ -111,7 +113,6 @@ class YiPy():
 	'''
 	def resCB(self, _res):
 		self.result= _res
-
 		logging.debug('Result: %s' % _res)
 
 
@@ -133,7 +134,7 @@ class YiPy():
 
 	'''
 	Private.
-	Send Python code for execution to connection opened by NC.
+	Send Python code for execution to connection opened by netcat.
 	'''
 	def	sendPyCode(self, _content):
 		cSock= None

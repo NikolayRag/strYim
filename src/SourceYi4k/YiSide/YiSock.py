@@ -1,3 +1,10 @@
+'''
+Socket used in YiAgent.
+The main thing it used for, is wrapping binary data chunks with headers
+ to restore chunks back later.
+
+Init with accepting one connection to send data into.
+'''
 class YiSock():
 	import socket
 	global socket
@@ -36,6 +43,9 @@ class YiSock():
 
 
 
+	'''
+	Prefix esnt data with header.
+	'''
 	def send(self, _binary, _ctx=0):
 		header= YiData.build(_binary, _ctx)
 		try:
@@ -61,6 +71,9 @@ class YiSock():
 
 
 
+	'''
+	Check if socket is not dropped at other side, sending dummy header into it.
+	'''
 	def valid(self, _test=False):
 		if not self.tcpSocket:
 			return
