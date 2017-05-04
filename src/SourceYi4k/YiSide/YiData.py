@@ -12,7 +12,12 @@ class YiData():
 	import json
 	global json
 
+	#message type constants
+	NONE= 0
+	DATA= 1
 
+
+	metaLength= 16
 	meta= b''
 	metaRemain= 0
 	binaryRemain= 0
@@ -27,21 +32,23 @@ class YiData():
 	Create header out os data provided, to be sent prior that data.
 	'''
 	@staticmethod
-	def build(_binary, _ctx):
-		if not _binary:
-			_binary= b''
+	def message(_type=None, _data=None):
+		_type= _type or YiData.NONE
+		msgBody= b'\0' *15
 
-		meta= b'%3d%10d' % (_ctx, len(_binary))
+		if _type==YiData.NONE:
+			None
+
+		elif _type==YiData.DATA:
+			if not _data:
+				_data= [0, b'']
+			msgBody= b'%4d%11d' % (_data[0], len(_data[1]))
+
+
+		meta= (b'%1d' % _type) +msgBody
 		return meta
 
 
-
-	'''
-	Create dummy header, skipped at restore()
-	'''
-	@staticmethod
-	def validateMsg():
-		return b'%3d%10d' % (-1, 0)
 
 
 
@@ -84,11 +91,16 @@ class YiData():
 		if not self.metaRemain:
 			logging.debug('Meta: %s' % self.meta)
 
-			decodedMeta= {'ctx':int(self.meta[:3]), 'len':int(self.meta[3:])}
-			self.dataRemain= decodedMeta['len']
+			hType= int(self.meta[:1])
+			if hType==YiData.NONE:
+				return
+				
+			if hType==YiData.DATA:
+				hCtx= int(self.meta[1:5])
+				hLen= int(self.meta[5:])
+				self.dataRemain= hLen
 
-			if decodedMeta['ctx']>=0: #skip negative 'connection test' messages
-				callable(self.metaCB) and self.metaCB(decodedMeta)
+				callable(self.metaCB) and self.metaCB({'ctx':hCtx, 'len':hLen})
 
 
 
@@ -116,5 +128,5 @@ class YiData():
 
 	def reset(self):
 		self.meta= b''
-		self.metaRemain= 13 #refer meta mask
+		self.metaRemain= YiData.metaLength
 		self.dataRemain= 0

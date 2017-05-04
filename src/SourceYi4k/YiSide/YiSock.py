@@ -47,7 +47,7 @@ class YiSock():
 	Prefix esnt data with header.
 	'''
 	def send(self, _binary=b'', _ctx=0):
-		header= YiData.build(_binary, _ctx)
+		header= YiData.message(YiData.DATA, [_ctx, _binary])
 		try:
 			self.tcpSocket.send(header)
 			self.tcpSocket.send(_binary or b'')
@@ -78,9 +78,9 @@ class YiSock():
 		if not self.tcpSocket:
 			return
 
-		header= YiData.validateMsg()
+		dummy= YiData.message()
 		try:
-			self.tcpSocket.send(header)
+			self.tcpSocket.send(dummy)
 		except:
 			return
 
