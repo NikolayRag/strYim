@@ -16,7 +16,7 @@ class YiData():
 	NONE= 0
 	DATA= 1
 	OVERFLOW= 2
-
+	STOP= 3
 
 	metaLength= 16
 	meta= b''
@@ -35,7 +35,7 @@ class YiData():
 	@staticmethod
 	def message(_type=None, _data=None):
 		_type= _type or YiData.NONE
-		msgBody= b'\0' *15
+		msgBody= b' ' *15
 
 		if _type==YiData.NONE:
 			None
@@ -47,6 +47,9 @@ class YiData():
 
 		elif _type==YiData.OVERFLOW:
 			msgBody= (b' '*4) +(b'%11d' % _data)
+
+		elif _type==YiData.STOP:
+			None
 
 
 		meta= (b'%1d' % _type) +msgBody
@@ -105,6 +108,9 @@ class YiData():
 
 			if hType==YiData.OVERFLOW:
 				logging.debug('Data skipped: %d' % int(self.meta[1:]))
+
+			if hType==YiData.STOP:
+				logging.debug('Yi stopped')
 
 
 

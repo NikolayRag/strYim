@@ -66,6 +66,8 @@ class YiSock():
 		if not self.tcpSocket:
 			return
 
+		self.msgStop()
+		
 		self.tcpSocket.shutdown(socket.SHUT_RDWR)
 		self.tcpSocket.close()
 
@@ -90,6 +92,15 @@ class YiSock():
 
 	def msgOverflow(self, _len):
 		header= YiData.message(YiData.OVERFLOW, _len)
+		try:
+			self.tcpSocket.send(header)
+			return True
+		except:
+			None
+
+
+	def msgStop(self):
+		header= YiData.message(YiData.STOP)
 		try:
 			self.tcpSocket.send(header)
 			return True
