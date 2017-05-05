@@ -26,6 +26,7 @@ class YiData():
 
 	metaCB= None
 	dataCB= None
+	stateCB= None
 
 
 
@@ -59,9 +60,10 @@ class YiData():
 
 
 
-	def __init__(self, _metaCB=None, _dataCB=None):
+	def __init__(self, _metaCB=None, _dataCB=None, _stateCB=None):
 		self.metaCB= _metaCB
 		self.dataCB= _dataCB
+		self.stateCB= _stateCB
 
 		self.reset()
 
@@ -106,11 +108,10 @@ class YiData():
 
 				callable(self.metaCB) and self.metaCB({'ctx':hCtx, 'len':self.dataRemain})
 
-			if hType==YiData.OVERFLOW:
-				logging.debug('Data skipped: %d' % int(self.meta[1:]))
-
-			if hType==YiData.STOP:
-				logging.debug('Yi stopped')
+			elif hType!=YiData.NONE:
+				logging.debug('State message: %d' % hType)
+				
+				callable(self.stateCB) and self.stateCB(hType, self.meta[1:])
 
 
 
