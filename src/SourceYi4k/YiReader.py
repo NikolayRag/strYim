@@ -42,20 +42,20 @@ class YiReader():
 
 	'''
 	Run YiAgent at camera and run it.
-	Provided _metaCB and _dataCB are callbacks to listen detected .mp4 stream.
+	Provided _ctxCB and _dataCB are callbacks to listen detected .mp4 stream.
 	Stream will be recieved in chunks of arbitrary length (certainly x512Kb).
-	At start of each block _metaCB will be called, provided with
+	At start of each block _ctxCB will be called, provided with
 	 {context, length} dict. Then binary data is sequentally passed
 	 to _dataCB until next chunk.
 	'''
-	def start(self, _metaCB=None, _dataCB=None, _stateCB=None):
+	def start(self, _ctxCB=None, _dataCB=None, _stateCB=None):
 		if self.yiSocket:
 			logging.warning('Already running')
 
 			return False
 
 
-		yiData= YiData(_metaCB, _dataCB, _stateCB)
+		yiData= YiData(_ctxCB, _dataCB, _stateCB)
 
 		threading.Timer(0, lambda:self.yiListen(yiData.restore)).start()
 		

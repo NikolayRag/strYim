@@ -24,8 +24,8 @@ class YiData():
 	binaryRemain= 0
 	dataPos= 0
 
-	metaCB= None
 	dataCB= None
+	ctxCB= None
 	stateCB= None
 
 
@@ -60,10 +60,10 @@ class YiData():
 
 
 
-	def __init__(self, _metaCB=None, _dataCB=None, _stateCB=None):
-		self.metaCB= _metaCB
-		self.dataCB= _dataCB
-		self.stateCB= _stateCB
+	def __init__(self, _ctxCB=None, _dataCB=None, _stateCB=None):
+		self.ctxCB= callable(_ctxCB) and _ctxCB
+		self.dataCB= callable(_dataCB) and _dataCB
+		self.stateCB= callable(_stateCB) and _stateCB
 
 		self.reset()
 
@@ -106,12 +106,12 @@ class YiData():
 
 				logging.debug('Data in: ctx %d, len %d' % (hCtx, self.dataRemain))
 
-				callable(self.metaCB) and self.metaCB({'ctx':hCtx, 'len':self.dataRemain})
+				self.ctxCB and self.ctxCB({'ctx':hCtx, 'len':self.dataRemain})
 
 			elif hType!=YiData.NONE:
 				logging.debug('State message: %d' % hType)
 				
-				callable(self.stateCB) and self.stateCB(hType, self.meta[1:])
+				self.stateCB and self.stateCB(hType, self.meta[1:])
 
 
 
@@ -128,7 +128,7 @@ class YiData():
 		self.dataPos+= cAmt
 		self.dataRemain-= cAmt
 
-		callable(self.dataCB) and self.dataCB(_data[dataPosFrom:self.dataPos])
+		self.dataCB and self.dataCB(_data[dataPosFrom:self.dataPos])
 	
 		if not self.dataRemain:
 			logging.debug('Data finished')
