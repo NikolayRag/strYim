@@ -19,19 +19,14 @@ makes camera vulnerable.
 Aside from unsafety of running arbitrary Python code itself with camera.
 '''
 class YiPy():
-	addr= None
+	addr= '192.168.42.1'
+	port= 1231
 	filename= None
 
 	userCB= None
 	result= None
 
 	resultBlock= None
-
-
-	@staticmethod
-	def defaults(addr='192.168.42.1', port=1231):
-		YiPy.addr= addr
-		YiPy.port= port
 
 
 
@@ -157,6 +152,3 @@ class YiPy():
 
 		return True
 
-
-
-YiPy.defaults()
