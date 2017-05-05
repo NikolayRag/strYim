@@ -60,9 +60,9 @@ class YiData():
 
 
 
-	def __init__(self, _ctxCB=None, _dataCB=None, _stateCB=None):
-		self.ctxCB= callable(_ctxCB) and _ctxCB
+	def __init__(self, _dataCB=None, _ctxCB=None, _stateCB=None):
 		self.dataCB= callable(_dataCB) and _dataCB
+		self.ctxCB= callable(_ctxCB) and _ctxCB
 		self.stateCB= callable(_stateCB) and _stateCB
 
 		self.reset()
@@ -108,7 +108,7 @@ class YiData():
 
 				self.ctxCB and self.ctxCB({'ctx':hCtx, 'len':self.dataRemain})
 
-			elif hType!=YiData.NONE:
+			if hType!=YiData.NONE:
 				logging.debug('State message: %d' % hType)
 				
 				self.stateCB and self.stateCB(hType, self.meta[1:])

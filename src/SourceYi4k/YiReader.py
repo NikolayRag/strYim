@@ -48,14 +48,14 @@ class YiReader():
 	 {context, length} dict. Then binary data is sequentally passed
 	 to _dataCB until next chunk.
 	'''
-	def start(self, _ctxCB=None, _dataCB=None, _stateCB=None):
+	def start(self, _dataCB=None, _ctxCB=None, _stateCB=None):
 		if self.yiSocket:
 			logging.warning('Already running')
 
 			return False
 
 
-		yiData= YiData(_ctxCB, _dataCB, _stateCB)
+		yiData= YiData(_dataCB, _ctxCB, _stateCB)
 
 		threading.Timer(0, lambda:self.yiListen(yiData.restore)).start()
 		

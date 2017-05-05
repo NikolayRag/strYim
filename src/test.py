@@ -76,7 +76,7 @@ def t3():
 
 	yi= SourceYi4k.YiReader()
 	threading.Timer(10, yi.yiClose).start()
-	yiReaderRes= yi.start(metaCB, dataCB)
+	yiReaderRes= yi.start(dataCB, metaCB)
 
 	logging.info('YiReader: %s, %d rate' % (yiReaderRes, dataLen[0]/(time.time()-t1[0])))
 
