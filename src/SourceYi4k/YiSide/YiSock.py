@@ -88,7 +88,7 @@ class YiSock():
 
 
 
-	def skip(self, _len):
+	def msgOverflow(self, _len):
 		header= YiData.message(YiData.OVERFLOW, _len)
 		try:
 			self.tcpSocket.send(header)

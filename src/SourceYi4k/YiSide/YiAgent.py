@@ -153,7 +153,7 @@ class YiAgent():
 				if content:
 					blankTry= 0
 					if len(content)>self.triggerOverflow:
-						self.yiSock.skip(len(content))
+						self.yiSock.msgOverflow(len(content))
 					elif not self.yiSock.send(content, _fParts['num']):
 						return -1
 
