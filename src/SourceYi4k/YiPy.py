@@ -2,7 +2,7 @@ import logging
 
 import base64, threading, random
 
-from KiTelnet import *
+from .KiTelnet import *
 
 
 '''
