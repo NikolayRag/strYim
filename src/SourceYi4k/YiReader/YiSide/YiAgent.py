@@ -51,6 +51,9 @@ class YiAgent():
 				if not self.chainStart(fileNew):
 					return
 
+				if not self.yiSock.send():	#reset context
+					return
+
 			time.sleep(.5)
 
 
@@ -107,9 +110,6 @@ class YiAgent():
 				return
 
 			if fileRes==0: 
-				if not self.yiSock.send():
-					return
-
 				return True
 
 			fParts= fPartsExpect
