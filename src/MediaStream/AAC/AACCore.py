@@ -1,5 +1,5 @@
 from .AACSupport import *
-from kiSupport import *
+from .Bits import *
 
 
 '''

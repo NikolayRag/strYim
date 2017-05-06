@@ -1,6 +1,6 @@
-from .byteTransit import *
-from .mp4Atom import *
-from .AACDetect import *
+from .ByteTransit import *
+from .YiAAC import *
+from MediaStream import Atom
 import logging
 
 
@@ -43,9 +43,9 @@ class Mp4Recover():
 		self.transit= ByteTransit(self.atomsFromRaw, 500000)
 
 
-		self.atomCB= _atomCB
+		self.atomCB= callable(_atomCB) and _atomCB
 
-		if callable(self.atomCB):
+		if self.atomCB:
 			self.atomCB( Atom(data=self.h264Presets[(1080,30,0)]).setAVC(True,False) )
 			self.atomCB( Atom(data=self.h264Presets[-1]).setAVC(True,False) )
 		
@@ -81,7 +81,7 @@ class Mp4Recover():
 		dataCosumed= 0
 		for match in recoverMatchesA:
 			match.bindData(_data)
-			self.atomCB(match)
+			self.atomCB and self.atomCB(match)
 
 			dataCosumed= match.outPos
 

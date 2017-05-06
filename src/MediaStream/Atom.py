@@ -1,5 +1,5 @@
 '''
-Storage class used to pass AVC/ACC data from Mp4Recover to muxers
+Storage class used to pass AVC/ACC data to muxers
 '''
 class Atom():
 	typeMoov= False

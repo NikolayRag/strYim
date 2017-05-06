@@ -1,4 +1,4 @@
-from .aac.AACCore import *
+from MediaStream.AAC import *
 import logging
 
 

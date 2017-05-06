@@ -1,6 +1,6 @@
-from .aac.AACSupport import *
-from kiSupport import *
+from .AAC import *
 import logging
+
 
 '''
 FLV Muxer class
@@ -90,7 +90,7 @@ class MuxFLV():
 	'''
 	def stampV(self):
 		if self.stampVideoNext < self.stampCurrent:
-			logging.warning('Video stamp underrun %fmsec' % precision(self.stampCurrent-self.stampVideoNext,1) )
+			logging.warning('Video stamp underrun %.1fmsec' % (self.stampCurrent-self.stampVideoNext) )
 			self.stampVideoNext = self.stampCurrent
 
 		self.stampCurrent= self.stampVideoNext
@@ -105,7 +105,7 @@ class MuxFLV():
 	'''
 	def stampA(self, _bytes):
 		if self.stampAudioNext < self.stampCurrent:
-			logging.warning('Audio stamp underrun %fmsec' % precision(self.stampCurrent-self.stampAudioNext,1) )
+			logging.warning('Audio stamp underrun %.1fmsec' % (self.stampCurrent-self.stampAudioNext) )
 			self.stampAudioNext= self.stampCurrent
 
 		self.stampCurrent= self.stampAudioNext
@@ -119,7 +119,7 @@ class MuxFLV():
 	#FLVTAG, including 4 bytes size
 	def tag(self, _type, _stamp=0, _data=[b'']):
 		if _stamp<0 or _stamp>0x7fffffff:
-			logging.error('Stamp out of range: %f' % precision(_stamp,1) )
+			logging.error('Stamp out of range: %.1f' % _stamp)
 			_stamp= 0
 
 
@@ -306,7 +306,7 @@ class MuxAAC():
 	sink= None
 
 	doADTS= True
-	adts= bitsCollect([
+	adts= Bits.bitsCollect([
 		  (12, 0b111111111111)	#fff first 8 bits
 		, (1, 0)				#version, mpeg4=0
 		, (2, 0)				#layer(0)
