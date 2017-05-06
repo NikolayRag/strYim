@@ -11,17 +11,16 @@ class Atom():
 
 	AACSamples= None
 
-	inPos= None
-	outPos= None
+	inPos= 0
+	outPos= 0
 
-	data= None
+	data= b''
 
 
-	def __init__(self, _in=None, _out=None, data=None):
+	def __init__(self, _in=0, _out=0, data=b''):
 		self.inPos= _in
 		self.outPos= _out
-		if data:
-			self.data= data[_in:_out]
+		self.data= data[_in:_out]
 
 
 	def setMOOV(self):
