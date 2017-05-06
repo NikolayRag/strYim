@@ -108,7 +108,7 @@ class YiData():
 
 				self.ctxCB and self.ctxCB({'ctx':hCtx, 'len':self.dataRemain})
 
-			if hType!=YiData.NONE:
+			elif hType!=YiData.NONE:
 				logging.debug('State message: %d' % hType)
 				
 				self.stateCB and self.stateCB(hType, self.meta[1:])
