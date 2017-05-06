@@ -46,7 +46,7 @@ class Atom():
 		self.typeAVC= False
 		self.typeAAC= True
 
-# -todo 117 (mux, flv, bytes, aac) +2: reveal actual AAC frame length
+#  todo 117 (mux, flv, bytes, aac) -1: reveal actual AAC frame length
 		self.AACSamples= 1024
 
 		return self
