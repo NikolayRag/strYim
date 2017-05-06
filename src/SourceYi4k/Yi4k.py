@@ -18,11 +18,15 @@ class Yi4k():
 
 	activeCtx= None
 
+	signalCB= None
+
 
 	'''
 	Connect muxer to send Atoms to.
 	'''
-	def __init__(self, _muxCB=None):
+	def __init__(self, _muxCB=None, _signalCB=None):
+		self.signalCB= callable(_signalCB) and _signalCB
+
 		self.yiReader= YiReader()
 		self.yiDecoder= Mp4Recover(_muxCB)
 
@@ -58,6 +62,8 @@ class Yi4k():
 
 	def stateCB(self, _state, _data):
 		logging.info('State: %d' % _state)
+
+		self.signalCB and self.signalCB(_state, _data)
 
 		#if _state==YiData.STOP:
 		#	cMux.stop()
