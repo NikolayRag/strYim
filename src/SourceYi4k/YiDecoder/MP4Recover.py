@@ -8,12 +8,13 @@ import logging
 
 '''
 MP4 recovery class, dedicated to Yi4k.
-Expected MP4 characteristics, similar to any resolution/rate with firmware v1.3.3:
+Expected MP4 characteristics, similar to any resolution/rate with
+ firmware v1.3.3:
 - Keyframe is every 8 frames (IDR), followed by 7 (P) frames,
 - all data between frames is AAC, if any,
-- AAC is allways (AOT_AAC_LC, stereo, 48k) profile and (CPE, id=0, common_window=1) properties
-- maximum 2 AAC blocks stored seamlessly,
-	as one AAC duration is 21.3ms (1024/48000) and slowest frame duration is 41.6ms (1/24)
+- AAC is allways (AOT_AAC_LC, stereo, 48k) profile
+  and (CPE, id=0, common_window=1) properties
+- maximum 2 AAC blocks stored seamlessly
 '''
 class Mp4Recover():
 	#these prefixes only guaranteed with Yi4k .mp4
@@ -29,8 +30,8 @@ class Mp4Recover():
 
 
 	'''
-		Provide Atom() consuming callback to be fired
-	when raw data added by add() is sufficient to detect something.
+	Provide Atom() consuming callback to be fired when collected raw data
+	 added by add() is sufficient to detect something.
 	'''
 	def __init__(self, _atomCB):
 		self.detectHelper= AACDetect()
@@ -43,22 +44,25 @@ class Mp4Recover():
 
 
 	'''
-		Add chunks of raw .mp4 data read from camera (or other way).
-		Data can be delivered sequentally in small chunks, collected and consumed internally.
+	Add chunks of raw .mp4 binary data from camera.
+	Data can be delivered sequentally in chunks splitted any way.
 
 		_ctx
-			Context, switching it to any new value indicates all previous data must be consumed.
+			Context, switching it to any new value indicates
+			.mp4 file boundary, so all previous data collected
+			 must be consumed.
 	'''
 	def add(self, _data, _ctx=None):
+		#Data sent to ByteTransit is cached and dispatched to .atomsFromRaw()
 		self.transit.add(_data, _ctx)
 
 
 
 
 	'''
-	Provide raw mp4 data to parse in addition to allready provided.
-	Accumulator-bypass entry if compared to add()
-	Return numer of bytes actually consumed, suitable for ByteTransit.
+	Parse binary .mp4 data for h264/AAC atoms.
+	Called by ByteTransit after it got anough data by .add().
+	Return number of bytes actually consumed, suitable for ByteTransit.
 
 		data
 			.mp4 byte stream data
@@ -85,13 +89,14 @@ class Mp4Recover():
 
 
 	'''
-	Search .mp4 bytes for 264 and aac frames.
+	Search .mp4 bytes for 264 and AAC frames.
 	Return [Atom(),..] array.
 	
 	First frame searched is IDR (Key frame).
-	Last frame is the one before last found IDR frame, or before MOOV atom if found.
+	Last frame is the one before last IDR frame or MOOV atom found.
 
-	If called subsequently on growing stream, 2nd and next call's data[0] will point to IDR.
+	If called subsequently on growing stream,
+	 2nd and next call's data[0] will surely point to IDR.
 	'''
 	def analyzeMp4(self, _data, _finalize=False):
 		signI= 0
@@ -182,7 +187,7 @@ class Mp4Recover():
 			Bytes prefix to find 'current' frame of interest,
 			cycled on successfully AVC detection.
 
-		_signAVC
+		_signAVC1
 			Bytes prefix of 'next after current' frame.
 	'''
 	def analyzeAtom(self, _data, _inPos, _signAVC, _signAVC1):
