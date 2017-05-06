@@ -98,7 +98,7 @@ def t4():
 			aType= 'AAC'
 
 
-		print(aType, atom.outPos-atom.inPos)
+		print(aType, len(atom.data))
 
 	yi4k= SourceYi4k.Yi4k(atomCB)
 	threading.Timer(10, yi4k.stop).start()

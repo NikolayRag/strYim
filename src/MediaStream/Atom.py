@@ -11,13 +11,13 @@ class Atom():
 
 	AACSamples= None
 
-	inPos= 0
-	outPos= 0
+	inPos= None
+	outPos= None
 
 	data= b''
 
 
-	def __init__(self, _in=0, _out=0, data=b''):
+	def __init__(self, _in=None, _out=None, data=b''):
 		self.inPos= _in
 		self.outPos= _out
 		self.data= data[_in:_out]
