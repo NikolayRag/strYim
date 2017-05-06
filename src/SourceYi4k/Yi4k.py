@@ -57,7 +57,7 @@ class Yi4k():
 
 
 	def stateCB(self, _state, _data):
-		logging.debug('State: %d' % _state)
+		logging.info('State: %d' % _state)
 
 		#if _state==YiData.STOP:
 		#	cMux.stop()
