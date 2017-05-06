@@ -16,11 +16,6 @@ Expected MP4 characteristics, similar to any resolution/rate with firmware v1.3.
 	as one AAC duration is 21.3ms (1024/48000) and slowest frame duration is 41.6ms (1/24)
 '''
 class Mp4Recover():
-	h264Presets= {
-		  (1080,30,0): b'\'M@3\x9ad\x03\xc0\x11?,\x8c\x04\x04\x05\x00\x00\x03\x03\xe9\x00\x00\xea`\xe8`\x00\xb7\x18\x00\x02\xdcl\xbb\xcb\x8d\x0c\x00\x16\xe3\x00\x00[\x8d\x97ypxD"R\xc0'
-		, -1: b'\x28\xee\x38\x80'
-	}
-
 	#these prefixes only guaranteed with Yi4k .mp4
 	signMoov= b'\x6d\x6f\x6f\x76'
 	signAAC= b'\x21'
@@ -45,10 +40,7 @@ class Mp4Recover():
 
 		self.atomCB= callable(_atomCB) and _atomCB
 
-		if self.atomCB:
-			self.atomCB( Atom(data=self.h264Presets[(1080,30,0)]).setAVC(True,False) )
-			self.atomCB( Atom(data=self.h264Presets[-1]).setAVC(True,False) )
-		
+
 
 	'''
 		Add chunks of raw .mp4 data read from camera (or other way).

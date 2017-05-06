@@ -261,6 +261,10 @@ h264 Muxer class
 Requires Sink to be specified
 '''
 class MuxH264():
+	h264Presets= {
+	  	(1080,2997,0): b'\'M@3\x9ad\x03\xc0\x11?,\x8c\x04\x04\x05\x00\x00\x03\x03\xe9\x00\x00\xea`\xe8`\x00\xb7\x18\x00\x02\xdcl\xbb\xcb\x8d\x0c\x00\x16\xe3\x00\x00[\x8d\x97ypxD"R\xc0'
+		, -1: b'\x28\xee\x38\x80'
+	}
 
 	sink= None
 
@@ -272,12 +276,18 @@ class MuxH264():
 			logging.error('Sink not specified')
 			return
 
+		self.header(h264Presets[(1080,2997,0)])
+		self.header(h264Presets[-1])
+
+
+
 	def add(self, _atom):
 		if not self.sink:
 			return
 
 		if _atom.typeAVC:
 			self.sink.add(b'\x00\x00\x00\x01' +_atom.data)
+
 
 
 	def stop(self):
@@ -289,6 +299,11 @@ class MuxH264():
 		self.sink= None
 
 
+	def header(self, _data):
+		if not self.sink:
+			return
+
+		self.sink.add(b'\x00\x00\x00\x01' +_data)
 
 
 
