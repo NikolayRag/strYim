@@ -4,8 +4,8 @@ Yi4k camera required to be available at 192.168.42.1 and telnet-enabled
 
 
 import kiLog
-kiLog.state('YiReader', kiLog.DEBUG)
-kiLog.state('Yi4k', kiLog.DEBUG)
+kiLog.state('YiControl', kiLog.DEBUG)
+kiLog.state('Yi4k', kiLog.INFO)
 kiLog.state('', kiLog.INFO)
 
 
@@ -84,6 +84,17 @@ def t3():
 
 
 def t4():
+	yiControl= SourceYi4k.YiControl()
+	yiControl.start(30, 1080)
+
+	time.sleep(5)
+	yiControl.stop()
+	logging.info('YiControl ok')
+
+
+
+
+def t5():
 	def atomCB(atom):
 		aType='?'
 		if atom.typeMoov:
