@@ -11,6 +11,8 @@ Handle camera settings, operation mode (loop record),
 Splitted in two sections:
 - control camera config and running state
 - continuously read camera's .mp4 data and decode it to 264/aac Atoms
+
+Generally, reading and decoding is bound to camera record state.
 '''
 class Yi4k():
 	yiAddr= '192.168.42.1'

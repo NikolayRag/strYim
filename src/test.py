@@ -6,6 +6,7 @@ Yi4k camera required to be available at 192.168.42.1 and telnet-enabled
 import kiLog
 kiLog.state('YiControl', kiLog.DEBUG)
 kiLog.state('Yi4k', kiLog.INFO)
+kiLog.state('YiReader', kiLog.DEBUG)
 kiLog.state('', kiLog.INFO)
 
 
@@ -131,6 +132,7 @@ def t5():
 #t1(); print()
 #t2(); print()
 #t3(); print()
-t4(); print()
+#t4(); print()
+t5(); print()
 
 logging.info('End')
