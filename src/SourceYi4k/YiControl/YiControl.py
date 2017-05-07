@@ -152,7 +152,7 @@ class YiControl():
 				_lastFile= 999
 				_lastDir-= 1
 
-		logging.debug('Deleted %d files' % filesDeleted)
+		logging.info('Deleted %d files' % filesDeleted)
 
 
 		_cYi.close()

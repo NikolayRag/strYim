@@ -53,6 +53,8 @@ class Yi4k():
 		if not self.yiControl.start(fps, fmt):
 			return
 
+		logging.info('Starting %d at %dfps' % (fmt, fps))
+		
 		res= self.yiReader.start(self.dataCB, self.ctxCB, self.stateCB)
 		if not res:
 			self.yiControl.stop()

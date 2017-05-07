@@ -2,13 +2,7 @@
 Yi4k camera required to be available at 192.168.42.1 and telnet-enabled
 '''
 
-
 import kiLog
-kiLog.state('YiControl', kiLog.DEBUG)
-kiLog.state('Yi4k', kiLog.INFO)
-kiLog.state('YiReader', kiLog.DEBUG)
-kiLog.state('', kiLog.INFO)
-
 
 import logging, threading, time
 
@@ -17,6 +11,8 @@ import SourceYi4k
 
 
 def t1():
+	kiLog.state('YiPy', kiLog.INFO)
+
 	yipyBlock= threading.Event()
 	yiPyResult= [None]
 	def yiRes(_res):
@@ -31,15 +27,15 @@ def t1():
 	yipy.wait(yiRes)
 	yipyBlock.wait()
 
-	if yiPyResult[0]==b'4\r\n':
-		logging.info('YiPy ok: %s' % yiPyResult[0])
-	else:
-		logging.error('YiPy err')
+
+	logging.info('YiPy: %s, %s' % (yiPyResult[0]==b'4\r\n', yiPyResult[0]))
 
 
 
 
 def t2():
+	kiLog.state('YiReader', kiLog.INFO)
+
 	resCnt= [0]
 	def agentCB(res):
 		resCnt[0]+= len(res or b'')
@@ -53,15 +49,14 @@ def t2():
 	wdog.cancel()
 
 
-	if yiReaderRes:
-		logging.info('YiReader ok, total %s bytes' % resCnt[0])
-	else:
-		logging.error('YiReader err')
+	logging.info('YiAgent: %s, total %s bytes' % (yiReaderRes, resCnt[0]))
 
 
 
 
 def t3():
+	kiLog.state('YiReader', kiLog.INFO)
+
 	dataLen=[0]
 
 	t1= [time.time()]
@@ -85,6 +80,8 @@ def t3():
 
 
 def t4():
+	kiLog.state('YiControl', kiLog.INFO)
+
 	def stopped():
 		logging.info('Stopped')
 
@@ -98,41 +95,50 @@ def t4():
 	
 	logging.info('YiControl: %s' % yiOk)
 
+	time.sleep(6)
+
 
 
 
 def t5():
+	kiLog.state('Mp4Recover', kiLog.ERROR)
+	kiLog.state('Yi4k', kiLog.INFO)
+
+	stats= {'avc-k':0, 'avc':0, 'aac':0}
+
 	def atomCB(atom):
-		aType='?'
-		if atom.typeMoov:
-			aType= 'MOOV'
 		if atom.typeAVC:
-			aType= '264'
 			if atom.AVCKey:
-				aType+= ' key'
-			if not atom.AVCVisible:
-				aType+= ' invis'
+				stats['avc-k']+= 1
+			else:
+				stats['avc']+= 1
 		if atom.typeAAC:
-			aType= 'AAC'
+			stats['aac']+= 1
 
-
-		print(aType, len(atom.data))
 
 	yi4k= SourceYi4k.Yi4k(atomCB)
 	threading.Timer(10, yi4k.stop).start()
-	yi4k.start()
-#	yiReaderRes= yi4k.wait()
+	yiReaderRes= yi4k.start()
 
 
-#	logging.info('Yi4k: %s' % yiReaderRes)
-
+	logging.info('Yi4k: %s, %s' % (yiReaderRes, stats))
 
 
 
+kiLog.state(False, kiLog.WARNING)
+kiLog.state('', kiLog.INFO)
 #t1(); print()
+kiLog.state(False, kiLog.WARNING)
+kiLog.state('', kiLog.INFO)
 #t2(); print()
+kiLog.state(False, kiLog.WARNING)
+kiLog.state('', kiLog.INFO)
 #t3(); print()
+kiLog.state(False, kiLog.WARNING)
+kiLog.state('', kiLog.INFO)
 #t4(); print()
+kiLog.state(False, kiLog.WARNING)
+kiLog.state('', kiLog.INFO)
 t5(); print()
 
 logging.info('End')
