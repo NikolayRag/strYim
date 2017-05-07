@@ -111,9 +111,10 @@ class YiControl():
 		lastFile= int(fNameMatch.group('num'))
 
 		#delay closing YiAPI from YiAPI event
+# =todo 281 (YiAgent, clean) +0: release last file for deletion
 		cYi= self.yi
 		self.yi= None
-		threading.Timer(0, lambda: self.cleanup(cYi, lastDir, lastLoop, lastFile)).start()
+		threading.Timer(5, lambda: self.cleanup(cYi, lastDir, lastLoop, lastFile)).start()
 
 
 
