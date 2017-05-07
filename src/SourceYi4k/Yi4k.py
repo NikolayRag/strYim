@@ -34,7 +34,7 @@ class Yi4k():
 		self.yiReader= YiReader(self.yiAddr)
 		self.yiDecoder= Mp4Recover(_muxCB)
 
-		self.yiControl= YiControl(self.yiAddr)
+		self.yiControl= YiControl(self.yiAddr, self.yiReader.yiClose)
 
 
 
@@ -47,9 +47,6 @@ class Yi4k():
 	'''
 #  todo 272 (Yi, config) +0: add 60 fps
 #  todo 273 (Yi, config) +0: add 1440 format
-
-# -todo 274 (Yi, control) +0: dont start if camera started
-# -todo 275 (Yi, control) +0: stop if camera stops
 	def start(self, force=False, fps=30, fmt=1080):
 		if not self.yiControl.start(fps, fmt):
 			return
@@ -59,11 +56,10 @@ class Yi4k():
 
 
 	'''
-	Stop camera and yiReader.
-	This also done if camera stops manually.
+	Stop camera.
+	yiReader also stopped, as well as if camera stops manually.
 	'''
 	def stop(self):
-		self.yiReader.yiClose()
 		self.yiControl.stop()
 
 

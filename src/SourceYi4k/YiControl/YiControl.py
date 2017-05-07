@@ -1,4 +1,5 @@
 import Yi4kAPI
+import threading
 import logging
 
 
@@ -13,19 +14,24 @@ class YiControl():
 
 
 	addr= None
+	stopCB= None
+	watchDog= False
 
 	yi= None
 	settings= None
 
 
-	def __init__(self, addr=None):
+
+	def __init__(self, addr=None, _stopCB=None):
 		self.addr= addr or self.addr
+
+		self.stopCB= callable(_stopCB) and _stopCB
+
 
 
 	'''
 	_yiFormat is a (lines,fps)
 	'''
-# -todo 280 (Yi) +0: detect explicit camera stop
 	def start(self, _fps, _fmt):
 		if self.yi:
 			logging.error('Already started')
@@ -37,11 +43,11 @@ class YiControl():
 			return 
 
 
-# -todo 228 (Yi, fix) +0: detect Yi4kAPI errors: playback mode, busy switching
 		self.yi= Yi4kAPI.YiAPI(self.addr)
 		if not self.yi.sock:
 			logging.error('Camera not found')
 			return
+
 
 		self.settings= self.yi.cmd(Yi4kAPI.getSettings)
 
@@ -59,24 +65,34 @@ class YiControl():
 
 			return
 
+		self.yi.setCB('video_record_complete', self.canceled)
+		self.watchDog= True
+
+
+		logging.info('Started %s' % set(yiFormat))
 		return True
 
 
+
 #  todo 277 (Yi, clean) +0: remove recorded video files
-	def stop(self):
+	def stop(self, _stopRec=True):
 		if not self.yi:
-			logging.error('Not started')
-			return
+			logging.warning('Not started')
+			return True #used also if externally stopped
 
 		if not self.yi.sock:
 			logging.error('Camera not found')
 			return
 
+		self.watchDog= False
 
-		res= self.yi.cmd(Yi4kAPI.stopRecording)
-		if isinstance(res, int) and res<0:
-			logging.error('Stopping error: %s' % res)
-			return
+
+		if _stopRec:
+			res= self.yi.cmd(Yi4kAPI.stopRecording)
+			if isinstance(res, int) and res<0:
+				logging.error('Stopping error: %s' % res)
+				return
+
 
 		#restore settings
 		#fallback if camera was in record already
@@ -90,7 +106,21 @@ class YiControl():
 			self.yi.cmd(Yi4kAPI.setSystemMode, self.settings['system_mode'])
 
 		self.yi.close()
-
 		self.yi= None
 
+
+		logging.info('Finish')
 		return True
+
+
+
+
+	'''
+	Camera stopped externally
+	'''
+	def canceled(self, _res):
+		logging.info('Stopped event')
+		threading.Timer(0, lambda: self.watchDog and self.stop(False)).start()
+			
+		self.stopCB and self.stopCB()
+		
