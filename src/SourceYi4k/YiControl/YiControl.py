@@ -111,15 +111,16 @@ class YiControl():
 		lastFile= int(fNameMatch.group('num'))
 
 		#delay closing YiAPI from YiAPI event
-		threading.Timer(0, lambda: self.cleanup(lastDir, lastLoop, lastFile)).start()
+		cYi= self.yi
+		self.yi= None
+		threading.Timer(0, lambda: self.cleanup(cYi, lastDir, lastLoop, lastFile)).start()
 
 
 
-# =todo 277 (Yi, clean) +0: remove recorded video files
-	def cleanup(self, _lastDir, _lastLoop, _lastFile):
+	def cleanup(self, _cYi, _lastDir, _lastLoop, _lastFile):
 		filesDeleted= 0
 		for n in range(5):
-			if self.yi.cmd(self.deleteCMD, '/tmp/fuse_d/DCIM/%03dMEDIA/L%03d%04d.MP4' % (_lastDir, _lastLoop, _lastFile))==None:
+			if _cYi.cmd(self.deleteCMD, '/tmp/fuse_d/DCIM/%03dMEDIA/L%03d%04d.MP4' % (_lastDir, _lastLoop, _lastFile))==None:
 				filesDeleted+=1
 
 			_lastFile-= 1
@@ -133,13 +134,12 @@ class YiControl():
 		#restore settings
 		#fallback if camera was in record already
 		if self.settings:
-			self.yi.cmd(Yi4kAPI.setVideoQuality, self.settings['video_quality'])
-			self.yi.cmd(Yi4kAPI.setVideoStandard, self.settings['video_standard'])
-			self.yi.cmd(Yi4kAPI.setVideoResolution, self.settings['video_resolution'])
-			self.yi.cmd(Yi4kAPI.setVideoFieldOfView, self.settings['fov'])
-			self.yi.cmd(Yi4kAPI.setLoopDuration, self.settings['loop_rec_duration'])
-			self.yi.cmd(Yi4kAPI.setRecordMode, self.settings['rec_mode'])
-			self.yi.cmd(Yi4kAPI.setSystemMode, self.settings['system_mode'])
+			_cYi.cmd(Yi4kAPI.setVideoQuality, self.settings['video_quality'])
+			_cYi.cmd(Yi4kAPI.setVideoStandard, self.settings['video_standard'])
+			_cYi.cmd(Yi4kAPI.setVideoResolution, self.settings['video_resolution'])
+			_cYi.cmd(Yi4kAPI.setVideoFieldOfView, self.settings['fov'])
+			_cYi.cmd(Yi4kAPI.setLoopDuration, self.settings['loop_rec_duration'])
+			_cYi.cmd(Yi4kAPI.setRecordMode, self.settings['rec_mode'])
+			_cYi.cmd(Yi4kAPI.setSystemMode, self.settings['system_mode'])
 
-		self.yi.close()
-		self.yi= None
+		_cYi.close()
