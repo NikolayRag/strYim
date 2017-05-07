@@ -45,7 +45,9 @@ class YiControl():
 		yi.cmd(Yi4kAPI.setVideoStandard, 'NTSC')
 		yi.cmd(Yi4kAPI.setVideoResolution, self.presets[yiFormat])
 
-		yi.cmd(Yi4kAPI.startRecording)
+		res= yi.cmd(Yi4kAPI.startRecording)
+		if res:
+			logging.error('Starting error: %s' % res)
 
 		yi.close()
 
@@ -58,8 +60,9 @@ class YiControl():
 			logging.error('Camera not found')
 			return
 
-# =todo 230 (Yi) +0: detect error when stopping stopped cam
 		res= yi.cmd(Yi4kAPI.stopRecording)
+		if isinstance(res, int) and res<0:
+			logging.error('Stopping error: %s' % res)
 
 		#restore settings
 		#fallback if camera was in record already
