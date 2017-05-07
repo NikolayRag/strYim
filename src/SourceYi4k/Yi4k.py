@@ -53,7 +53,11 @@ class Yi4k():
 		if not self.yiControl.start(fps, fmt):
 			return
 
-		self.yiReaderRes= self.yiReader.start(self.dataCB, self.ctxCB, self.stateCB)
+		res= self.yiReader.start(self.dataCB, self.ctxCB, self.stateCB)
+		if not res:
+			self.yiControl.stop()
+
+		return res
 
 
 
