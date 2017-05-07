@@ -85,12 +85,14 @@ def t3():
 
 def t4():
 	yiControl= SourceYi4k.YiControl()
-	yiControl.start(30, 1080)
+	yiOk= yiControl.start(30, 1080)
 
 # -todo 278 (Yi, fix) +0: immedeate stop after start fails
-	time.sleep(5)
-	yiControl.stop()
-	logging.info('YiControl ok')
+	if yiOk:
+		time.sleep(5)
+		yiOk= yiControl.stop()
+	
+	logging.info('YiControl: %s' % yiOk)
 
 
 

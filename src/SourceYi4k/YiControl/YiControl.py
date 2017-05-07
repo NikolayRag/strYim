@@ -29,11 +29,12 @@ class YiControl():
 	def start(self, _fps, _fmt):
 		if self.yi:
 			logging.error('Already started')
-			return False
+			return
 
 		yiFormat= (_fmt, _fps)
 		if yiFormat not in self.presets:
-			return False
+			logging.error('Unknown mode')
+			return 
 
 
 # -todo 228 (Yi, fix) +0: detect Yi4kAPI errors: playback mode, busy switching
@@ -54,6 +55,9 @@ class YiControl():
 		res= self.yi.cmd(Yi4kAPI.startRecording)
 		if res:
 			logging.error('Starting error: %s' % res)
+			self.yi.close()
+
+			return
 
 		return True
 
@@ -72,6 +76,7 @@ class YiControl():
 		res= self.yi.cmd(Yi4kAPI.stopRecording)
 		if isinstance(res, int) and res<0:
 			logging.error('Stopping error: %s' % res)
+			return
 
 		#restore settings
 		#fallback if camera was in record already
@@ -87,3 +92,5 @@ class YiControl():
 		self.yi.close()
 
 		self.yi= None
+
+		return True
