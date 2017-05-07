@@ -1,6 +1,6 @@
 from .YiReader import *
 from .YiDecoder import *
-#from .YiControl import *
+from .YiControl import *
 
 
 '''
@@ -13,8 +13,11 @@ Splitted in two sections:
 - continuously read camera's .mp4 data and decode it to 264/aac Atoms
 '''
 class Yi4k():
+	yiAddr= '192.168.42.1'
+
 	yiReader= None
 	yiDecoder= None
+	yiControl= None
 
 	activeCtx= None
 
@@ -28,8 +31,11 @@ class Yi4k():
 	def __init__(self, _muxCB=None, _signalCB=None):
 		self.signalCB= callable(_signalCB) and _signalCB
 
-		self.yiReader= YiReader()
+		self.yiReader= YiReader(self.yiAddr)
 		self.yiDecoder= Mp4Recover(_muxCB)
+
+		self.yiControl= YiControl(self.yiAddr)
+
 
 
 
@@ -39,13 +45,17 @@ class Yi4k():
 	
 	WARNING: Stryim doesn't check if camera data matches muxer settings.
 	'''
-#  todo 272 (Yi, config) +0: add 60
-#  todo 273 (Yi, config) +0: add 1440
+#  todo 272 (Yi, config) +0: add 60 fps
+#  todo 273 (Yi, config) +0: add 1440 format
 
 # -todo 274 (Yi, control) +0: dont start if camera started
 # -todo 275 (Yi, control) +0: stop if camera stops
 	def start(self, force=False, fps=30, fmt=1080):
+		if not self.yiControl.start(fps, fmt):
+			return
+
 		self.yiReaderRes= self.yiReader.start(self.dataCB, self.ctxCB, self.stateCB)
+
 
 
 	'''
@@ -54,6 +64,7 @@ class Yi4k():
 	'''
 	def stop(self):
 		self.yiReader.yiClose()
+		self.yiControl.stop()
 
 
 
