@@ -17,6 +17,7 @@ class YiData():
 	DATA= 1
 	OVERFLOW= 2
 	STOP= 3
+	LOG= 4
 
 	metaLength= 16
 	meta= b''
@@ -51,6 +52,10 @@ class YiData():
 
 		elif _type==YiData.STOP:
 			None
+
+		elif _type==YiData.LOG:
+			_data= _data[0:15]
+			msgBody= (_data +' '*(15-len(_data))).encode()
 
 
 		meta= (b'%1d' % _type) +msgBody
@@ -108,8 +113,11 @@ class YiData():
 
 				self.ctxCB and self.ctxCB({'ctx':hCtx, 'len':self.dataRemain})
 
+			elif hType==YiData.LOG:
+				logging.info('Log: %s' % self.meta[1:])
+
 			elif hType!=YiData.NONE:
-				logging.debug('State message: %d' % hType)
+				logging.info('State message: %d' % hType)
 				
 				self.stateCB and self.stateCB(hType, self.meta[1:])
 

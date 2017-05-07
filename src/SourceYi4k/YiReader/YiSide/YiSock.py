@@ -106,3 +106,13 @@ class YiSock():
 			return True
 		except:
 			None
+
+	def msgLog(self, _data):
+		for i in range(0, len(_data), 15):
+			header= YiData.message(YiData.LOG, _data[i:i+15] )
+			try:
+				self.tcpSocket.send(header)
+			except:
+				return None
+
+		return True
