@@ -142,6 +142,8 @@ class YiAgent():
 		fNameExpect= self.buildName(_fPartsExpect)
 
 
+		self.yiSock.msgLog(fName)
+
 		with open('%s/%s' % (self.camRoot, fName), 'rb') as f:
 			f.seek(_fPos)
 
