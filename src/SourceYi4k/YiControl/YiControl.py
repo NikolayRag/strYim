@@ -103,6 +103,10 @@ class YiControl():
 		logging.info('Stopped')
 
 		self.stopCB and self.stopCB()
+		cYi= self.yi
+		self.yi= None
+
+		threading.Timer(0, lambda:self.reset(cYi)).start()
 
 
 		fNameMatch= self.camMaskRe.match(_res['param'])
@@ -112,9 +116,25 @@ class YiControl():
 
 		#delay closing YiAPI from YiAPI event
 # =todo 281 (YiAgent, clean) +0: release last file for deletion
-		cYi= self.yi
-		self.yi= None
 		threading.Timer(5, lambda: self.cleanup(cYi, lastDir, lastLoop, lastFile)).start()
+
+
+
+
+
+
+	'''
+	Restore settings
+	'''
+	def reset(self, _cYi):
+		if self.settings:
+			_cYi.cmd(Yi4kAPI.setVideoQuality, self.settings['video_quality'])
+			_cYi.cmd(Yi4kAPI.setVideoStandard, self.settings['video_standard'])
+			_cYi.cmd(Yi4kAPI.setVideoResolution, self.settings['video_resolution'])
+			_cYi.cmd(Yi4kAPI.setVideoFieldOfView, self.settings['fov'])
+			_cYi.cmd(Yi4kAPI.setLoopDuration, self.settings['loop_rec_duration'])
+			_cYi.cmd(Yi4kAPI.setRecordMode, self.settings['rec_mode'])
+			_cYi.cmd(Yi4kAPI.setSystemMode, self.settings['system_mode'])
 
 
 
@@ -131,16 +151,5 @@ class YiControl():
 
 		logging.debug('Deleted %d files' % filesDeleted)
 
-
-		#restore settings
-		#fallback if camera was in record already
-		if self.settings:
-			_cYi.cmd(Yi4kAPI.setVideoQuality, self.settings['video_quality'])
-			_cYi.cmd(Yi4kAPI.setVideoStandard, self.settings['video_standard'])
-			_cYi.cmd(Yi4kAPI.setVideoResolution, self.settings['video_resolution'])
-			_cYi.cmd(Yi4kAPI.setVideoFieldOfView, self.settings['fov'])
-			_cYi.cmd(Yi4kAPI.setLoopDuration, self.settings['loop_rec_duration'])
-			_cYi.cmd(Yi4kAPI.setRecordMode, self.settings['rec_mode'])
-			_cYi.cmd(Yi4kAPI.setSystemMode, self.settings['system_mode'])
 
 		_cYi.close()
