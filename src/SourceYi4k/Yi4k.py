@@ -23,6 +23,7 @@ class Yi4k():
 
 	'''
 	Connect muxer to send Atoms to.
+	Streaming will start as soon as camera goes loop-recording by start().
 	'''
 	def __init__(self, _muxCB=None, _signalCB=None):
 		self.signalCB= callable(_signalCB) and _signalCB
@@ -34,16 +35,30 @@ class Yi4k():
 
 	'''
 	Apply camera settings and start streaming data into mux callback.
-
+	If not forced, start is suppressed if camera is already recording.
+	
+	WARNING: Stryim doesn't check if camera data matches muxer settings.
 	'''
-	def start(self):
+#  todo 272 (Yi, config) +0: add 60
+#  todo 273 (Yi, config) +0: add 1440
+
+# -todo 274 (Yi, control) +0: dont start if camera started
+# -todo 275 (Yi, control) +0: stop if camera stops
+	def start(self, force=False, fps=30, fmt=1080):
 		self.yiReaderRes= self.yiReader.start(self.dataCB, self.ctxCB, self.stateCB)
 
 
+	'''
+	Stop camera and yiReader.
+	This also done if camera stops manually.
+	'''
 	def stop(self):
 		self.yiReader.yiClose()
 
 
+
+
+#### PRIVATE
 
 
 
@@ -63,7 +78,4 @@ class Yi4k():
 	def stateCB(self, _state, _data):
 		logging.info('State: %d' % _state)
 
-		self.signalCB and self.signalCB(_state, _data)
-
-		#if _state==YiData.STOP:
-		#	cMux.stop()
+#		self.signalCB and self.signalCB(_state, _data)
