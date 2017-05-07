@@ -2,6 +2,7 @@ import Yi4kAPI
 import logging
 
 
+# =todo 276 (Yi, fix) +0: update YiAPI and place it in YiControl
 class YiControl():
 	presets= {
 		  (1440, 60):"1920x1440 60P 4:3"
@@ -21,10 +22,10 @@ class YiControl():
 		self.addr= addr or self.addr
 
 
-
 	'''
 	_yiFormat is a (lines,fps)
 	'''
+# -todo 280 (Yi) +0: detect explicit camera stop
 	def start(self, _fps, _fmt):
 		if self.yi:
 			logging.error('Already started')
@@ -57,6 +58,7 @@ class YiControl():
 		return True
 
 
+#  todo 277 (Yi, clean) +0: remove recorded video files
 	def stop(self):
 		if not self.yi:
 			logging.error('Not started')
