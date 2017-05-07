@@ -102,7 +102,6 @@ class YiControl():
 	def stopped(self, _res):
 		logging.info('Stopped')
 
-		self.stopCB and self.stopCB()
 		cYi= self.yi
 		self.yi= None
 
@@ -119,6 +118,7 @@ class YiControl():
 		threading.Timer(5, lambda: self.cleanup(cYi, lastDir, lastLoop, lastFile)).start()
 
 
+		self.stopCB and self.stopCB()
 
 
 
