@@ -1,5 +1,5 @@
 import Yi4kAPI
-import threading
+import threading, re
 import logging
 
 
@@ -11,11 +11,12 @@ class YiControl():
 		, (1080, 60):"1920x1080 60P 16:9"
 		, (1080, 30):"1920x1080 30P 16:9"
 	}
+	deleteCMD= Yi4kAPI.YiAPICommandGen(1281, 'deleteFile', 	variable= 'param')
+	camMaskRe= re.compile('^.*(?P<dir>\d\d\d)MEDIA/L(?P<seq>\d\d\d)(?P<num>\d\d\d\d).MP4$')
 
 
 	addr= None
 	stopCB= None
-	watchDog= False
 
 	yi= None
 	settings= None
@@ -65,8 +66,7 @@ class YiControl():
 
 			return
 
-		self.yi.setCB('video_record_complete', self.canceled)
-		self.watchDog= True
+		self.yi.setCB('video_record_complete', self.stopped)
 
 
 		logging.info('Started %s' % set(yiFormat))
@@ -74,8 +74,7 @@ class YiControl():
 
 
 
-#  todo 277 (Yi, clean) +0: remove recorded video files
-	def stop(self, _stopRec=True):
+	def stop(self):
 		if not self.yi:
 			logging.warning('Not started')
 			return True #used also if externally stopped
@@ -84,14 +83,51 @@ class YiControl():
 			logging.error('Camera not found')
 			return
 
-		self.watchDog= False
+
+		logging.info('Stopping')
+
+		res= self.yi.cmd(Yi4kAPI.stopRecording)
+		if isinstance(res, int) and res<0:
+			logging.error('Stopping error: %s' % res)
+			return
+
+		return True
 
 
-		if _stopRec:
-			res= self.yi.cmd(Yi4kAPI.stopRecording)
-			if isinstance(res, int) and res<0:
-				logging.error('Stopping error: %s' % res)
-				return
+
+
+	'''
+	Camera stopped
+	'''
+	def stopped(self, _res):
+		logging.info('Stopped')
+
+		self.stopCB and self.stopCB()
+
+
+		fNameMatch= self.camMaskRe.match(_res['param'])
+		lastDir= int(fNameMatch.group('dir'))
+		lastLoop= int(fNameMatch.group('seq'))
+		lastFile= int(fNameMatch.group('num'))
+
+		#delay closing YiAPI from YiAPI event
+		threading.Timer(0, lambda: self.cleanup(lastDir, lastLoop, lastFile)).start()
+
+
+
+# =todo 277 (Yi, clean) +0: remove recorded video files
+	def cleanup(self, _lastDir, _lastLoop, _lastFile):
+		filesDeleted= 0
+		for n in range(5):
+			if self.yi.cmd(self.deleteCMD, '/tmp/fuse_d/DCIM/%03dMEDIA/L%03d%04d.MP4' % (_lastDir, _lastLoop, _lastFile))==None:
+				filesDeleted+=1
+
+			_lastFile-= 1
+			if _lastFile==0:
+				_lastFile= 999
+				_lastDir-= 1
+
+		logging.debug('Deleted %d files' % filesDeleted)
 
 
 		#restore settings
@@ -107,20 +143,3 @@ class YiControl():
 
 		self.yi.close()
 		self.yi= None
-
-
-		logging.info('Finish')
-		return True
-
-
-
-
-	'''
-	Camera stopped externally
-	'''
-	def canceled(self, _res):
-		logging.info('Stopped event')
-		threading.Timer(0, lambda: self.watchDog and self.stop(False)).start()
-			
-		self.stopCB and self.stopCB()
-		
