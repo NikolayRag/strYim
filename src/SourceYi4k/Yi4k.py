@@ -55,7 +55,7 @@ class Yi4k():
 
 		logging.info('Starting %d at %dfps' % (fmt, fps))
 		
-		res= self.yiReader.start(self.dataCB, self.ctxCB, self.stateCB)
+		res= self.yiReader.start(self.readerDataCB, self.readerContextCB, self.readerStateCB)
 		if not res:
 			self.yiControl.stop()
 
@@ -78,19 +78,19 @@ class Yi4k():
 
 
 
-	def dataCB(self, _data):
+	def readerDataCB(self, _data):
 		self.yiDecoder.add(_data, self.activeCtx)
 
 
 
-	def ctxCB(self, _ctx):
+	def readerContextCB(self, _ctx):
 		self.activeCtx= _ctx['ctx']
 
 		logging.debug('Context %d' % self.activeCtx)
 
 
 
-	def stateCB(self, _state, _data):
+	def readerStateCB(self, _state, _data):
 		logging.info('State: %d' % _state)
 
 #		self.signalCB and self.signalCB(_state, _data)
