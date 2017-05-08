@@ -6,7 +6,7 @@ import kiLog
 
 import logging, threading, time
 
-import SourceYi4k
+import SourceYi4k, MediaStream
 
 
 
@@ -122,6 +122,17 @@ def t5():
 
 
 
+def t6():
+	kiLog.state('Streamer', kiLog.INFO)
+
+	streamer= MediaStream.Streamer('test.flv')
+	streamerRes= streamer.close()
+
+	logging.info('Streamer: %s' % streamerRes)
+
+
+
+
 kiLog.state(False, kiLog.ERROR)
 kiLog.state('', kiLog.INFO)
 #t1(); print()
@@ -136,6 +147,9 @@ kiLog.state('', kiLog.INFO)
 #t4(); print()
 kiLog.state(False, kiLog.ERROR)
 kiLog.state('', kiLog.INFO)
-t5(); print()
+#t5(); print()
+kiLog.state(False, kiLog.ERROR)
+kiLog.state('', kiLog.INFO)
+t6(); print()
 
 logging.info('End')
