@@ -23,20 +23,34 @@ class Yi4k():
 
 	activeCtx= None
 
+	atomCB= None
 	signalCB= None
 
 
+
 	'''
-	Connect muxer to send Atoms to.
+	Init source.
+	If not provided, Atom and signal callbacks can be linked lately.
 	Streaming will start as soon as camera goes loop-recording by start().
 	'''
-	def __init__(self, _muxCB=None, _signalCB=None):
-		self.signalCB= callable(_signalCB) and _signalCB
+	def __init__(self, atomCB=None, signalCB=None):
+		self.link(atomCB, signalCB)
 
 		self.yiReader= YiReader(self.yiAddr)
-		self.yiDecoder= Mp4Recover(_muxCB)
+		self.yiDecoder= Mp4Recover(self.atomLoopbackCB)
 
 		self.yiControl= YiControl(self.yiAddr, self.yiReader.yiClose)
+
+
+
+
+	'''
+	Link external consumer to send Atoms to.
+	It can be done on fly.
+	'''
+	def link(self, atomCB=None, signalCB=None):
+		self.atomCB= callable(atomCB) and atomCB
+		self.signalCB= callable(signalCB) and signalCB
 
 
 
@@ -94,3 +108,13 @@ class Yi4k():
 		logging.info('State: %d' % _state)
 
 #		self.signalCB and self.signalCB(_state, _data)
+
+
+
+
+	'''
+	Internal loopback for Atoms from Mp4Recover.
+	'''
+	def atomLoopbackCB(self, _atom):
+		self.atomCB and self.atomCB(_atom)
+
