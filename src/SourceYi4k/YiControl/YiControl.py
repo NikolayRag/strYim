@@ -52,12 +52,14 @@ class YiControl():
 
 		self.settings= self.yi.cmd(Yi4kAPI.getSettings)
 
-		self.yi.cmd(Yi4kAPI.setSystemMode, 'record')
-		self.yi.cmd(Yi4kAPI.setRecordMode, 'record_loop')
-		self.yi.cmd(Yi4kAPI.setLoopDuration, '5 minutes')
-		self.yi.cmd(Yi4kAPI.setVideoQuality, 'normal')
-		self.yi.cmd(Yi4kAPI.setVideoStandard, 'NTSC')
-		self.yi.cmd(Yi4kAPI.setVideoResolution, self.presets[yiFormat])
+		resA= [
+			  self.yi.cmd(Yi4kAPI.setRecordMode, 'record_loop')
+			, self.yi.cmd(Yi4kAPI.setLoopDuration, '5 minutes')
+			, self.yi.cmd(Yi4kAPI.setVideoQuality, 'normal')
+			, self.yi.cmd(Yi4kAPI.setVideoStandard, 'NTSC')
+			, self.yi.cmd(Yi4kAPI.setVideoResolution, self.presets[yiFormat])
+		]
+		logging.info('Set to: %s' % resA)
 
 		res= self.yi.cmd(Yi4kAPI.startRecording)
 		if res:
@@ -127,15 +129,17 @@ class YiControl():
 	Restore settings
 	'''
 	def reset(self, _cYi):
-		if self.settings:
-			_cYi.cmd(Yi4kAPI.setVideoQuality, self.settings['video_quality'])
-			_cYi.cmd(Yi4kAPI.setVideoStandard, self.settings['video_standard'])
-			_cYi.cmd(Yi4kAPI.setVideoResolution, self.settings['video_resolution'])
-			_cYi.cmd(Yi4kAPI.setVideoFieldOfView, self.settings['fov'])
-			_cYi.cmd(Yi4kAPI.setLoopDuration, self.settings['loop_rec_duration'])
-			_cYi.cmd(Yi4kAPI.setRecordMode, self.settings['rec_mode'])
-			_cYi.cmd(Yi4kAPI.setSystemMode, self.settings['system_mode'])
+		if not self.settings:
+			return
 
+		resA= [
+			  _cYi.cmd(Yi4kAPI.setRecordMode, self.settings['rec_mode'])
+			, _cYi.cmd(Yi4kAPI.setLoopDuration, self.settings['loop_rec_duration'])
+			, _cYi.cmd(Yi4kAPI.setVideoQuality, self.settings['video_quality'])
+			, _cYi.cmd(Yi4kAPI.setVideoStandard, self.settings['video_standard'])
+			, _cYi.cmd(Yi4kAPI.setVideoResolution, self.settings['video_resolution'])
+		]
+		logging.info('Reset to: %s' % resA)
 
 
 	'''
