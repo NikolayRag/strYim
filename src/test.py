@@ -82,10 +82,7 @@ def t3():
 def t4():
 	kiLog.state('YiControl', kiLog.INFO)
 
-	def stopped():
-		logging.info('Stopped')
-
-	yiControl= SourceYi4k.YiControl(None, stopped)
+	yiControl= SourceYi4k.YiControl(None)
 	yiOk= yiControl.start(30, 1080)
 
 # -todo 278 (Yi, fix) +0: immedeate stop after start fails
@@ -125,19 +122,19 @@ def t5():
 
 
 
-kiLog.state(False, kiLog.WARNING)
+kiLog.state(False, kiLog.ERROR)
 kiLog.state('', kiLog.INFO)
 #t1(); print()
-kiLog.state(False, kiLog.WARNING)
+kiLog.state(False, kiLog.ERROR)
 kiLog.state('', kiLog.INFO)
 #t2(); print()
-kiLog.state(False, kiLog.WARNING)
+kiLog.state(False, kiLog.ERROR)
 kiLog.state('', kiLog.INFO)
 #t3(); print()
-kiLog.state(False, kiLog.WARNING)
+kiLog.state(False, kiLog.ERROR)
 kiLog.state('', kiLog.INFO)
 #t4(); print()
-kiLog.state(False, kiLog.WARNING)
+kiLog.state(False, kiLog.ERROR)
 kiLog.state('', kiLog.INFO)
 t5(); print()
 
