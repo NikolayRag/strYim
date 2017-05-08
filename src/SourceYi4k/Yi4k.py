@@ -32,6 +32,7 @@ class Yi4k():
 	Init source.
 	If not provided, Atom and signal callbacks can be linked lately.
 	Streaming will start as soon as camera goes loop-recording by start().
+	Stopping camera rater manually or by stop() stops YiReader as well.
 	'''
 	def __init__(self, atomCB=None, signalCB=None):
 		self.link(atomCB, signalCB)
