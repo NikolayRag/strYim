@@ -151,26 +151,14 @@ def t7():
 
 
 
-kiLog.state(False, kiLog.ERROR)
-kiLog.state('', kiLog.INFO)
-#t1(); print()
-kiLog.state(False, kiLog.ERROR)
-kiLog.state('', kiLog.INFO)
-#t2(); print()
-kiLog.state(False, kiLog.ERROR)
-kiLog.state('', kiLog.INFO)
-#t3(); print()
-kiLog.state(False, kiLog.ERROR)
-kiLog.state('', kiLog.INFO)
-#t4(); print()
-kiLog.state(False, kiLog.ERROR)
-kiLog.state('', kiLog.INFO)
-#t5(); print()
-kiLog.state(False, kiLog.ERROR)
-kiLog.state('', kiLog.INFO)
-#t6(); print()
-kiLog.state(False, kiLog.ERROR)
-kiLog.state('', kiLog.INFO)
-t7(); print()
+def test(fn):
+	kiLog.state(False, kiLog.ERROR)
+	kiLog.state('', kiLog.INFO)
+	fn()
+	print()
+
+
+test(t7)
+
 
 logging.info('End')
