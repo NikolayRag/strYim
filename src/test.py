@@ -136,8 +136,11 @@ def t6():
 def t7():
 	kiLog.state('SinkRTMP', kiLog.DEBUG)
 
-	sink= MediaStream.SinkRTMP('rtmp://a.rtmp.youtube.com/live2/')
-	threading.Timer(2, sink.close).start()
+	sink= MediaStream.SinkRTMP('rtmp://a.rtmp.youtube.com/live2/..')
+	time.sleep(2)
+	sink.close()
+
+	logging.info('SinkRTMP ok')
 
 
 
@@ -167,7 +170,7 @@ def test(fn):
 	print()
 
 
-test(t7)
+test(t8)
 
 
 logging.info('End')
