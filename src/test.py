@@ -133,6 +133,24 @@ def t6():
 
 
 
+def t7():
+	kiLog.state('Streamer', kiLog.INFO)
+	kiLog.state('MuxFLV', kiLog.INFO)
+	kiLog.state('SinkRTMP', kiLog.INFO)
+
+	yi4k= SourceYi4k.Yi4k()
+	streamer= MediaStream.Streamer('tmp.flv')
+	streamer.link(yi4k)
+
+	threading.Timer(0, yi4k.start).start()
+	threading.Timer(10, yi4k.stop).start()
+	threading.Timer(15, streamer.close).start()
+
+	logging.info('App ok')
+
+
+
+
 kiLog.state(False, kiLog.ERROR)
 kiLog.state('', kiLog.INFO)
 #t1(); print()
@@ -150,6 +168,9 @@ kiLog.state('', kiLog.INFO)
 #t5(); print()
 kiLog.state(False, kiLog.ERROR)
 kiLog.state('', kiLog.INFO)
-t6(); print()
+#t6(); print()
+kiLog.state(False, kiLog.ERROR)
+kiLog.state('', kiLog.INFO)
+t7(); print()
 
 logging.info('End')
