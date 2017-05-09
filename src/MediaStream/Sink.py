@@ -58,6 +58,8 @@ class SinkTCP():
 RTMP sink
 '''
 import subprocess, threading, socket
+from support import *
+
 # -todo 119 (sink) +0: make SinkRTMP nonblocking, stream-based
 class SinkRTMP():
 	rtmp= ''
@@ -102,7 +104,8 @@ class SinkRTMP():
 	def serverInit(self, _ffport):
 #  todo 104 (clean, release) +0: use 'current' folder for release and hide ffmpeg
 #  todo 105 (sink, unsure) -1: hardcode RTMP protocol
-		subprocess.call(pyinstRoot('ffmpeg/ffmpeg') +' -i tcp://127.0.0.1:%d?listen -c copy -f flv %s' % (_ffport, self.rtmp), shell=False)
+		logging.info('Running ffmpeg')
+		subprocess.call(ROOT + '/ffmpeg/ffmpeg -i tcp://127.0.0.1:%d?listen -c copy -f flv %s' % (_ffport, self.rtmp), shell=False)
 
 
 	def tcpInit(self, _ffport):
