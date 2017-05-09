@@ -134,6 +134,15 @@ def t6():
 
 
 def t7():
+	kiLog.state('SinkRTMP', kiLog.DEBUG)
+
+	sink= MediaStream.SinkRTMP('rtmp://a.rtmp.youtube.com/live2/')
+	threading.Timer(2, sink.close).start()
+
+
+
+
+def t8():
 	kiLog.state('Streamer', kiLog.INFO)
 	kiLog.state('MuxFLV', kiLog.INFO)
 	kiLog.state('SinkRTMP', kiLog.INFO)
