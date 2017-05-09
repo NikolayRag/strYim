@@ -102,4 +102,7 @@ class Streamer():
 	Function is passed to Source's link()
 	'''
 	def atomPort(self, _atom):
+		if not self.muxer:
+			return
+			
 		self.muxer.add(_atom)
