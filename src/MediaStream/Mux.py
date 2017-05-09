@@ -276,8 +276,8 @@ class MuxH264():
 			logging.error('Sink not specified')
 			return
 
-		self.header(h264Presets[(1080,2997,0)])
-		self.header(h264Presets[-1])
+		self.header(self.h264Presets[(1080,2997,0)])
+		self.header(self.h264Presets[-1])
 
 
 
