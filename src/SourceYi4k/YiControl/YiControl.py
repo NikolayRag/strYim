@@ -4,6 +4,12 @@ import logging
 
 
 # =todo 276 (Yi, fix) +0: update YiAPI and place it in YiControl
+'''
+Put camera in mode suitable for capturing stream.
+
+Record is started with specified settings, which are restored
+ after record is done.
+'''
 class YiControl():
 	presets= {
 		  (1440, 60):"1920x1440 60P 4:3"
