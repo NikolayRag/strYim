@@ -145,7 +145,34 @@ def t7():
 
 
 
+import os
 def t8():
+	origFile= 'test-v/1cam.mp4'
+	if not os.path.isfile(origFile):
+		return
+
+
+	kiLog.state('MuxFLV', kiLog.DEBUG)
+	kiLog.state('Mp4Recover', kiLog.DEBUG)
+
+	sink= MediaStream.SinkFile('tmp.flv')
+	mux= MediaStream.MuxFLV(sink, audio=False)
+	decoder= SourceYi4k.Mp4Recover(mux.add)
+	with open(origFile, 'rb') as f:
+		while True:
+			b= f.read(524288)
+			if not b:
+				break
+			decoder.add(b,1)
+
+	sink.close()
+
+	logging.info('MuxFLV ok')
+
+
+
+
+def t9():
 	kiLog.state('Streamer', kiLog.INFO)
 	kiLog.state('MuxFLV', kiLog.INFO)
 	kiLog.state('SinkRTMP', kiLog.INFO)
