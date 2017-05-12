@@ -27,10 +27,10 @@ class YiAgent():
 	camMaskRe= re.compile('^.*(?P<dir>\d\d\d)MEDIA/L(?P<seq>\d\d\d)(?P<num>\d\d\d\d).MP4$')
 
 	liveOldAge= 5 #maximum number of seconds to consider tested file 'live'
-	liveTriggerSize= 1000000 #minimum file size to start reading
-	livePrefetch= 1500000 #file shorter than this will be started from 0
+	liveTriggerSize= 512*1024 #minimum file size to start reading
+	livePrefetch= 5*512*1024 #file shorter than this will be started from 0
 
-	triggerOverflow= 8000000 #chunk collected over this length considered overflow
+	triggerOverflow= 8192*1024 #chunk collected over this length considered overflow and skipped
 
 	yiSock= None
 
