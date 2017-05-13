@@ -30,6 +30,7 @@ class YiAgent():
 	liveTriggerSize= 512*1024 #minimum file size to start reading
 	livePrefetch= 4*512*1024 #file shorter than this will be started from 0
 
+	tailBuffer= 0
 	triggerOverflow= 16*512*1024 #chunk collected over this length considered overflow and skipped
 
 	yiSock= None
@@ -147,7 +148,7 @@ class YiAgent():
 		with open('%s/%s' % (self.camRoot, fName), 'rb') as f:
 
 			while True:
-				content= self.readBlock(f, _fPos)
+				content= self.readBlock(f, _fPos, self.tailBuffer)
 				_fPos+= len(content)
 
 				if content:
