@@ -56,6 +56,7 @@ def t2():
 
 def t3():
 	kiLog.state('YiReader', kiLog.INFO)
+	kiLog.state('YiData', kiLog.INFO)
 
 	dataLen=[0]
 
@@ -98,8 +99,8 @@ def t4():
 
 
 def t5():
-	kiLog.state('Mp4Recover', kiLog.ERROR)
-	kiLog.state('Yi4k', kiLog.INFO)
+	kiLog.state('Yi4k', kiLog.DEBUG)
+	kiLog.state('YiReader', kiLog.DEBUG)
 
 	stats= {'avc-k':0, 'avc':0, 'aac':0}
 
@@ -156,7 +157,7 @@ def t8():
 	kiLog.state('Mp4Recover', kiLog.DEBUG)
 
 	sink= MediaStream.SinkFile('tmp.flv')
-	mux= MediaStream.MuxFLV(sink, audio=False)
+	mux= MediaStream.MuxFLV(sink)
 	decoder= SourceYi4k.Mp4Recover(mux.add)
 	with open(origFile, 'rb') as f:
 		while True:
