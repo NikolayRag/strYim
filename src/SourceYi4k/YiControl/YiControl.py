@@ -23,17 +23,20 @@ class YiControl():
 
 	addr= None
 	stopCB= None
+	cleanFiles= True
 
 	yi= None
 	settings= None
 
 
 
-	def __init__(self, addr=None, _stopCB=None):
+	def __init__(self, addr=None, _stopCB=None, _cleanFiles=True):
 		self.addr= addr or self.addr
 
 		self.stopCB= callable(_stopCB) and _stopCB
 
+		self.cleanFiles= _cleanFiles
+		
 
 
 	'''
@@ -152,17 +155,18 @@ class YiControl():
 	Delete remaining files and close YiAPI
 	'''
 	def cleanup(self, _cYi, _lastDir, _lastLoop, _lastFile):
-		filesDeleted= 0
-		for n in range(5):
-			if _cYi.cmd(self.deleteCMD, '/tmp/fuse_d/DCIM/%03dMEDIA/L%03d%04d.MP4' % (_lastDir, _lastLoop, _lastFile))==None:
-				filesDeleted+=1
+		if self.cleanFiles:
+			filesDeleted= 0
+			for n in range(5):
+				if _cYi.cmd(self.deleteCMD, '/tmp/fuse_d/DCIM/%03dMEDIA/L%03d%04d.MP4' % (_lastDir, _lastLoop, _lastFile))==None:
+					filesDeleted+=1
 
-			_lastFile-= 1
-			if _lastFile==0:
-				_lastFile= 999
-				_lastDir-= 1
+				_lastFile-= 1
+				if _lastFile==0:
+					_lastFile= 999
+					_lastDir-= 1
 
-		logging.info('Deleted %d files' % filesDeleted)
+			logging.info('Deleted %d files' % filesDeleted)
 
 
 		_cYi.close()
