@@ -141,16 +141,14 @@ class YiAgent():
 		fName= self.buildName(_fParts)
 		fNameExpect= self.buildName(_fPartsExpect)
 
-
 		self.yiSock.msgLog(fName)
 
+		blankTry= 0
 		with open('%s/%s' % (self.camRoot, fName), 'rb') as f:
-			f.seek(_fPos)
 
-
-			blankTry= 0
 			while True:
-				content= f.read()
+				content= self.readBlock(f, _fPos)
+				_fPos+= len(content)
 
 				if content:
 					blankTry= 0
@@ -178,6 +176,22 @@ class YiAgent():
 				):
 					return 1
 
+
+
+
+	'''
+	Read from file, leaving some data at end
+	'''
+	def readBlock(self, _f, _pos, _leave=0):
+		_f.seek(0, os.SEEK_END)
+		fSize= _f.tell()
+
+		content= b''
+		if (fSize-_pos) > _leave:
+			_f.seek(_pos)
+			content= _f.read(fSize-_pos-_leave)
+
+		return content
 
 
 
