@@ -101,7 +101,7 @@ class Yi4k():
 	def readerContextCB(self, _ctx):
 		self.activeCtx= _ctx['ctx']
 
-		logging.debug('Context %d' % self.activeCtx)
+		logging.debug('Context %d, %d bytes' % (self.activeCtx, _ctx['len']))
 
 
 
