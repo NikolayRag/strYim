@@ -26,21 +26,22 @@ class Streamer():
 
 
 	'''
-	Link Source.
-	Calling without arguments unlink Source, bu dont close streaming.
+	(re)Link Source.
+	Calling without arguments unlink Source without stopping streaming.
 	 Other Source can be linked lately.
 
 #  todo 283 (feature, streaming) +0: define Source abstract superclass.
 	Source should have .link(atomCB) method.
 	'''
 	def link(self, _source=None):
+		if self.source:
+			self.source.link()
+			self.source= None
+
+
 		if _source and callable(_source.link):
 			_source.link(self.atomPort)
 			self.source= _source
-
-		elif self.source:
-			self.source.link()
-			self.source= None
 
 
 
