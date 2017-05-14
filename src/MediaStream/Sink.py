@@ -22,17 +22,24 @@ class SinkFile():
 
 
 
+import re
 '''
 TCP sink
 '''
 # -todo 118 (sink) +0: make SinkTCP nonblocking, stream-based
 class SinkTCP():
+	ipMask= re.compile('^(tcp://)?(?P<addr>(\d+\.\d+\.\d+\.\d+)|([\w\d_\.]+))?(:(?P<port>\d*))?$')
+
 	cSocket= None
 
-	def __init__(self, port, ip='127.0.0.1'):
-		self.cSocket= socket.create_connection((ip,port))
+	def __init__(self, _ip=''):
+		ipElements= self.ipMask.match(_ip)
+		addr= ipElements.group('addr') or '127.0.0.1'
+		port= int(ipElements.group('port') or 2345)
 
-		logging.info('Connected to %s, %d' % (ip,port))
+		self.cSocket= socket.create_connection((addr,port))
+
+		logging.info('Connected to %s, %d' % (addr,port))
 
 
 	def add(self, _data):
