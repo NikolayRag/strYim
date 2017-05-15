@@ -10,6 +10,7 @@ import SourceYi4k, MediaStream
 
 
 
+#runnung simple code at yi side
 def t1():
 	kiLog.state('YiPy', kiLog.INFO)
 
@@ -33,6 +34,7 @@ def t1():
 
 
 
+#read synthetic data from yi
 def t2():
 	kiLog.state('YiReader', kiLog.INFO)
 
@@ -54,6 +56,7 @@ def t2():
 
 
 
+#read available stream from yi
 def t3():
 	kiLog.state('YiReader', kiLog.INFO)
 	kiLog.state('YiData', kiLog.INFO)
@@ -80,6 +83,7 @@ def t3():
 
 
 
+#start-stop camera
 def t4():
 	kiLog.state('YiControl', kiLog.INFO)
 
@@ -98,6 +102,7 @@ def t4():
 
 
 
+#yi4k source: start camera and decode stream
 def t5():
 	kiLog.state('Yi4k', kiLog.DEBUG)
 	kiLog.state('YiReader', kiLog.DEBUG)
@@ -123,6 +128,7 @@ def t5():
 
 
 
+#open-close Streamer
 def t6():
 	kiLog.state('Streamer', kiLog.INFO)
 
@@ -134,6 +140,7 @@ def t6():
 
 
 
+#Sink from existing .flv
 def t7():
 	kiLog.state('SinkRTMP', kiLog.DEBUG)
 
@@ -149,6 +156,7 @@ def t7():
 
 
 
+#Mux and sink from .mp4
 import os
 def t8():
 	origFile= 'test-v/1cam.mp4'
@@ -176,6 +184,7 @@ def t8():
 
 
 
+#Stream from camera to sink.
 def t9():
 	kiLog.state('Streamer', kiLog.INFO)
 	kiLog.state('MuxFLV', kiLog.INFO)
