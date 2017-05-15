@@ -138,6 +138,9 @@ def t7():
 	kiLog.state('SinkRTMP', kiLog.DEBUG)
 
 	sink= MediaStream.SinkRTMP('rtmp://a.rtmp.youtube.com/live2/..')
+	with open('test.flv', 'rb') as f:
+		sink.add(f.read())
+
 	time.sleep(2)
 	sink.close()
 
