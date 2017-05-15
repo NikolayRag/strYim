@@ -22,7 +22,7 @@ class SinkFile():
 
 
 
-import re
+import re, threading
 '''
 TCP sink
 '''
@@ -46,6 +46,22 @@ class SinkTCP():
 		if not self.cSocket:
 			return
 
+# -todo 289 (streaming, fix, ffmpeg, exploit) +2: data skipped (even for parallel mux) if sent in the same thread over TCP to FFMPEG, which is further connected to RTMP; possibly issue of interfering with YiReader reciever in same thread
+		#required, else ffmpeg can skip data
+		threading.Timer(0, lambda:self.send(_data)).start()
+
+
+
+	def close(self):
+		if self.cSocket:
+			self.cSocket.close()
+			self.cSocket= None
+
+
+
+### PRIVATE
+
+	def send(self, _data):
 		try:
 			self.cSocket.sendall(_data)
 
@@ -53,10 +69,6 @@ class SinkTCP():
 			logging.error('Socket error')
 
 
-	def close(self):
-		if self.cSocket:
-			self.cSocket.close()
-			self.cSocket= None
 
 
 
@@ -90,11 +102,10 @@ class SinkRTMP():
 		if not self.tcp:
 			return
 
-		try:
-			self.tcp.sendall(_data)
-		except:
-			logging.error('Socket error')
-			self.tcp= None
+# -todo 289 (streaming, fix, ffmpeg, exploit) +2: data skipped (even for parallel mux) if sent in the same thread over TCP to FFMPEG, which is further connected to RTMP; possibly issue of interfering with YiReader reciever in same thread
+		#required, else ffmpeg can skip data
+		threading.Timer(0, lambda:self.send(_data)).start()
+
 
 
 	def close(self):
@@ -106,7 +117,7 @@ class SinkRTMP():
 
 
 
-	#private
+### PRIVATE
 
 	def serverInit(self, _ffport):
 #  todo 104 (clean, release) +0: use 'current' folder for release and hide ffmpeg
@@ -115,6 +126,16 @@ class SinkRTMP():
 		subprocess.call(ROOT + '/ffmpeg/ffmpeg -i tcp://127.0.0.1:%d?listen -c copy -f flv %s' % (_ffport, self.rtmp), shell=False)
 
 
+
 	def tcpInit(self, _ffport):
 		return socket.create_connection(('127.0.0.1',_ffport))
 
+
+
+	def send(self, _data):
+		try:
+			self.tcp.sendall(_data)
+
+		except:
+			logging.error('Socket error')
+			self.tcp= None
