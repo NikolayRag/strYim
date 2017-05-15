@@ -7,6 +7,8 @@ FLV Muxer class
 Requires Sink to be specified
 '''
 class MuxFLV():
+	stat= {'frames': 0, 'aac': 0}
+
 	stampCurrent= 0.
 
 	stampVideoNext= 0.
@@ -28,6 +30,8 @@ class MuxFLV():
 
 
 	def __init__(self, _sink, fps=None, audio=True, srate=None):
+		self.stat= {'frames': 0, 'aac': 0}
+
 		self.stampCurrent= 0.
 
 		self.stampVideoNext= 0.
@@ -59,6 +63,7 @@ class MuxFLV():
 			return
 
 		if _atom.typeAVC and _atom.AVCVisible:
+			self.stat['frames']+= 1
 			flvTag= self.videoTag(1, _atom.AVCKey, _atom.data, self.stampV())
 			self.sink.add(flvTag)
 
@@ -67,11 +72,13 @@ class MuxFLV():
 				logging.warning('Too big AAC found, skipped: %d' % len(_atom.data))
 				return
 
+			self.stat['aac']+= 1
 			flvTag= self.audioTag(1, _atom.data, self.stampA(_atom.AACSamples))
 			self.sink.add(flvTag)
 
 
 	def stop(self):
+		logging.info('%d frames, %d aac' % (self.stat['frames'], self.stat['aac']))
 		if not self.sink:
 			return
 
