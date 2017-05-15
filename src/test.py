@@ -9,7 +9,6 @@ import logging, threading, time
 import SourceYi4k, MediaStream
 
 
-
 #runnung simple code at yi side
 def t1():
 	kiLog.state('YiPy', kiLog.INFO)
@@ -33,7 +32,6 @@ def t1():
 
 
 
-
 #read synthetic data from yi
 def t2():
 	kiLog.state('YiReader', kiLog.INFO)
@@ -52,7 +50,6 @@ def t2():
 
 
 	logging.info('YiAgent: %s, total %s bytes' % (yiReaderRes, resCnt[0]))
-
 
 
 
@@ -82,7 +79,6 @@ def t3():
 
 
 
-
 #start-stop camera
 def t4():
 	kiLog.state('YiControl', kiLog.INFO)
@@ -98,7 +94,6 @@ def t4():
 	logging.info('YiControl: %s' % yiOk)
 
 	time.sleep(6)
-
 
 
 
@@ -136,7 +131,6 @@ def t6():
 	streamerRes= streamer.close()
 
 	logging.info('Streamer: %s' % streamerRes)
-
 
 
 
@@ -183,7 +177,6 @@ def t8():
 
 
 
-
 #Stream from camera to sink.
 def t9():
 	kiLog.state('Streamer', kiLog.INFO)
@@ -210,7 +203,7 @@ def test(fn):
 	print()
 
 
-test(t8)
+test(t9)
 
 
 logging.info('End')
