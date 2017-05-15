@@ -3,7 +3,7 @@ from .Sink import *
 import logging
 
 
-#  todo 284 (feature, streaming) +0: Make audio/video mixer (switcher)
+#  todo 284 (feature, streaming) +0: Make audio/video mixer (switcher) as a Source-to-Streamer fabric
 '''
 Main streaming controller.
 Route Atoms from linked Source to managed destination.
