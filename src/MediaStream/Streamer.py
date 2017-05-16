@@ -1,3 +1,4 @@
+from .Atom import *
 from .Mux import *
 from .Sink import *
 import threading, queue
@@ -111,7 +112,8 @@ class Streamer(threading.Thread):
 	Function is passed to Source's link()
 	'''
 	def atomPort(self, _atom):
-		self.atomsQ.put(_atom)
+		if isinstance(_atom, Atom):
+			self.atomsQ.put(_atom)
 
 
 	
