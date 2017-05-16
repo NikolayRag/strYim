@@ -1,5 +1,6 @@
 from .Mux import *
 from .Sink import *
+import threading, queue
 import logging
 
 
@@ -8,10 +9,11 @@ import logging
 Main streaming controller.
 Route Atoms from linked Source to managed destination.
 '''
-class Streamer():
+class Streamer(threading.Thread):
 	source= None
 
 	muxer= None
+	atomsQ= None
 
 	result= True
 
@@ -21,8 +23,14 @@ class Streamer():
 	Streaming destination will be opened, wainting for muxed Atoms.
 	'''
 	def __init__(self, _dst, fps=30000./1001):
+		threading.Thread.__init__(self)
+
 		self.muxer= self.initMuxer(_dst, fps)
 
+		self.atomsQ= queue.Queue()
+
+
+		self.start()
 
 
 	'''
@@ -103,7 +111,17 @@ class Streamer():
 	Function is passed to Source's link()
 	'''
 	def atomPort(self, _atom):
-		if not self.muxer:
-			return
-			
-		self.muxer.add(_atom)
+		self.atomsQ.put(_atom)
+
+
+	
+
+	def run(self):
+		while self.muxer:
+			try:
+				self.muxer.add(self.atomsQ.get(timeout=.1))
+			except queue.Empty:
+				pass
+
+			aLeft= self.atomsQ.qsize()
+			logging.debug(aLeft)

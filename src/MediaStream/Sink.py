@@ -46,16 +46,20 @@ class SinkTCP():
 		if not self.cSocket:
 			return
 
-# -todo 289 (streaming, fix, ffmpeg, exploit) +2: data skipped (even for parallel mux) if sent in the same thread over TCP to FFMPEG, which is further connected to RTMP; possibly issue of interfering with YiReader reciever in same thread
-		#required, else ffmpeg can skip data
-		threading.Timer(0, lambda:self.send(_data)).start()
+		try:
+			self.cSocket.sendall(_data)
+
+		except:
+			logging.error('Socket error')
+			self.cSocket= None
 
 
 
 	def close(self):
-		if self.cSocket:
-			self.cSocket.close()
-			self.cSocket= None
+		cSocket= self.cSocket
+		self.cSocket= None
+		if cSocket:
+			cSocket.close()
 
 
 
@@ -83,7 +87,7 @@ from support import *
 class SinkRTMP():
 	rtmp= ''
 
-	tcp= None
+	cSocket= None
 
 
 	def __init__(self, _rtmp):
@@ -92,27 +96,30 @@ class SinkRTMP():
 
 		ffport= 2345
 		threading.Timer(0, lambda: self.serverInit(ffport)).start()
-		self.tcp= self.tcpInit(ffport)
+		self.cSocket= self.tcpInit(ffport)
 
 
 
 
 
 	def add(self, _data):
-		if not self.tcp:
+		if not self.cSocket:
 			return
 
-# -todo 289 (streaming, fix, ffmpeg, exploit) +2: data skipped (even for parallel mux) if sent in the same thread over TCP to FFMPEG, which is further connected to RTMP; possibly issue of interfering with YiReader reciever in same thread
-		#required, else ffmpeg can skip data
-		threading.Timer(0, lambda:self.send(_data)).start()
+		try:
+			self.cSocket.sendall(_data)
+
+		except:
+			logging.error('Socket error')
+			self.cSocket= None
 
 
 
 	def close(self):
-		tcp= self.tcp
-		self.tcp= None
-		if tcp:
-			tcp.close()
+		cSocket= self.cSocket
+		self.cSocket= None
+		if cSocket:
+			cSocket.close()
 
 
 
@@ -130,12 +137,3 @@ class SinkRTMP():
 	def tcpInit(self, _ffport):
 		return socket.create_connection(('127.0.0.1',_ffport))
 
-
-
-	def send(self, _data):
-		try:
-			self.tcp.sendall(_data)
-
-		except:
-			logging.error('Socket error')
-			self.tcp= None
