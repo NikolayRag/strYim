@@ -43,7 +43,7 @@ def t2():
 	yi= SourceYi4k.YiReader()
 	threading.Timer(0, lambda:yi.yiListen(agentCB)).start()
 
-	wdog= threading.Timer(6, yi.yiClose)
+	wdog= threading.Timer(6, yi.stop)
 	wdog.start()
 	yiReaderRes= yi.yiRunAgent('test')
 	wdog.cancel()
@@ -72,7 +72,7 @@ def t3():
 
 
 	yi= SourceYi4k.YiReader()
-	threading.Timer(10, yi.yiClose).start()
+	threading.Timer(10, yi.stop).start()
 	yiReaderRes= yi.start(dataCB, metaCB)
 
 	logging.info('YiReader: %s, %d rate' % (yiReaderRes, dataLen[0]/(time.time()-t1[0])))

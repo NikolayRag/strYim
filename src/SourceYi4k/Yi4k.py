@@ -40,7 +40,7 @@ class Yi4k():
 		self.yiReader= YiReader(self.yiAddr)
 		self.yiDecoder= Mp4Recover(self.atomLoopbackCB)
 
-		self.yiControl= YiControl(self.yiAddr, self.yiReader.yiClose)
+		self.yiControl= YiControl(self.yiAddr, self.yiReader.stop)
 
 
 

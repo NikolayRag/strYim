@@ -66,7 +66,7 @@ class YiReader():
 	'''
 	Close connection to YiAgent. That will stop YiAgent and YiReader normally.
 	'''
-	def yiClose(self):
+	def stop(self):
 		if not self.yiSocket:
 			return
 		
