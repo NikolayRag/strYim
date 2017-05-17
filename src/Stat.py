@@ -5,16 +5,16 @@ import logging
 class Stat():
 	stat= None
 
-	limit= 0
+	limitGlobal= 0
 
 
 	'''
 	Initialize Stat.
-	Values stored are limited to 'limit' seconds.
+	Values stored are limited to 'limitGlobal' seconds.
 	'''
-	def __init__(self, limit=10):
+	def __init__(self, limitGlobal=10):
 		self.stat= []
-		self.limit= limit
+		self.limitGlobal= limitGlobal
 
 
 
@@ -27,7 +27,7 @@ class Stat():
 
 		okN= 0
 		for cStat in self.stat:
-			if cStat[0] > (cTime -self.limit):
+			if cStat[0] > (cTime -self.limitGlobal):
 				break
 
 			okN+= 1
