@@ -1,6 +1,8 @@
 from .Atom import *
 from .Mux import *
 from .Sink import *
+from Stat import *
+
 import threading, queue
 import logging
 
@@ -11,6 +13,8 @@ Main streaming controller.
 Route Atoms from linked Source to managed destination.
 '''
 class Streamer(threading.Thread):
+	stat= None
+
 	source= None
 
 	muxer= None
@@ -25,6 +29,8 @@ class Streamer(threading.Thread):
 	'''
 	def __init__(self, _dst, fps=30000./1001):
 		threading.Thread.__init__(self)
+
+		self.stat= Stat()
 
 		self.muxer= self.initMuxer(_dst, fps)
 
@@ -65,6 +71,17 @@ class Streamer(threading.Thread):
 
 		return self.result
 
+
+
+	'''
+	Get statistic
+	'''
+	def stats(self):
+		last= self.stat.last()
+		if last and last>=100:
+			logging.debug('Atoms waiting: %d (%d-%d)' % (last, self.stat.min(), self.stat.max()))
+
+		return last
 
 
 
@@ -115,9 +132,14 @@ class Streamer(threading.Thread):
 		if isinstance(_atom, Atom):
 			self.atomsQ.put(_atom)
 
+			self.stat.add(self.atomsQ.qsize())
 
 	
 
+	'''
+	Thread cycle.
+	Spool Atoms queue to muxer+sink
+	'''
 	def run(self):
 		while self.muxer:
 			try:
@@ -125,5 +147,7 @@ class Streamer(threading.Thread):
 			except queue.Empty:
 				pass
 
-			aLeft= self.atomsQ.qsize()
-			logging.debug(aLeft)
+
+			self.stat.add(self.atomsQ.qsize())
+
+			self.stats()
