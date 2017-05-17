@@ -67,12 +67,17 @@ class Stat():
 	def substat(self, limit=(0,1)):
 		cTime= time.time()
 
-		out= None
-		for cVal in self.stat[::-1]:
-			if cVal[0] > (cTime -limit[0]):
-				continue
+		stop= len(self.stat)
+		start= stop
 
+		for cVal in self.stat[::-1]:
 			if cVal[0] < (cTime -limit[1]):
 				break
 
-			yield cVal
+			if cVal[0] > (cTime -limit[0]):
+				start-= 1
+
+			stop-= 1
+
+
+		return self.stat[start:stop]
