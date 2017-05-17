@@ -1,4 +1,5 @@
 import time
+import logging
 
 
 class Stat():
@@ -18,6 +19,10 @@ class Stat():
 
 
 	def add(self, _val):
+		if not isinstance(_val, (int,float)):
+			logging.warning('Not a number added, skipped')
+			return
+
 		cTime= time.time()
 
 		okN= 0
