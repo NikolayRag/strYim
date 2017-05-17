@@ -1,7 +1,9 @@
 import time
 import logging
 
-
+'''
+Collect value statistic over time.
+'''
 class Stat():
 	stat= None
 
@@ -66,9 +68,12 @@ class Stat():
 
 
 
+### PRIVATE
 
 
-
+	'''
+	Get subset of statistic over given time from now back to past, in seconds.
+	'''
 	def substat(self, limit=(0,1)):
 		cTime= time.time()
 
