@@ -213,7 +213,7 @@ class YiAgent():
 	'''
 	Test function.
 	'''
-	def test(self):
+	def testRandom(self):
 		if not self.yiSock.valid():
 			return
 

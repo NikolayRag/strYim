@@ -45,7 +45,7 @@ def t2():
 
 	wdog= threading.Timer(6, yi.stop)
 	wdog.start()
-	yiReaderRes= yi.yiRunAgent('test')
+	yiReaderRes= yi.yiRunAgent('testRandom')
 	wdog.cancel()
 
 
