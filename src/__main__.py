@@ -1,79 +1,17 @@
 # -todo 238 (app, clean) +1: simplify cmdline flow
 
 import logging
+import kiLog
+kiLog.state('', kiLog.INFO)
+
 
 from args import *
-from appControl import *
-from appStreamer import *
-
-import kiLog
+from MediaStream import *
+from SourceYi4k import *
 
 
-
-flowCamStreamer= None
-flowCamControl= None
-
-flagRun= True
-
-
-
-'''
-App cleanup and exit point.
-'''
-def stop():
-	flowCamStreamer.stop()
-	flowCamControl.stop()
-
-
-
-
-#callbacks
-
-'''
-Callback fired when camera is connected/disconnected over WiFi(TCP).
-In case of very weak sygnal it can be fired 'disconnected', just ensure camera is close to PC.
-'''
-def cbConn(_mode):
-	if _mode:
-		logging.info('Connected')
-	if not _mode:
-		logging.info('Disconnected')
-
-'''
-Callback fired when camera starts/stops recording apropriate file.
-There's nothing special to do with it, 'cause data is flown through YiAgent.live() callback.
-'''
-def cbLive(_mode):
-	if _mode==1:
-		logging.info('Live')
-
-	if _mode==0:
-		logging.info('Live split')
-
-	if _mode==-1:
-		logging.info('Dead')
-
-'''
-Callback fired when data flows to recoverer.
-'''
-def cbAir(_mode):
-	if _mode==1:
-		logging.info('Air On')
-
-	if _mode==0:
-		logging.info('Air Off')
-		if not cArgs.args['nonstop']:
-			stop()
-	
-	if _mode==-1:
-		logging.error('Air bad')
-
-
-def cbDie():
-	logging.info('Exiting')
-
-	global flagRun
-	flagRun= False
+appSource= None
+appStreamer= None
 
 
 
@@ -85,40 +23,35 @@ Streaming is done once using some settings,
 till interrupted or camera stops (if not -nonstop).
 '''
 def runCmdline(_args):
-	YiControl.defaults(ip=_args.args['YiIP'])
-	YiStreamer.defaults(ip=_args.args['YiIP'])
+	#Check for ability to run
+#	cFormat= _args.formats[0]
+#	logging.info('Setting ' +str(cFormat['yi']))
+#	if not flowCamControl.start(cFormat['yi']):
+#		logging.error('Camera error')
+#		return
 
 
 	#init
-	flowCamControl= YiControl()
-	flowCamStreamer= YiStreamer(
-		  cbConn=cbConn
-		, cbLive=cbLive
-		, cbAir=cbAir
-		, cbDie=cbDie
-	)
+	appSource= Yi4k()
+	appStreamer= Streamer(_args.args['dst'])
+	appStreamer.link(appSource)
 
-	#Check for ability to run
+	appSource.start()
 
 
-
-	cFormat= _args.formats[0]
-	logging.info('Setting ' +str(cFormat['yi']))
-	if not flowCamControl.start(cFormat['yi']):
-		cbDie()
-		return
-
-	flowCamStreamer.start(_args.args['dst'], cFormat['fps'])
-
-	while flagRun:
+	while not appSource.isIdle():
 		try:
 			time.sleep(.1)
 		except KeyboardInterrupt:
-			logging.info('Exit by demand (Ctrl-C)')
+			logging.info('Terminated')
 			
-			_args.args['nonstop']= True
-			stop()
+#			_args.args['nonstop']= True
+			appSource.stop()
 			break
+
+
+	appStreamer.close()
+
 
 
 
