@@ -182,6 +182,7 @@ def t9():
 	kiLog.state('Streamer', kiLog.INFO)
 	kiLog.state('MuxFLV', kiLog.INFO)
 	kiLog.state('SinkRTMP', kiLog.INFO)
+	kiLog.state('YiData', kiLog.INFO)
 
 	yi4k= SourceYi4k.Yi4k()
 	streamer= MediaStream.Streamer('tmp.flv')
