@@ -97,8 +97,9 @@ class YiControl():
 		logging.info('Stopping')
 
 		res= self.yi.cmd(Yi4kAPI.stopRecording)
+#  todo 296 (Yi, fix) +0: camera stopped after stop sometimes
 		if isinstance(res, int) and res<0:
-			logging.error('Stopping error: %s' % res)
+			logging.warning('Stopping error: %s' % res)
 			return
 
 		return True
