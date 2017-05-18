@@ -134,6 +134,7 @@ class YiReader():
 		agentSrc.extend( inspect.getsourcelines(YiData)[0] )
 		agentSrc.extend( inspect.getsourcelines(YiSock)[0] )
 		agentSrc.extend( inspect.getsourcelines(YiAgent)[0] )
+		agentSrc.extend( inspect.getsourcelines(YiCleanup)[0] )
 		agentSrc= ''.join(agentSrc)
 
 		yipy= YiPy(self.yiAddr, self.yiPort+1) #Use different ports for YiPy and YiAgent to avoid interferention
