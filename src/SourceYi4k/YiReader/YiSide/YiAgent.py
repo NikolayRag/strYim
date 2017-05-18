@@ -118,7 +118,7 @@ class YiAgent():
 			if fileRes==-1:
 				return
 
-			if fileRes==0: 
+			if fileRes==None: 
 				return True
 
 			fParts= fPartsExpect
@@ -157,7 +157,7 @@ class YiAgent():
 		with open(fn, 'rb') as f:
 			self.clean.add(fn)
 
-			while True:
+			while self.yiSock.valid():
 				content= self.readBlock(f, _fPos, self.tailBuffer)
 				_fPos+= len(content)
 
@@ -172,7 +172,7 @@ class YiAgent():
 
 
 				if blankTry>25: #5 sec
-					return 0
+					break
 
 				blankTry+= 1
 				time.sleep(.2)
