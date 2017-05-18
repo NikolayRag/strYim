@@ -145,10 +145,10 @@
  mux, flv, bytes, aac 117: -1 "src\MediaStream\Atom.py" kii 17/05/06 20:47:38
 	reveal actual AAC frame length
 
-!sink 118: +0 "" ki 17/05/18 09:28:54
-	obsolete
+!sink 118: +0 "src\MediaStream\Sink.py" ki 17/05/18 11:57:37
+	make SinkTCP nonblocking, stream-based
 
--sink 119: +0 "src\MediaStream\Sink.py" ki 17/05/18 09:49:24
+!sink 119: +0 "src\MediaStream\Sink.py" ki 17/05/18 11:57:43
 	make SinkRTMP nonblocking, stream-based
 
 =ui 120: +0 "src\stryim.py" kii 17/01/09 03:56:04
@@ -301,7 +301,7 @@
 +Yi, control 275: +0 "src\SourceYi4k\Yi4k.py" kii 17/05/07 11:57:07
 	stop if camera stops
 
-=Yi, fix 276: +0 "src\SourceYi4k\YiControl\YiControl.py" kii 17/05/09 23:08:25
++Yi, fix 276: +0 "src\SourceYi4k\YiControl\YiControl.py" kii 17/05/18 11:56:14
 	update YiAPI and place it in YiControl
 
 +Yi, clean 277: +0 "src\SourceYi4k\YiControl\YiControl.py" kii 17/05/07 14:05:47
@@ -340,9 +340,12 @@
 +streaming, fix, ffmpeg, exploit 289: +2 "src\MediaStream\Streamer.py" kii 17/05/16 06:33:36
 	incoming data skipped if mux/sink delayed in the same thread; possibly issue of interfering with YiReader reciever loop
 
-=streaming, fix, ffmpeg, exploit 290: +1 "src\SourceYi4k\YiReader\YiReader.py" ki 17/05/18 09:27:22
+=streaming, fix, ffmpeg, exploit 290: +1 "src\SourceYi4k\YiReader\YiReader.py" ki 17/05/18 10:37:38
 	/289; separate thread; streaming to rtmp cause reading delay
 
  mux 291: +0 "src\MediaStream\Streamer.py" ki 17/05/18 09:23:22
 	/98; (re)init muxer with sps/pps provided from source
+
+!Yi 293: +0 "src\SourceYi4k\Yi4k.py" ki 17/05/18 11:03:30
+	add force
 

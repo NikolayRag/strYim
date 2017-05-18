@@ -3,7 +3,6 @@ import threading, re
 import logging
 
 
-# =todo 276 (Yi, fix) +0: update YiAPI and place it in YiControl
 '''
 Put camera in mode suitable for capturing stream.
 

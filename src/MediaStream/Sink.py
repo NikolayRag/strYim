@@ -26,7 +26,6 @@ import re, threading
 '''
 TCP sink
 '''
-# -todo 118 (sink) +0: make SinkTCP nonblocking, stream-based
 class SinkTCP():
 	ipMask= re.compile('^(tcp://)?(?P<addr>(\d+\.\d+\.\d+\.\d+)|([\w\d_\.]+))?(:(?P<port>\d*))?$')
 
@@ -83,7 +82,6 @@ RTMP sink
 import subprocess, threading, socket
 from support import *
 
-# -todo 119 (sink) +0: make SinkRTMP nonblocking, stream-based
 class SinkRTMP():
 	rtmp= ''
 
