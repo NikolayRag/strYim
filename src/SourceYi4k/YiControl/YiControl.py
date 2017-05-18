@@ -16,7 +16,7 @@ class YiControl():
 		, (1080, 60):"1920x1080 60P 16:9"
 		, (1080, 30):"1920x1080 30P 16:9"
 	}
-	deleteCMD= Yi4kAPI.YiAPICommandGen(1281, 'deleteFile', 	variable= 'param')
+
 	camMaskRe= re.compile('^.*(?P<dir>\d\d\d)MEDIA/L(?P<seq>\d\d\d)(?P<num>\d\d\d\d).MP4$')
 
 
@@ -112,21 +112,8 @@ class YiControl():
 	def stopped(self, _res):
 		logging.info('Stopped')
 
-		cYi= self.yi
-		self.yi= None
-
-		threading.Timer(0, lambda:self.reset(cYi)).start()
-
-
-		fNameMatch= self.camMaskRe.match(_res['param'])
-		lastDir= int(fNameMatch.group('dir'))
-		lastLoop= int(fNameMatch.group('seq'))
-		lastFile= int(fNameMatch.group('num'))
-
 		#delay closing YiAPI from YiAPI event
-# -todo 281 (YiAgent, clean) +0: cleanup releasing last file for deletion
-		threading.Timer(5, lambda: self.cleanup(cYi, lastDir, lastLoop, lastFile)).start()
-
+		threading.Timer(0, self.reset).start()
 
 		self.stopCB and self.stopCB()
 
@@ -135,37 +122,19 @@ class YiControl():
 
 	'''
 	Restore settings
-	'''
-	def reset(self, _cYi):
-		if not self.settings:
-			return
-
-		resA= [
-			  _cYi.cmd(Yi4kAPI.setRecordMode, self.settings['rec_mode'])
-			, _cYi.cmd(Yi4kAPI.setLoopDuration, self.settings['loop_rec_duration'])
-			, _cYi.cmd(Yi4kAPI.setVideoQuality, self.settings['video_quality'])
-			, _cYi.cmd(Yi4kAPI.setVideoStandard, self.settings['video_standard'])
-			, _cYi.cmd(Yi4kAPI.setVideoResolution, self.settings['video_resolution'])
-		]
-		logging.info('Reset to: %s' % resA)
-
-
-	'''
 	Delete remaining files and close YiAPI
 	'''
-	def cleanup(self, _cYi, _lastDir, _lastLoop, _lastFile):
-		if self.cleanFiles:
-			filesDeleted= 0
-			for n in range(5):
-				if _cYi.cmd(self.deleteCMD, '/tmp/fuse_d/DCIM/%03dMEDIA/L%03d%04d.MP4' % (_lastDir, _lastLoop, _lastFile))==None:
-					filesDeleted+=1
-
-				_lastFile-= 1
-				if _lastFile==0:
-					_lastFile= 999
-					_lastDir-= 1
-
-			logging.info('Deleted %d files' % filesDeleted)
+	def reset(self):
+		if self.settings:
+			resA= [
+				  self.yi.cmd(Yi4kAPI.setRecordMode, self.settings['rec_mode'])
+				, self.yi.cmd(Yi4kAPI.setLoopDuration, self.settings['loop_rec_duration'])
+				, self.yi.cmd(Yi4kAPI.setVideoQuality, self.settings['video_quality'])
+				, self.yi.cmd(Yi4kAPI.setVideoStandard, self.settings['video_standard'])
+				, self.yi.cmd(Yi4kAPI.setVideoResolution, self.settings['video_resolution'])
+			]
+			logging.info('Reset to: %s' % resA)
 
 
-		_cYi.close()
+		self.yi.close()
+		self.yi= None

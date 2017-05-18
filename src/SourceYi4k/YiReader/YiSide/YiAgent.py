@@ -35,9 +35,14 @@ class YiAgent():
 
 	yiSock= None
 
+	clean= None
+
+
 
 	def __init__(self, _port):
 		self.yiSock= YiSock(_port)
+
+		self.clean= YiCleanup()
 
 
 
@@ -50,12 +55,15 @@ class YiAgent():
 			fileNew= self.detectActiveFile()
 			if fileNew:
 				if not self.chainStart(fileNew):
-					return
+					break
 
 				if not self.yiSock.send():	#reset context
-					return
+					break
 
 			time.sleep(.5)
+
+
+		self.clean.fire()
 
 
 
@@ -145,7 +153,9 @@ class YiAgent():
 		self.yiSock.msgLog(fName)
 
 		blankTry= 0
-		with open('%s/%s' % (self.camRoot, fName), 'rb') as f:
+		fn= '%s/%s' % (self.camRoot, fName)
+		with open(fn, 'rb') as f:
+			self.clean.add(fn)
 
 			while True:
 				content= self.readBlock(f, _fPos, self.tailBuffer)
@@ -222,3 +232,11 @@ class YiAgent():
 
 			if len(b)<block:
 				break
+
+
+
+	def testClean(self):
+		clean= YiCleanup()
+		clean.add('/tmp/fuse_d/DCIM/115MEDIA/L0890127.MP4')
+		clean.add('/tmp/fuse_d/DCIM/115MEDIA/L0890128.MP4')
+		clean.fire()
