@@ -60,7 +60,10 @@ class YiReader():
 
 		threading.Timer(0, lambda:self.yiListen(yiData.restore)).start()
 		
-		return self.yiRunAgent(_errorCB)
+		threading.Timer(0, lambda:self.yiRunAgent(_errorCB)).start()
+
+
+		return True
 
 
 
