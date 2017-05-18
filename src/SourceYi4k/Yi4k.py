@@ -59,13 +59,12 @@ class Yi4k():
 
 	'''
 	Apply camera settings and start streaming data into mux callback.
-	If not forced, start is suppressed if camera is already recording.
 	
 	WARNING: Stryim doesn't check if camera data matches muxer settings.
 	'''
 #  todo 272 (Yi, config) +0: add 60 fps
 #  todo 273 (Yi, config) +0: add 1440 format
-	def start(self, force=False, fps=30, fmt=1080):
+	def start(self, fps=30, fmt=1080):
 		if not self.yiControl.start(fps, fmt):
 			return
 
