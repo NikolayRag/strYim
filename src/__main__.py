@@ -9,6 +9,8 @@ from args import *
 from MediaStream import *
 from SourceYi4k import *
 
+import threading
+
 
 appSource= None
 appStreamer= None
@@ -41,16 +43,17 @@ def runCmdline(_args):
 
 	while not appSource.isIdle():
 		try:
-			time.sleep(.1)
+			time.sleep(1)
 		except KeyboardInterrupt:
 			logging.info('Terminated')
 			
 #			_args.args['nonstop']= True
-			appSource.stop()
 			break
 
-
+	appSource.stop()
 	appStreamer.close()
+
+
 
 
 
@@ -69,3 +72,9 @@ if __name__ == '__main__':
 
 		runCmdline(cArgs)
 
+
+		while len(threading.enumerate())>1:
+			try:
+				time.sleep(1)
+			except KeyboardInterrupt:
+				logging.warning('Cooldown in progress')
