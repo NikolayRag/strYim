@@ -1,5 +1,5 @@
 '''
-Storage class used to pass AVC/ACC data from Mp4Recover to muxers
+Storage class used to pass AVC/ACC data to muxers
 '''
 class Atom():
 	typeMoov= False
@@ -14,14 +14,13 @@ class Atom():
 	inPos= None
 	outPos= None
 
-	data= None
+	data= b''
 
 
-	def __init__(self, _in=None, _out=None, data=None):
+	def __init__(self, _in=None, _out=None, data=b''):
 		self.inPos= _in
 		self.outPos= _out
-		if data:
-			self.data= data[_in:_out]
+		self.data= data[_in:_out]
 
 
 	def setMOOV(self):
@@ -47,7 +46,7 @@ class Atom():
 		self.typeAVC= False
 		self.typeAAC= True
 
-# -todo 117 (mux, flv, bytes, aac) +2: reveal actual AAC frame length
+#  todo 117 (mux, flv, bytes, aac) -1: reveal actual AAC frame length
 		self.AACSamples= 1024
 
 		return self

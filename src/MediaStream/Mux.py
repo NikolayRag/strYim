@@ -1,12 +1,14 @@
-from .aac.AACSupport import *
-from kiSupport import *
+from .AAC import *
 import logging
+
 
 '''
 FLV Muxer class
 Requires Sink to be specified
 '''
 class MuxFLV():
+	stat= {'frames': 0, 'aac': 0}
+
 	stampCurrent= 0.
 
 	stampVideoNext= 0.
@@ -28,6 +30,8 @@ class MuxFLV():
 
 
 	def __init__(self, _sink, fps=None, audio=True, srate=None):
+		self.stat= {'frames': 0, 'aac': 0}
+
 		self.stampCurrent= 0.
 
 		self.stampVideoNext= 0.
@@ -48,7 +52,7 @@ class MuxFLV():
 		self.useAudio= audio
 
 		self.sink.add( self.header(audio=self.useAudio) )
-		self.sink.add( self.dataTag(self.flvMeta(self.useAudio)) )
+#		self.sink.add( self.dataTag(self.flvMeta(self.useAudio)) )
 		self.sink.add( self.videoTag(0,True,self.videoDCR()) )
 		if self.useAudio:
 			self.sink.add( self.audioTag(0,self.audioSC()) )
@@ -59,6 +63,7 @@ class MuxFLV():
 			return
 
 		if _atom.typeAVC and _atom.AVCVisible:
+			self.stat['frames']+= 1
 			flvTag= self.videoTag(1, _atom.AVCKey, _atom.data, self.stampV())
 			self.sink.add(flvTag)
 
@@ -67,11 +72,13 @@ class MuxFLV():
 				logging.warning('Too big AAC found, skipped: %d' % len(_atom.data))
 				return
 
+			self.stat['aac']+= 1
 			flvTag= self.audioTag(1, _atom.data, self.stampA(_atom.AACSamples))
 			self.sink.add(flvTag)
 
 
 	def stop(self):
+		logging.info('%d frames, %d aac' % (self.stat['frames'], self.stat['aac']))
 		if not self.sink:
 			return
 
@@ -90,7 +97,7 @@ class MuxFLV():
 	'''
 	def stampV(self):
 		if self.stampVideoNext < self.stampCurrent:
-			logging.warning('Video stamp underrun %fmsec' % precision(self.stampCurrent-self.stampVideoNext,1) )
+			logging.warning('Video stamp underrun %.1fmsec' % (self.stampCurrent-self.stampVideoNext) )
 			self.stampVideoNext = self.stampCurrent
 
 		self.stampCurrent= self.stampVideoNext
@@ -105,7 +112,7 @@ class MuxFLV():
 	'''
 	def stampA(self, _bytes):
 		if self.stampAudioNext < self.stampCurrent:
-			logging.warning('Audio stamp underrun %fmsec' % precision(self.stampCurrent-self.stampAudioNext,1) )
+			logging.warning('Audio stamp underrun %.1fmsec' % (self.stampCurrent-self.stampAudioNext) )
 			self.stampAudioNext= self.stampCurrent
 
 		self.stampCurrent= self.stampAudioNext
@@ -119,7 +126,7 @@ class MuxFLV():
 	#FLVTAG, including 4 bytes size
 	def tag(self, _type, _stamp=0, _data=[b'']):
 		if _stamp<0 or _stamp>0x7fffffff:
-			logging.error('Stamp out of range: %f' % precision(_stamp,1) )
+			logging.error('Stamp out of range: %.1f' % _stamp)
 			_stamp= 0
 
 
@@ -184,7 +191,7 @@ class MuxFLV():
 	def videoDCR(self):
 		nalSz= 4
 		
-# -todo 98 (flv) +0: build SPS and PPS
+#  todo 98 (flv) +0: Init stream with SPS and PPS provided
 		sps= b'\x27\x4d\x40\x33\x9a\x64\x03\xc0\x11\x3f\x2c\x8c\x04\x04\x05\x00\x00\x03\x03\xe9\x00\x00\xea\x60\xe8\x60\x00\xb7\x18\x00\x02\xdc\x6c\xbb\xcb\x8d\x0c\x00\x16\xe3\x00\x00\x5b\x8d\x97\x79\x70\x78\x44\x22\x52\xc0'
 		pps= [b'\x28\xee\x38\x80']
 
@@ -261,6 +268,10 @@ h264 Muxer class
 Requires Sink to be specified
 '''
 class MuxH264():
+	h264Presets= {
+	  	(1080,2997,0): b'\'M@3\x9ad\x03\xc0\x11?,\x8c\x04\x04\x05\x00\x00\x03\x03\xe9\x00\x00\xea`\xe8`\x00\xb7\x18\x00\x02\xdcl\xbb\xcb\x8d\x0c\x00\x16\xe3\x00\x00[\x8d\x97ypxD"R\xc0'
+		, -1: b'\x28\xee\x38\x80'
+	}
 
 	sink= None
 
@@ -272,12 +283,18 @@ class MuxH264():
 			logging.error('Sink not specified')
 			return
 
+		self.header(self.h264Presets[(1080,2997,0)])
+		self.header(self.h264Presets[-1])
+
+
+
 	def add(self, _atom):
 		if not self.sink:
 			return
 
 		if _atom.typeAVC:
 			self.sink.add(b'\x00\x00\x00\x01' +_atom.data)
+
 
 
 	def stop(self):
@@ -289,6 +306,11 @@ class MuxH264():
 		self.sink= None
 
 
+	def header(self, _data):
+		if not self.sink:
+			return
+
+		self.sink.add(b'\x00\x00\x00\x01' +_data)
 
 
 
@@ -306,7 +328,7 @@ class MuxAAC():
 	sink= None
 
 	doADTS= True
-	adts= bitsCollect([
+	adts= Bits.bitsCollect([
 		  (12, 0b111111111111)	#fff first 8 bits
 		, (1, 0)				#version, mpeg4=0
 		, (2, 0)				#layer(0)

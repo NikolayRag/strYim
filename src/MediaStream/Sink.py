@@ -1,7 +1,10 @@
+'''
+Mux-suitable sinks
+'''
 import logging
 
 '''
-Mux-suitable sink for sending binary data to file
+File sink
 '''
 class SinkFile():
 	cFile= None
@@ -19,17 +22,24 @@ class SinkFile():
 
 
 
+import re, threading
 '''
-Mux-suitable sink for sending binary data to TCP
+TCP sink
 '''
 # -todo 118 (sink) +0: make SinkTCP nonblocking, stream-based
 class SinkTCP():
+	ipMask= re.compile('^(tcp://)?(?P<addr>(\d+\.\d+\.\d+\.\d+)|([\w\d_\.]+))?(:(?P<port>\d*))?$')
+
 	cSocket= None
 
-	def __init__(self, port, ip='127.0.0.1'):
-		self.cSocket= socket.create_connection((ip,port))
+	def __init__(self, _ip=''):
+		ipElements= self.ipMask.match(_ip)
+		addr= ipElements.group('addr') or '127.0.0.1'
+		port= int(ipElements.group('port') or 2345)
 
-		logging.info('Connected to %s, %d' % (ip,port))
+		self.cSocket= socket.create_connection((addr,port))
+
+		logging.info('Connected to %s, %d' % (addr,port))
 
 
 	def add(self, _data):
@@ -41,25 +51,43 @@ class SinkTCP():
 
 		except:
 			logging.error('Socket error')
-
-
-	def close(self):
-		if self.cSocket:
-			self.cSocket.close()
 			self.cSocket= None
 
 
 
+	def close(self):
+		cSocket= self.cSocket
+		self.cSocket= None
+		if cSocket:
+			cSocket.close()
+
+
+
+### PRIVATE
+
+	def send(self, _data):
+		try:
+			self.cSocket.sendall(_data)
+
+		except:
+			logging.error('Socket error')
+
+
+
+
+
 
 '''
-Mux-suitable sink for sending binary data to RTMP
+RTMP sink
 '''
 import subprocess, threading, socket
+from support import *
+
 # -todo 119 (sink) +0: make SinkRTMP nonblocking, stream-based
 class SinkRTMP():
 	rtmp= ''
 
-	tcp= None
+	cSocket= None
 
 
 	def __init__(self, _rtmp):
@@ -68,38 +96,42 @@ class SinkRTMP():
 
 		ffport= 2345
 		threading.Timer(0, lambda: self.serverInit(ffport)).start()
-		self.tcp= self.tcpInit(ffport)
+		self.cSocket= self.tcpInit(ffport)
 
 
 
 
 
 	def add(self, _data):
-		if not self.tcp:
+		if not self.cSocket:
 			return
 
 		try:
-			self.tcp.sendall(_data)
+			self.cSocket.sendall(_data)
+
 		except:
 			logging.error('Socket error')
-			self.tcp= None
+			self.cSocket= None
+
 
 
 	def close(self):
-		tcp= self.tcp
-		self.tcp= None
-		if tcp:
-			tcp.close()
+		cSocket= self.cSocket
+		self.cSocket= None
+		if cSocket:
+			cSocket.close()
 
 
 
 
-	#private
+### PRIVATE
 
 	def serverInit(self, _ffport):
 #  todo 104 (clean, release) +0: use 'current' folder for release and hide ffmpeg
 #  todo 105 (sink, unsure) -1: hardcode RTMP protocol
-		subprocess.call(pyinstRoot('ffmpeg/ffmpeg') +' -i tcp://127.0.0.1:%d?listen -c copy -f flv %s' % (_ffport, self.rtmp), shell=False)
+		logging.info('Running ffmpeg')
+		subprocess.call(ROOT + '/ffmpeg/ffmpeg -i tcp://127.0.0.1:%d?listen -c copy -f flv %s' % (_ffport, self.rtmp), shell=False)
+
 
 
 	def tcpInit(self, _ffport):

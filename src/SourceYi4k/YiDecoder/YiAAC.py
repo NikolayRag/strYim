@@ -1,13 +1,28 @@
-from .aac.AACCore import *
+from MediaStream.AAC import *
 import logging
 
 
 '''
 Support class to detect Yi4k (only) AAC blocks looking pretty suitable
 It should be completely replaced by native AAC decoder. Eventually.
+
+Yi4k's .mp4 stream has [h264,AAC,...] structure, where AAC is 0 to 2 blocks.
+That is because one AAC block duration is always 21.(3)ms (1024/48000),
+ and frame duration for slowest FPS is 41.(6)ms (1/24fps). So AAC underflow
+ periodically and placed twice to prevent lag.
+
+AAC must be separately provided to FLV muxer to apply individual timestamps,
+ and since AAC format doesn't have easy-to-detect signatures, it's neccessary
+ to to detect correct boundaries of provided bytearray.
+MediaStream.AACCore is used here as an incomplete, though acceptable
+ AAC detector.
+
+
 '''
 class AACDetect():
-	#allowed max_sfb for [started]
+	#Allowed max_sfb, Yi4k specific.
+	#Such strange form is used to compare current sfb
+	#to 8-seq and 'started' state.
 	sfb8= [[12], [12]]
 	sfb1= [[0,40], [40]]
 
@@ -18,16 +33,21 @@ class AACDetect():
 		self.reset()
 
 
+	'''
+	Tell than new context(.mp4 file) will follow.
+	'''
 	def reset(self):
 		self.started= False
 		self.seqNow= False
 
 
+	'''
+	Provided with seamless AAC binary, detect if it should be splitted.
+	'''
 	def detect(self, _data, _limit=2):
 		aacStartA= []
 		aacPos= -1
 
-			#spike. Yi4k limit, 30fps assumes mid-frame data have maximum 2 AACs
 		while (True if not _limit else (len(aacStartA)<_limit)):
 			aacPos= _data.find(b'\x21', aacPos+1)
 			if aacPos==-1:
