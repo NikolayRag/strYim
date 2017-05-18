@@ -187,7 +187,7 @@ def t9():
 	streamer= MediaStream.Streamer('tmp.flv')
 	streamer.link(yi4k)
 
-	threading.Timer(0, yi4k.start).start()
+	yi4k.start()
 	threading.Timer(10, yi4k.stop).start()
 	threading.Timer(15, streamer.close).start()
 
