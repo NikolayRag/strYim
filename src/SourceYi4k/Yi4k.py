@@ -26,6 +26,7 @@ class Yi4k():
 	atomCB= None
 	signalCB= None
 
+	idle= True
 
 
 	'''
@@ -40,7 +41,7 @@ class Yi4k():
 		self.yiReader= YiReader(self.yiAddr)
 		self.yiDecoder= Mp4Recover(self.atomLoopbackCB)
 
-		self.yiControl= YiControl(self.yiAddr, self.yiReader.stop)
+		self.yiControl= YiControl(self.yiAddr, self.cameraStopCB)
 
 
 
@@ -69,7 +70,10 @@ class Yi4k():
 			return
 
 		logging.info('Starting %d at %dfps' % (fmt, fps))
-		
+
+		self.idle= False
+
+
 		res= self.yiReader.start(self.readerDataCB, self.readerContextCB, self.readerStateCB)
 		if not res:
 			self.yiControl.stop()
@@ -85,6 +89,11 @@ class Yi4k():
 	def stop(self):
 		self.yiControl.stop()
 
+
+
+
+	def isIdle(self):
+		return self.idle
 
 
 
@@ -118,4 +127,12 @@ class Yi4k():
 	'''
 	def atomLoopbackCB(self, _atom):
 		self.atomCB and self.atomCB(_atom)
+
+
+
+	def cameraStopCB(self):
+		self.yiReader.stop()
+
+		self.idle= True
+
 
