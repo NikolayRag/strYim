@@ -31,6 +31,7 @@ class Streamer(threading.Thread):
 		threading.Thread.__init__(self)
 
 		self.stat= Stat()
+		self.stat.trigger(StatTrigger(fn=self.stat.max, steps=[10,20,30,50,80,130,200,350,550,900,1500,2300,3800,6100,10000], cb=self.statCB))
 
 		self.muxer= self.initMuxer(_dst, fps)
 
@@ -72,16 +73,6 @@ class Streamer(threading.Thread):
 		return self.result
 
 
-
-	'''
-	Get statistic
-	'''
-	def stats(self):
-		last= self.stat.last()
-		if last and last>=100:
-			logging.debug('Atoms waiting: %d (%d-%d)' % (last, self.stat.min(), self.stat.max()))
-
-		return last
 
 
 
@@ -150,4 +141,14 @@ class Streamer(threading.Thread):
 
 			self.stat.add(self.atomsQ.qsize())
 
-			self.stats()
+
+
+	'''
+	Get statistic
+	'''
+	def statCB(self, _val, _raise):
+		if _raise:
+			logging.debug('Atoms over: %s' % _val)
+		else:
+			logging.debug('Atoms under: %s' % _val)
+

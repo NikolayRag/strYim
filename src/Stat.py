@@ -1,6 +1,8 @@
 import time
 import logging
 
+
+
 '''
 Collect value statistic over time.
 '''
@@ -8,6 +10,8 @@ class Stat():
 	stat= None
 
 	limitGlobal= 0
+
+	trigger= None
 
 
 	'''
@@ -34,9 +38,11 @@ class Stat():
 
 			okN+= 1
 
-
 		self.stat= self.stat[okN:]
 		self.stat.append((cTime,_val))
+
+
+		self.trigger and self.trigger.check()
 
 
 
@@ -46,6 +52,14 @@ class Stat():
 			out= min(out or cVal[1], cVal[1])
 
 		return out
+
+
+
+	'''
+	Define callback to trigger when value raise or fall over declared steps.
+	'''
+	def trigger(self, trigger):
+		self.trigger= trigger
 
 
 
@@ -85,9 +99,53 @@ class Stat():
 				break
 
 			if cVal[0] > (cTime -limit[0]):
-				start-= 1
+				stop-= 1
 
-			stop-= 1
+			start-= 1
 
 
 		return self.stat[start:stop]
+
+
+
+
+
+
+class StatTrigger():
+	triggerLimit= None
+	triggerSteps= None
+	triggerCB= None
+	triggerDir= None
+	triggerFn= None
+
+	triggerLast= None
+
+
+	def __init__(self, fn=None, limit=(0,1), steps=False, cb=False, direction=0):
+		self.triggerFn= callable(fn) and fn
+		self.triggerLimit= limit
+		self.triggerSteps= (isinstance(steps, (set,list)) and steps) or [steps]
+		self.triggerSteps.sort()
+		self.triggerCB= callable(cb) and cb
+		self.triggerDir= direction
+
+
+
+	def check(self):
+		_val= self.triggerFn(self.triggerLimit)
+
+		if self.triggerLast!=None and _val!=None:
+			if self.triggerDir>=0:
+				for step in self.triggerSteps[::-1]:
+					if (self.triggerLast < step) and (_val >= step):
+						self.triggerCB(_val, True)
+						break
+
+			if self.triggerDir<=0:
+				for step in self.triggerSteps:
+					if (self.triggerLast > step) and (_val <= step):
+						self.triggerCB(_val, False)
+						break
+
+		
+		self.triggerLast= _val
