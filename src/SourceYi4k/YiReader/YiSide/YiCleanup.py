@@ -25,7 +25,8 @@ class YiCleanup():
 
 
 	def add(self, _file):
-		self.list= self.list[-self.limit+1:] +[_file]
+		if _file not in self.list:
+			self.list= self.list[-self.limit+1:] +[_file]
 
 
 
@@ -35,8 +36,8 @@ class YiCleanup():
 			f.write(''.join(inspect.getsourcelines(self.__cleanupDaemon)[0][1:]))
 			f.write('\nstart()')
 
-		os.system('python '+__file__+'.kill.py ' +' '.join(self.list))
-#		os.system('python '+__file__+'.kill.py ' +' '.join(self.list)+ ' &>/dev/null &')
+#		os.system('python '+__file__+'.kill.py ' +' '.join(self.list))
+		os.system('python '+__file__+'.kill.py ' +' '.join(self.list)+ ' &>/dev/null &')
 
 
 
@@ -45,11 +46,23 @@ class YiCleanup():
 	Treat this code as plain.
 	'''
 	def __cleanupDaemon():
-		import time, os, sys
+		import time, os, sys, json, socket
 
 
 		def killWithApi(_file):
-			return True
+			yiSock= socket.create_connection(('127.0.0.1',7878),1)
+			yiSock.sendall( json.dumps({'msg_id':257}) )
+			sessId= json.loads( yiSock.recv(1024).decode() )['param']
+
+			yiSock.sendall( json.dumps({'msg_id':1281, 'token':sessId, "heartbeat":1, "param":_file}) )
+			res= json.loads( yiSock.recv(1024).decode() )['rval']
+
+			yiSock.sendall( json.dumps({'msg_id':258, 'token':sessId, "heartbeat":2}) )
+			yiSock.recv(1024)
+			yiSock.close
+
+
+			return res==0
 
 
 
