@@ -10,16 +10,6 @@ class Args():
 	appName='stryim'
 	settingsFile= os.path.join(os.path.expanduser('~'), ".%s/%s.ini" % (appName,appName))
 
-# -todo 232 (Yi) +0: add video formats
-#  todo 244 (feature, v2) -1: get available formats from current In module
-	formats= [
-		{
-			'fps':30000./1001,
-			'yi':'1920x1080 30P 16:9'
-		}
-	]
-	
-
 	args= None
 
 
@@ -105,7 +95,7 @@ class Args():
 	def parseCmdline(self, _forceDst):
 		cParser= argparse.ArgumentParser(description= 'Yi 4k lossless streamer.')
 
-		cParser.add_argument('-nonstop', default=False, action='store_true', help='Dont exit when camera pauses.')
+#		cParser.add_argument('-nonstop', default=False, action='store_true', help='Dont exit when camera pauses.')
 		cParser.add_argument('dst', type=str, nargs=(None if _forceDst else '?'), help='streaming destination: rtmp://server/path')
 
 		cParser.add_argument('-YiIP', default='192.168.42.1', type=str, help=argparse.SUPPRESS)
