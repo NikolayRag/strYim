@@ -51,11 +51,11 @@ class MuxFLV():
 
 		self.useAudio= audio
 
-		self.sink.add( self.header(audio=self.useAudio) )
-#		self.sink.add( self.dataTag(self.flvMeta(self.useAudio)) )
-		self.sink.add( self.videoTag(0,True,self.videoDCR()) )
+		self.flush( self.header(audio=self.useAudio) )
+#		self.flush( self.dataTag(self.flvMeta(self.useAudio)) )
+		self.flush( self.videoTag(0,True,self.videoDCR()) )
 		if self.useAudio:
-			self.sink.add( self.audioTag(0,self.audioSC()) )
+			self.flush( self.audioTag(0,self.audioSC()) )
 
 
 	def add(self, _atom):
@@ -65,7 +65,7 @@ class MuxFLV():
 		if _atom.typeAVC and _atom.AVCVisible:
 			self.stat['frames']+= 1
 			flvTag= self.videoTag(1, _atom.AVCKey, _atom.data, self.stampV())
-			self.sink.add(flvTag)
+			self.flush(flvTag)
 
 		if self.useAudio and _atom.typeAAC:
 			if len(_atom.data)>2040:
@@ -74,7 +74,7 @@ class MuxFLV():
 
 			self.stat['aac']+= 1
 			flvTag= self.audioTag(1, _atom.data, self.stampA(_atom.AACSamples))
-			self.sink.add(flvTag)
+			self.flush(flvTag)
 
 
 	def stop(self):
@@ -82,7 +82,7 @@ class MuxFLV():
 		if not self.sink:
 			return
 
-		self.sink.add( self.videoTag(2,True,stamp=self.stampV()) )
+		self.flush( self.videoTag(2,True,stamp=self.stampV()) )
 		self.sink.close()
 
 		self.sink= None
@@ -90,6 +90,11 @@ class MuxFLV():
 
 
 	#private
+
+	def flush(self, _data):
+		if self.sink:
+			self.sink.add(_data)
+
 
 	'''
 	Audio/video timestamps are computed separate.
@@ -293,7 +298,7 @@ class MuxH264():
 			return
 
 		if _atom.typeAVC:
-			self.sink.add(b'\x00\x00\x00\x01' +_atom.data)
+			self.flush(b'\x00\x00\x00\x01' +_atom.data)
 
 
 
@@ -310,10 +315,12 @@ class MuxH264():
 		if not self.sink:
 			return
 
-		self.sink.add(b'\x00\x00\x00\x01' +_data)
+		self.flush(b'\x00\x00\x00\x01' +_data)
 
 
-
+	def flush(self, _data):
+		if self.sink:
+			self.sink.add(_data)
 
 
 
@@ -371,9 +378,9 @@ class MuxAAC():
 
 			if self.doADTS:
 				adtsHead= self.adts +(len(_atom.data)+self.adtsLen<<13)	#-13 bit pos
-				self.sink.add(adtsHead.to_bytes(self.adtsLen, 'big'))
+				self.flush(adtsHead.to_bytes(self.adtsLen, 'big'))
 
-			self.sink.add(_atom.data)
+			self.flush(_atom.data)
 
 
 	def stop(self):
@@ -385,3 +392,7 @@ class MuxAAC():
 		self.sink= None
 
 
+	def flush(self, _data):
+		if self.sink:
+			self.sink.add(_data)
+			
