@@ -47,11 +47,23 @@ class YiCleanup():
 	def __cleanupDaemon():
 		import time, os, sys
 
+
 		def killWithApi(_file):
-			print(_file)
+			return True
 
+
+
+		countDel= 0
 		for f in sys.argv[1:]:
-			killWithApi(f)
+			if os.path.isfile(f):
+				for n in range(10):
+					if killWithApi(f):
+						countDel+= 1
+						break
 
+					time.sleep(1)
+
+
+		print(countDel)
 
 		os.remove(__file__) #kill self
