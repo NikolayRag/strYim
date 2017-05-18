@@ -75,6 +75,6 @@ if __name__ == '__main__':
 
 		while len(threading.enumerate())>1:
 			try:
-				time.sleep(1)
+				time.sleep(.1)
 			except KeyboardInterrupt:
 				logging.warning('Cooldown in progress')
