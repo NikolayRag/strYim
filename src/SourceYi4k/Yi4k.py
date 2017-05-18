@@ -74,11 +74,7 @@ class Yi4k():
 		self.idle= False
 
 
-		res= self.yiReader.start(self.readerDataCB, self.readerContextCB, self.readerStateCB)
-		if not res:
-			self.yiControl.stop()
-
-		return res
+		self.yiReader.start(self.readerDataCB, self.readerContextCB, self.readerStateCB, self.yiControl.stop)
 
 
 

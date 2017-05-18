@@ -49,7 +49,7 @@ class YiReader():
 	 {context, length} dict. Then binary data is sequentally passed
 	 to _dataCB until next chunk.
 	'''
-	def start(self, _dataCB=None, _ctxCB=None, _stateCB=None):
+	def start(self, _dataCB=None, _ctxCB=None, _stateCB=None, _errorCB=None):
 		if self.yiSocket:
 			logging.warning('Already running')
 
@@ -60,7 +60,7 @@ class YiReader():
 
 		threading.Timer(0, lambda:self.yiListen(yiData.restore)).start()
 		
-		return self.yiRunAgent()
+		return self.yiRunAgent(_errorCB)
 
 
 
@@ -126,7 +126,7 @@ class YiReader():
 	'''
 	Run YiAgent and related code at Yi4k.
 	'''
-	def yiRunAgent(self, _agentRoute='check'):
+	def yiRunAgent(self, _agentRoute='check', errorCB=None):
 		agentSrc= []
 		agentSrc.extend( inspect.getsourcelines(YiData)[0] )
 		agentSrc.extend( inspect.getsourcelines(YiSock)[0] )
@@ -146,6 +146,9 @@ class YiReader():
 
 		if res:
 			logging.error(res)
+
+			callable(errorCB) and errorCB()
+
 
 		return not res
 
