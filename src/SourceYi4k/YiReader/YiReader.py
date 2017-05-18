@@ -18,6 +18,7 @@ YiReader flow, with .start():
 	* recieve data
 		* send data to provided callback
 '''
+# =todo 290 (streaming, fix, ffmpeg, exploit) +1: /289; separate thread
 class YiReader():
 	yiAddr= None
 	yiSocket= None
