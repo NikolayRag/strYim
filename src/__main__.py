@@ -2,7 +2,10 @@
 
 import logging
 import kiLog
+kiLog.state(False)
 kiLog.state('', kiLog.INFO)
+kiLog.state('Streamer', kiLog.INFO)
+kiLog.state('Yi4k', kiLog.INFO)
 
 
 from args import *
@@ -62,9 +65,6 @@ if __name__ == '__main__':
 	cArgs= Args(False)
 
 	if cArgs.args:
-		kiLog.state(False, kiLog.ERROR)
-		kiLog.state('', kiLog.INFO)
-
 		for c in (cArgs.args['logverb'] or []):
 			kiLog.state(c, kiLog.DEBUG)
 		for c in (cArgs.args['logwarn'] or []):
