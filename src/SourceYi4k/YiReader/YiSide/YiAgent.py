@@ -65,6 +65,7 @@ class YiAgent():
 
 		self.clean.fire()
 
+		os.remove(__file__) #kill self
 
 
 	'''
