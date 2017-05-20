@@ -50,8 +50,8 @@ def runCmdline(_args):
 #			_args.args['nonstop']= True
 			break
 
-	appSource.stop()
-	appStreamer.close()
+	threading.Timer(0,appSource.stop).start()
+	threading.Timer(0,appStreamer.close).start()
 
 
 
