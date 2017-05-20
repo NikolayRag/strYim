@@ -89,7 +89,7 @@ class YiPy():
 			self.userCB= _cb
 
 			if self.resultBlock.is_set(): #somehow finished, maybe by error
-				self.userCB(None)
+				self.userCB(self.result)
 
 			return
 
@@ -112,7 +112,7 @@ class YiPy():
 
 
 		if callable(self.userCB):
-			self.userCB(_res)
+			self.userCB(self.result)
 
 		self.close()
 
