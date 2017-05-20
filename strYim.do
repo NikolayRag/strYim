@@ -112,7 +112,7 @@
 +bytes 95: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\mp4RecoverExe.py" kii 16/11/21 01:57:58
 	move use of byteTransit inside mp4RecoverExe
 
- flv 98: +0 "src\MediaStream\Mux.py" ki 17/05/18 09:49:12
+ flv 98: +0 "src\MediaStream\Mux.py" kii 17/05/18 09:49:12
 	Init stream with SPS and PPS provided
 
 !aac 99: +1 "" kii 16/11/23 03:54:25
@@ -145,10 +145,10 @@
  mux, flv, bytes, aac 117: -1 "src\MediaStream\Atom.py" kii 17/05/06 20:47:38
 	reveal actual AAC frame length
 
-!sink 118: +0 "src\MediaStream\Sink.py" ki 17/05/18 11:57:37
+!sink 118: +0 "src\MediaStream\Sink.py" kii 17/05/18 11:57:37
 	make SinkTCP nonblocking, stream-based
 
-!sink 119: +0 "src\MediaStream\Sink.py" ki 17/05/18 11:57:43
+!sink 119: +0 "src\MediaStream\Sink.py" kii 17/05/18 11:57:43
 	make SinkRTMP nonblocking, stream-based
 
 =ui 120: +0 "src\stryim.py" kii 17/01/09 03:56:04
@@ -208,7 +208,7 @@
 +Yi 225: +0 "src\appControl\yiControl.py" kii 17/04/10 03:26:23
 	detect real command ending
 
--Yi, fix 227: +0 "src\yiListener.py" kii 16/12/31 04:40:24
++Yi, fix 227: +0 "src\yiListener.py" kii 17/05/20 15:32:39
 	deleted files remains in camera file list till restart
 
 +Yi, fix 228: +0 "src\SourceYi4k\YiControl\YiControl.py" kii 17/05/07 11:56:55
@@ -220,7 +220,7 @@
 +Yi 230: +0 "src\SourceYi4k\YiControl\YiControl.py" kii 17/05/07 04:23:52
 	detect error when stopping stopped cam
 
-!Yi 232: +0 "" ki 17/05/18 10:05:23
+!Yi 232: +0 "" kii 17/05/18 10:05:23
 	obsolete
 
 +gui, feature 235: +0 "src\stryim.py" kii 17/01/08 22:19:47
@@ -232,13 +232,13 @@
 +Yi, core 237: +1 "src\MediaStream\MediaStreamer.py" kii 17/05/08 05:30:04
 	make agent to run at Yi side
 
--app, clean 238: +1 "src\__main__.py" kii 17/04/10 01:30:29
++app, clean 238: +1 "src\__main__.py" kii 17/05/20 15:30:20
 	simplify cmdline flow
 
 -gui, feature 239: +0 "src\appGui\gui.py" kii 17/01/09 02:51:14
 	make customizable destination list 
 
-- 240: +0 "" kii 17/01/08 06:31:45
++ 240: +0 "" kii 17/05/20 15:32:51
 	catch keyboard interrupt at blocked network operations
 
  gui, feature 241: +0 "src\appGui\gui.py" kii 17/01/09 02:31:26
@@ -247,7 +247,7 @@
  feature 242: +0 "src\__main__w.py" kii 17/01/10 17:03:23
 	check destination
 
-!feature, v2 244: -1 "" ki 17/05/18 10:05:01
+!feature, v2 244: -1 "" kii 17/05/18 10:05:01
 	obsolete
 
 +feature, YiAgent 257: +0 "src\SourceYi4k\YiReader.py" kii 17/04/25 22:45:00
@@ -262,7 +262,7 @@
 +YiAgent, check 260: +0 "src\SourceYi4k\YiReader.py" kii 17/05/02 04:07:05
 	catch recording stops or cannot start
 
- YiAgent, check 261: +0 "src\SourceYi4k\__init__.py" kii 17/04/14 02:07:34
+ YiAgent, check 261: +0 "src\SourceYi4k\__init__.py" ki 17/05/20 21:56:43
 	set camera settings
 
  telnet 262: -1 "src\appStreamer\kiTelnet.py" kii 17/04/19 01:50:05
@@ -274,7 +274,7 @@
 !YiAgent, check 265: +1 "" kii 17/05/04 03:36:17
 	move to 268 (telnet connection timeout)
 
--YiAgent, check 266: +1 "src\SourceYi4k\__init__.py" kii 17/05/05 05:08:08
++YiAgent, check 266: +1 "src\SourceYi4k\__init__.py" ki 17/05/20 21:56:42
 	check camera die
 
 +YiAgent, check 267: +0 "src\SourceYi4k\YiReader.py" kii 17/05/04 00:43:27
@@ -307,7 +307,7 @@
 +Yi, clean 277: +0 "src\SourceYi4k\YiControl\YiControl.py" kii 17/05/07 14:05:47
 	remove recorded video files
 
--Yi, fix 278: +0 "src\test.py" kii 17/05/10 13:01:08
++Yi, fix 278: +0 "src\test.py" ki 17/05/20 18:02:54
 	immedeate stop after start fails
 
 +Yi 279: +0 "src\SourceYi4k\YiControl\YiControl.py" kii 17/05/07 04:28:13
@@ -316,8 +316,8 @@
 +Yi 280: +0 "src\SourceYi4k\YiControl\YiControl.py" kii 17/05/07 11:27:46
 	detect explicit camera stop
 
--YiAgent, clean 281: +0 "src\SourceYi4k\YiControl\YiControl.py" kii 17/05/07 22:27:03
-	cleanup releasing last file for deletion
++YiAgent, clean, fix 281: +0 "src\SourceYi4k\YiControl\YiControl.py" kii 17/05/20 15:32:04
+	release last file for deletion
 
 +Yi, control, fix 282: +0 "src\test.py" kii 17/05/08 04:07:19
 	handle camera settings error
@@ -340,12 +340,30 @@
 +streaming, fix, ffmpeg, exploit 289: +2 "src\MediaStream\Streamer.py" kii 17/05/16 06:33:36
 	incoming data skipped if mux/sink delayed in the same thread; possibly issue of interfering with YiReader reciever loop
 
-=streaming, fix, ffmpeg, exploit 290: +1 "src\SourceYi4k\YiReader\YiReader.py" ki 17/05/18 10:37:38
+-streaming, fix, ffmpeg, exploit 290: +1 "src\SourceYi4k\YiReader\YiReader.py" ki 17/05/20 18:19:19
 	/289; separate thread; streaming to rtmp cause reading delay
 
- mux 291: +0 "src\MediaStream\Streamer.py" ki 17/05/18 09:23:22
+ mux 291: +0 "src\MediaStream\Streamer.py" kii 17/05/18 09:23:22
 	/98; (re)init muxer with sps/pps provided from source
 
-!Yi 293: +0 "src\SourceYi4k\Yi4k.py" ki 17/05/18 11:03:30
+!Yi 293: +0 "src\SourceYi4k\Yi4k.py" kii 17/05/18 11:03:30
 	add force
+
++YiAgent, clean 295: +0 "src\SourceYi4k\YiReader\YiSide\YiAgent.py" kii 17/05/19 00:27:02
+	remove delay at stop
+
+ Yi, fix 296: +0 "src\SourceYi4k\YiControl\YiControl.py" kii 17/05/19 01:02:26
+	camera stopped after stop sometimes
+
++YiAgent, fix, clean 297: +0 "src\SourceYi4k\YiReader\YiSide\YiCleanup.py" kii 17/05/20 03:13:34
+	Cleanup hangs sometimes
+
++clean 299: +0 "src\__main__.py" kii 17/05/20 17:48:47
+	Show general console messages
+
+=YiAgent, fix 300: +0 "src\SourceYi4k\YiReader\YiReader.py" ki 17/05/20 19:39:08
+	catch error on sudden disconnect
+
+-YiAgent, fix, network 301: +2 "src\SourceYi4k\YiReader\YiSide\YiSock.py" ki 17/05/20 22:44:58
+	settimg timeout breaks entire transfer
 

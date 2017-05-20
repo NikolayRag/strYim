@@ -1,5 +1,3 @@
-# -todo 238 (app, clean) +1: simplify cmdline flow
-
 import logging
 import kiLog
 kiLog.state(False)

@@ -38,6 +38,8 @@ class YiSock():
 			return
 
 		self.tcpSocket= c
+# -todo 301 (YiAgent, fix, network) +2: settimg timeout breaks entire transfer
+#		self.tcpSocket.settimeout(1)
 
 		return True
 

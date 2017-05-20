@@ -18,7 +18,7 @@ YiReader flow, with .start():
 	* recieve data
 		* send data to provided callback
 '''
-# =todo 290 (streaming, fix, ffmpeg, exploit) +1: /289; separate thread; streaming to rtmp cause reading delay
+# -todo 290 (streaming, fix, ffmpeg, exploit) +1: /289; separate thread; streaming to rtmp cause reading delay
 class YiReader():
 	yiAddr= None
 	yiSocket= None
@@ -135,7 +135,7 @@ class YiReader():
 			return False
 
 
-
+# =todo 300 (YiAgent, fix) +0: catch error on sudden disconnect
 		def yiRuntimeErrorCB(res):
 			self.runFlag= False	#socket could be orphan
 
