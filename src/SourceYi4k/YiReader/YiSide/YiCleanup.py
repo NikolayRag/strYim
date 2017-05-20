@@ -60,8 +60,8 @@ class YiCleanup():
 	def cleanup(filesA):
 		import time, os, json, socket, re
 
-		def delFile(f,yiSock):
-			yiSock.sendall( json.dumps({'msg_id':1281, 'token':sessId, "heartbeat":1, "param":f}) )
+		def delFile(f,yiSock, sessId, beat):
+			yiSock.sendall( json.dumps({'msg_id':1281, 'token':sessId, "heartbeat":beat, "param":f}) )
 			str= ''
 			for n in range(5):
 				str+= yiSock.recv(1024)
@@ -77,16 +77,19 @@ class YiCleanup():
 		yiSock= socket.create_connection(('127.0.0.1',7878),1)
 		yiSock.sendall( json.dumps({'msg_id':257}) )
 		sessId= json.loads( yiSock.recv(1024).decode() )['param']
+		beat= 0
 
 		for f in filesA: #each file
 			if os.path.isfile(f):
 				for n in range(20): #tries
-					if delFile(f,yiSock)==0:
+					beat+= 1
+					if delFile(f, yiSock, sessId, beat)==0:
 						break
 
 					time.sleep(.5)
 
-		yiSock.sendall( json.dumps({'msg_id':258, 'token':sessId, "heartbeat":2}) )
+		beat+= 1
+		yiSock.sendall( json.dumps({'msg_id':258, 'token':sessId, "heartbeat":beat}) )
 		yiSock.close()
 
 
