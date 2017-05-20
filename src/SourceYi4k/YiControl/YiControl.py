@@ -25,6 +25,7 @@ class YiControl():
 	cleanFiles= True
 
 	yi= None
+	started= False
 	settings= None
 
 
@@ -42,7 +43,7 @@ class YiControl():
 	_yiFormat is a (lines,fps)
 	'''
 	def start(self, _fps, _fmt):
-		if self.yi:
+		if self.started:
 			logging.error('Already started')
 			return
 
@@ -56,6 +57,7 @@ class YiControl():
 		if not self.yi.sock:
 			logging.error('Camera not found')
 			return
+		self.started= True
 
 
 		self.settings= self.yi.cmd(Yi4kAPI.getSettings)
@@ -73,6 +75,7 @@ class YiControl():
 		if res:
 			logging.error('Starting error: %s' % res)
 			self.yi.close()
+			self.started= False
 
 			return
 
@@ -85,7 +88,7 @@ class YiControl():
 
 
 	def stop(self):
-		if not self.yi:
+		if not self.started:
 			logging.warning('Not started')
 			return True #used also if externally stopped
 
@@ -112,6 +115,7 @@ class YiControl():
 	'''
 	def stopped(self, _res):
 		logging.info('Stopped')
+		self.started= False
 
 		#delay closing YiAPI from YiAPI event
 		threading.Timer(0, self.reset).start()
@@ -138,4 +142,3 @@ class YiControl():
 
 
 		self.yi.close()
-		self.yi= None
