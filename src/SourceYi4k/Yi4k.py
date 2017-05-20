@@ -65,15 +65,20 @@ class Yi4k():
 #  todo 272 (Yi, config) +0: add 60 fps
 #  todo 273 (Yi, config) +0: add 1440 format
 	def start(self, fps=30, fmt=1080):
-		if not self.yiControl.start(fps, fmt):
+		if not self.yiReader.start(self.readerDataCB, self.readerContextCB, self.readerStateCB, self.readerErrCB):
 			return
 
-		logging.info('Starting %d at %dfps' % (fmt, fps))
+
+		if not self.yiControl.start(fps, fmt):
+			self.yiReader.stop()
+			return
+
+
+		logging.info('Starting %d' % fmt)
 
 		self.idle= False
 
 
-		self.yiReader.start(self.readerDataCB, self.readerContextCB, self.readerStateCB, self.yiControl.stop)
 
 
 
@@ -126,8 +131,12 @@ class Yi4k():
 
 
 	def cameraStopCB(self):
+		logging.info('Camera stops')
+
 		self.yiReader.stop()
 
 		self.idle= True
 
 
+	def readerErrCB():
+		self.yiControl.stop()
