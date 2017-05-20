@@ -4,8 +4,8 @@
 block_cipher = None
 
 
-a = Analysis(['src\\__main__.py'],
-             pathex=['C:\\Users\\user\\Documents\\stryim'],
+a = Analysis(['src/__main__.py'],
+             pathex=[''],
              binaries=None,
              datas=None,
              hiddenimports=[],
@@ -15,8 +15,14 @@ a = Analysis(['src\\__main__.py'],
              win_no_prefer_redirects=False,
              win_private_assemblies=False,
              cipher=block_cipher)
-
-a.datas += [('ffmpeg/ffmpeg.exe','src\\ffmpeg\\ffmpeg.exe','DATA')]  
+             
+a.datas += [
+	  ('ffmpeg/ffmpeg.exe','src/ffmpeg/ffmpeg.exe','DATA')
+	, ('SourceYi4k/YiReader/YiSide/YiData.py', 'src/SourceYi4k/YiReader/YiSide/YiData.py','DATA')
+	, ('SourceYi4k/YiReader/YiSide/YiSock.py', 'src/SourceYi4k/YiReader/YiSide/YiSock.py','DATA')
+	, ('SourceYi4k/YiReader/YiSide/YiAgent.py', 'src/SourceYi4k/YiReader/YiSide/YiAgent.py','DATA')
+	, ('SourceYi4k/YiReader/YiSide/YiCleanup.py', 'src/SourceYi4k/YiReader/YiSide/YiCleanup.py','DATA')
+]  
 
 pyz = PYZ(a.pure, a.zipped_data,
              cipher=block_cipher)
@@ -30,3 +36,4 @@ exe = EXE(pyz,
           strip=False,
           upx=True,
           console=True )
+          

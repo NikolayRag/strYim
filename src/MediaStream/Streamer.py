@@ -1,7 +1,10 @@
 from .Atom import *
 from .Mux import *
 from .Sink import *
-from Stat import *
+try:
+	from Stat import *
+except:
+	from src.Stat import *
 
 import threading, queue
 import logging
