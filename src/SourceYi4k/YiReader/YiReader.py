@@ -50,7 +50,7 @@ class YiReader():
 	 to _dataCB until next chunk.
 	'''
 	def start(self, _dataCB=None, _ctxCB=None, _stateCB=None, _errorCB=None):
-		if self.yiSocket:
+		if self.runFlag:
 			logging.warning('Already running')
 
 			return False
@@ -58,6 +58,7 @@ class YiReader():
 
 		yiData= YiData(_dataCB, _ctxCB, _stateCB)
 
+		self.runFlag= True
 		threading.Timer(0, lambda:self.yiListen(yiData.restore)).start()
 		
 		threading.Timer(0, lambda:self.yiRunAgent(errorCB=_errorCB)).start()
@@ -71,12 +72,10 @@ class YiReader():
 	Close connection to YiAgent. That will stop YiAgent and YiReader normally.
 	'''
 	def stop(self):
-		if not self.yiSocket:
-			return
+		self.runFlag= False
 		
 		logging.info('Close')
 
-		self.runFlag= False
 
 
 
@@ -87,9 +86,6 @@ class YiReader():
 	Connect to YiAgent and listen back.
 	'''
 	def yiListen(self, _cb=None):
-		self.runFlag= True
-		self.yiSocket= None
-
 		logging.info('Connecting to nc')
 		for n in range(5):
 			try:
@@ -122,7 +118,6 @@ class YiReader():
 
 		self.yiSocket.shutdown(socket.SHUT_RDWR)
 		self.yiSocket.close()
-		self.yiSocket= None
 
 
 
