@@ -29,54 +29,66 @@ class YiCleanup():
 			self.list= self.list[-self.limit+1:] +[_file]
 
 
+	'''
+	Run cleanup as function or as daemon.
+	If daemon, fire and forget separate Python file. It should finish eventually.
+	'''
+	def fire(self, _daemon=False):
+		if not _daemon:
+			YiCleanup.cleanup(self.list)
+			return
 
-	def fire(self):
+
 		with open(__file__+'.kill.py', 'w') as f:
-			f.write('def start():\n')
-			f.write(''.join(inspect.getsourcelines(self.__cleanupDaemon)[0][1:]))
-			f.write('\nstart()')
+			f.write('if True:\n') #fix indent
+			f.write(''.join(inspect.getsourcelines(self.cleanup)[0][1:]))
+			f.write('\ncleanup(["' +'","'.join(self.list) +'"])\n')
 
-#		os.system('python '+__file__+'.kill.py ' +' '.join(self.list))
-		os.system('python '+__file__+'.kill.py ' +' '.join(self.list)+ ' &>/dev/null &')
+#		os.system('python '+__file__+'.kill.py')
+		os.system('python '+__file__+'.kill.py &>/dev/null &')
+
+
+
+### PRIVATE
 
 
 
 	'''
-	Contents are executed in separate background Python on camera side.
-	Treat this code as plain.
+	Delete files with several tries through YiAPI.
 	'''
-	def __cleanupDaemon():
-		import time, os, sys, json, socket
+	@staticmethod
+	def cleanup(filesA):
+		import time, os, json, socket, re
+
+		def delFile(f,yiSock):
+			yiSock.sendall( json.dumps({'msg_id':1281, 'token':sessId, "heartbeat":1, "param":f}) )
+			str= ''
+			for n in range(5):
+				str+= yiSock.recv(1024)
+				for msgS in re.findall('(\{.*?\})', str):
+					try:
+						msg= json.loads(msgS)
+						if ('msg_id' in msg) and msg['msg_id']==1281:
+							return msg['rval']
+					except:
+						pass
 
 
-		def killWithApi(_file):
-			yiSock= socket.create_connection(('127.0.0.1',7878),1)
-			yiSock.sendall( json.dumps({'msg_id':257}) )
-			sessId= json.loads( yiSock.recv(1024).decode() )['param']
+		yiSock= socket.create_connection(('127.0.0.1',7878),1)
+		yiSock.sendall( json.dumps({'msg_id':257}) )
+		sessId= json.loads( yiSock.recv(1024).decode() )['param']
 
-			yiSock.sendall( json.dumps({'msg_id':1281, 'token':sessId, "heartbeat":1, "param":_file}) )
-			res= json.loads( yiSock.recv(1024).decode() )['rval']
-
-			yiSock.sendall( json.dumps({'msg_id':258, 'token':sessId, "heartbeat":2}) )
-			yiSock.recv(1024)
-			yiSock.close
-
-
-			return res==0
-
-
-
-		countDel= 0
-		for f in sys.argv[1:]:
+		for f in filesA: #each file
 			if os.path.isfile(f):
-				for n in range(10):
-					if killWithApi(f):
-						countDel+= 1
+				for n in range(20): #tries
+					if delFile(f,yiSock)==0:
 						break
 
-					time.sleep(1)
+					time.sleep(.5)
+
+		yiSock.sendall( json.dumps({'msg_id':258, 'token':sessId, "heartbeat":2}) )
+		yiSock.close()
 
 
-		print(countDel)
 
 		os.remove(__file__) #kill self
