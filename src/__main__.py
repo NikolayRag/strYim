@@ -46,7 +46,7 @@ def runCmdline(_args):
 
 	while not appSource.isIdle():
 		try:
-			time.sleep(1)
+			time.sleep(.1)
 		except KeyboardInterrupt:
 			logging.info('Terminated')
 			
