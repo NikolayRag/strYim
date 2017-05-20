@@ -108,7 +108,7 @@ class YiReader():
 				continue
 			except Exception as x:
 				logging.info('Yi end: %s' % x)
-				break
+				self.runFlag= False
 
 			callable(_cb) and _cb(res)
 
