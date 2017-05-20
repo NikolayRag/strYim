@@ -1,13 +1,5 @@
 '''
-This module deletes video files in very background, allowing application
- to end and camera connection to stop without waiting for locked files.
-
-First filenames to be deleted are collected.
-Then, at the end of recording, orphan daemon proccess is fired,
- allowing YiAgent to end up instantly.
-Daemon is waiting for a while, trying to delete recorded files
- by lightweighted YiAPI, because files deleted normally are still
- being left in camera preview till restart.
+This module deletes video files by Yi API.
 '''
 class YiCleanup():
 	import os, inspect
@@ -24,6 +16,9 @@ class YiCleanup():
 
 
 
+	'''
+	Collect file names to be deleted later.
+	'''
 	def add(self, _file):
 		if _file not in self.list:
 			self.list= self.list[-self.limit+1:] +[_file]
@@ -31,7 +26,8 @@ class YiCleanup():
 
 	'''
 	Run cleanup as function or as daemon.
-	If daemon, fire and forget separate Python file. It should finish eventually.
+
+	If daemon, orphan proccess is fired, allowing YiAgent to end up instantly.
 	'''
 	def fire(self, _daemon=False):
 		if not _daemon:
@@ -54,7 +50,11 @@ class YiCleanup():
 
 
 	'''
-	Delete files with several tries through YiAPI.
+	Delete video files.
+	Try several times if files are locked.
+ 	
+ 	Files are deleted by lightweighted Yi API instead of direct deletion,
+ 	 because is deleted normally, they're are still being left in camera preview.
 	'''
 	@staticmethod
 	def cleanup(filesA, _notDaemon=True):
