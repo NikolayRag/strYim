@@ -57,7 +57,7 @@ class YiCleanup():
 	Delete files with several tries through YiAPI.
 	'''
 	@staticmethod
-	def cleanup(filesA):
+	def cleanup(filesA, _notDaemon=True):
 		import time, os, json, socket, re
 
 		def delFile(f,yiSock, sessId, beat):
@@ -93,5 +93,5 @@ class YiCleanup():
 		yiSock.close()
 
 
-
-		os.remove(__file__) #kill self
+		if '_notDaemon' not in locals():
+			os.remove(__file__) #kill self
