@@ -61,10 +61,7 @@ class YiReader():
 		self.runFlag= True
 		threading.Timer(0, lambda:self.yiListen(yiData.restore)).start()
 		
-		threading.Timer(0, lambda:self.yiRunAgent(errorCB=_errorCB)).start()
-
-
-		return True
+		return self.yiRunAgent(errorCB=_errorCB)
 
 
 
@@ -135,19 +132,20 @@ class YiReader():
 		yipy= YiPy(self.yiAddr, self.yiPort+1) #Use different ports for YiPy and YiAgent to avoid interferention
 		if not yipy.run('%s\nYiAgent(%d).%s()' % (agentSrc, self.yiPort, _agentRoute)):
 			logging.error('Running Yi')
-			return
+			return False
 
 
-		res= yipy.wait()
 
-		self.runFlag= False	#socket could be orphan
+		def yiRuntimeErrorCB(res):
+			self.runFlag= False	#socket could be orphan
+
+			if res:
+				logging.error(res)
+
+				callable(errorCB) and errorCB()
+
+		yipy.wait(yiRuntimeErrorCB)
 
 
-		if res:
-			logging.error(res)
-
-			callable(errorCB) and errorCB()
-
-
-		return not res
+		return True
 
