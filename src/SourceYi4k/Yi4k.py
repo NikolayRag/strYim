@@ -141,7 +141,11 @@ class Yi4k():
 		self.idle= True
 
 
-	def readerErrCB():
-		logging.error('Streaming error')
+	def readerErrCB(self, _res):
+		if _res==False:
+			logging.error('Camera lost')
+			self.idle= True
+		else:
+			logging.error('Streaming error')
+			self.yiControl.stop()
 
-		self.yiControl.stop()

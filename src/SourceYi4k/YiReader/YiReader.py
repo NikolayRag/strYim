@@ -139,10 +139,10 @@ class YiReader():
 		def yiRuntimeErrorCB(res):
 			self.runFlag= False	#socket could be orphan
 
-			if res:
+			if res!=b'':
 				logging.error(res)
 
-				callable(errorCB) and errorCB()
+				callable(errorCB) and errorCB(res)
 
 		yipy.wait(yiRuntimeErrorCB)
 
