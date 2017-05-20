@@ -28,7 +28,7 @@ def hook(_name, _level, _fn, _ln, _msg, _args, _exInfo, _func, _stack):
 	if testName not in namesAllowed:
 		testName= False
 
-	if _level < namesAllowed[testName]:
+	if namesAllowed[testName]==None or _level < namesAllowed[testName]:
 		_level= -1 #skip record
 
 
@@ -38,7 +38,7 @@ logging.setLogRecordFactory(hook)
 
 
 
-def state(_name, _state=ERROR):
+def state(_name, _state=None):
 	if _name==False:
 		namesAllowed.clear()
 
