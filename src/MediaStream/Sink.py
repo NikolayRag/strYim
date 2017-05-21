@@ -130,6 +130,20 @@ class SinkRTMP():
 		logging.info('Running ffmpeg')
 		subprocess.call(ROOT + '/ffmpeg/ffmpeg -i tcp://127.0.0.1:%d?listen -c copy -f flv %s' % (_ffport, self.rtmp), shell=False)
 
+		ffmperArg= [ROOT + '/ffmpeg/ffmpeg', '-i', 'tcp://127.0.0.1:%d?listen' % _ffport, '-c', 'copy', '-f', 'flv', self.rtmp]
+		ffmpeg= subprocess.Popen(ffmperArg, stderr=subprocess.PIPE, bufsize=1, universal_newlines=True, preexec_fn=os.setpgrp)
+
+		while not ffmpeg.poll():
+			ffResult= ffmpeg.stderr.readline()
+
+			resultMatch= re.match('.*Unknown error occurred.*', ffResult)
+			if resultMatch:
+				logging.error('FFmpeg')
+
+			resultMatch= re.match('frame=\s+(?P<frames>[\d]+)\s+fps=\s+(?P<fps>[\d\.]+)\s+q=(?P<q>-?[\d\.]+)\s+size=\s+(?P<size>[\d]+[kmg]?B)\s+time=(?P<time>[\d\:\.]+)\sbitrate=(?P<bitrate>[\d\.]+k?bits/s)\sspeed=(?P<speed>[\d\.]+x)', ffResult)
+			if resultMatch:
+				logging.debug('speed=%s, %sfps' % (resultMatch.group('speed'), resultMatch.group('fps')))
+
 
 
 	def tcpInit(self, _ffport):
