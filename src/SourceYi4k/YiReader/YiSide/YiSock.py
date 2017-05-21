@@ -37,9 +37,8 @@ class YiSock():
 			print('error: %s' % x)
 			return
 
+		c.settimeout(2)
 		self.tcpSocket= c
-# -todo 301 (YiAgent, fix, network) +2: settimg timeout breaks entire transfer
-#		self.tcpSocket.settimeout(1)
 
 		return True
 
@@ -51,8 +50,7 @@ class YiSock():
 	def send(self, _binary=b'', _ctx=0):
 		header= YiData.message(YiData.DATA, [_ctx, _binary])
 		try:
-			self.tcpSocket.send(header)
-			self.tcpSocket.send(_binary or b'')
+			self.tcpSocket.sendall(header +(_binary or b''))
 			return True
 		except:
 			None
@@ -84,7 +82,7 @@ class YiSock():
 
 		dummy= YiData.message()
 		try:
-			self.tcpSocket.send(dummy)
+			self.tcpSocket.sendall(dummy)
 		except:
 			return
 
@@ -95,7 +93,7 @@ class YiSock():
 	def msgOverflow(self, _len):
 		header= YiData.message(YiData.OVERFLOW, _len)
 		try:
-			self.tcpSocket.send(header)
+			self.tcpSocket.sendall(header)
 			return True
 		except:
 			None
@@ -104,7 +102,7 @@ class YiSock():
 	def msgStop(self):
 		header= YiData.message(YiData.STOP)
 		try:
-			self.tcpSocket.send(header)
+			self.tcpSocket.sendall(header)
 			return True
 		except:
 			None
@@ -113,7 +111,7 @@ class YiSock():
 		for i in range(0, len(_data), 15):
 			header= YiData.message(YiData.LOG, _data[i:i+15] )
 			try:
-				self.tcpSocket.send(header)
+				self.tcpSocket.sendall(header)
 			except:
 				return None
 
