@@ -28,9 +28,10 @@ if __name__ == '__main__':
 
 		#init
 		appSource= Yi4k()
-		appStreamer= Streamer(cArgs.args['dst'])
+		appStreamer= Streamer()
 		appStreamer.link(appSource)
 
+		appStreamer.start(cArgs.args['dst'])
 		appSource.start()
 
 

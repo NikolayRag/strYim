@@ -15,7 +15,7 @@ import logging
 Main streaming controller.
 Route Atoms from linked Source to managed destination.
 '''
-class Streamer(threading.Thread):
+class Streamer():
 	stat= None
 
 	source= None
@@ -30,18 +30,19 @@ class Streamer(threading.Thread):
 	Init settings.
 	Streaming destination will be opened, wainting for muxed Atoms.
 	'''
-	def __init__(self, _dst, fps=30000./1001):
-		threading.Thread.__init__(self)
-
+	def __init__(self):
 		self.stat= Stat()
 		self.stat.trigger(StatTrigger(fn=self.stat.max, steps=[10,20,30,50,80,130,200,350,550,900,1500,2300,3800,6100,10000], cb=self.statCB))
-
-		self.muxer= self.initMuxer(_dst, fps)
 
 		self.atomsQ= queue.Queue()
 
 
-		self.start()
+
+	def start(self, _dst, fps=30000./1001):
+		self.muxer= self.initMuxer(_dst, fps)
+
+		threading.Thread(target=self.dispatchAtoms).start()
+
 
 
 	'''
@@ -69,8 +70,9 @@ class Streamer(threading.Thread):
 	Streamer is not useful then.
 	'''
 	def close(self):
-		self.muxer.stop()
+		self.link()
 
+		self.muxer.stop()
 		self.muxer= None
 
 		return self.result
@@ -134,7 +136,7 @@ class Streamer(threading.Thread):
 	Thread cycle.
 	Spool Atoms queue to muxer+sink
 	'''
-	def run(self):
+	def dispatchAtoms(self):
 		while self.muxer:
 			try:
 				self.muxer.add(self.atomsQ.get(timeout=.1))
@@ -143,6 +145,14 @@ class Streamer(threading.Thread):
 
 
 			self.stat.add(self.atomsQ.qsize())
+
+		
+		#clear queue
+		while True:
+			try:
+				self.atomsQ.get(timeout=0)
+			except queue.Empty:
+				break
 
 
 
@@ -157,4 +167,3 @@ class Streamer(threading.Thread):
 			logging.debug('Atoms over: %s' % _val)
 		else:
 			logging.debug('Atoms under: %s' % _val)
-
