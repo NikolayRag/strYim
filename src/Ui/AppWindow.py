@@ -36,7 +36,7 @@ class QWinFilter(QObject):
 
 
 
-class Ui():
+class AppWindow():
 	qApp= None
 
 	layout= Object()
