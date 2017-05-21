@@ -69,7 +69,7 @@ class Streamer():
 	Close destination.
 	Streamer is not useful then.
 	'''
-	def close(self):
+	def stop(self):
 		self.link()
 
 		self.muxer.stop()
