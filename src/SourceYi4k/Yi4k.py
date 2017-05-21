@@ -117,8 +117,8 @@ class Yi4k():
 
 
 
-	def readerStateCB(self, _state, _data):
-		logging.info('State: %d' % _state)
+	def readerStateCB(self, _message):
+		logging.warning(_message)
 
 #		self.signalCB and self.signalCB(_state, _data)
 
