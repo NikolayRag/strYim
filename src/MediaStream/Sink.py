@@ -132,9 +132,9 @@ class SinkRTMP():
 
 		ffmperArg= [ROOT + '/ffmpeg/ffmpeg', '-i', 'tcp://127.0.0.1:%d?listen' % _ffport, '-c', 'copy', '-f', 'flv', self.rtmp]
 		if sys.platform.startswith('win'):
-			self.ffmpeg= subprocess.Popen(ffmperArg, stderr=subprocess.PIPE, bufsize=1, universal_newlines=True, creationflags=0x00000200)
+			self.ffmpeg= subprocess.Popen(ffmperArg, stderr=subprocess.PIPE, stdin=subprocess.PIPE, bufsize=1, universal_newlines=True, creationflags=0x00000200)
 		else:
-			self.ffmpeg= subprocess.Popen(ffmperArg, stderr=subprocess.PIPE, bufsize=1, universal_newlines=True, preexec_fn=os.setpgrp)
+			self.ffmpeg= subprocess.Popen(ffmperArg, stderr=subprocess.PIPE, stdin=subprocess.PIPE, bufsize=1, universal_newlines=True, preexec_fn=os.setpgrp)
 
 
 		while not self.ffmpeg.poll():
