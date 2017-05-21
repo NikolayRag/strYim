@@ -151,6 +151,9 @@ class Streamer(threading.Thread):
 	'''
 	def statCB(self, _val, _raise):
 		if _raise:
+			if _val==750:
+				logging.warning('Low streaming bandwidth, data is jammed')
+				
 			logging.debug('Atoms over: %s' % _val)
 		else:
 			logging.debug('Atoms under: %s' % _val)
