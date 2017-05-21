@@ -127,10 +127,10 @@
 +bytes 102: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\byteTransit.py" kii 16/11/21 01:23:24
 	make .add() the single public method
 
- clean, release 104: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" kii 16/11/21 08:33:48
-	use 'current' folder for release and hide ffmpeg
++clean, release 104: +0 "src\MediaStream\Sink.py" ki 17/05/21 20:11:07
+	hide ffmpeg output
 
- sink, unsure 105: -1 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" kii 16/11/21 08:35:13
+ sink, unsure 105: -1 "src\MediaStream\Sink.py" ki 17/05/21 20:11:09
 	hardcode RTMP protocol
 
 +test, recover 107: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\mp4Recover.py" kii 16/11/26 06:37:00
@@ -178,7 +178,7 @@
  feature 178: -1 "..\..\Application Data\Sublime Text 3\Packages\stryim\AACCore.py" kii 16/12/19 00:48:53
 	read ADTS header, bitstream seek() must be implemented
 
- feature 179: -1 "..\..\Application Data\Sublime Text 3\Packages\stryim\AACCore.py" kii 16/12/19 04:24:45
+!feature 179: -1 "..\..\Application Data\Sublime Text 3\Packages\stryim\AACCore.py" kii 17/05/21 20:17:17
 	not-common_window
 
  feature, aac 180: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\mp4Recover.py" kii 16/12/21 04:59:20
@@ -340,7 +340,7 @@
 +streaming, fix, ffmpeg, exploit 289: +2 "src\MediaStream\Streamer.py" kii 17/05/16 06:33:36
 	incoming data skipped if mux/sink delayed in the same thread; possibly issue of interfering with YiReader reciever loop
 
--streaming, fix, ffmpeg, exploit 290: +1 "src\SourceYi4k\YiReader\YiReader.py" ki 17/05/20 18:19:19
++streaming, fix, ffmpeg, exploit 290: +1 "src\SourceYi4k\YiReader\YiReader.py" ki 17/05/21 05:33:36
 	/289; separate thread; streaming to rtmp cause reading delay
 
  mux 291: +0 "src\MediaStream\Streamer.py" kii 17/05/18 09:23:22
@@ -361,9 +361,12 @@
 +clean 299: +0 "src\__main__.py" kii 17/05/20 17:48:47
 	Show general console messages
 
-=YiAgent, fix 300: +0 "src\SourceYi4k\YiReader\YiReader.py" ki 17/05/20 19:39:08
++YiAgent, fix 300: +0 "src\SourceYi4k\YiReader\YiReader.py" ki 17/05/21 05:06:43
 	catch error on sudden disconnect
 
--YiAgent, fix, network 301: +2 "src\SourceYi4k\YiReader\YiSide\YiSock.py" ki 17/05/20 22:44:58
++YiAgent, fix, network 301: +2 "src\SourceYi4k\YiReader\YiSide\YiSock.py" ki 17/05/21 06:10:25
 	settimg timeout breaks entire transfer
+
++log, clean 302: +0 "src\__main__.py" kii 17/05/22 00:09:55
+	add runtime significant logging
 
