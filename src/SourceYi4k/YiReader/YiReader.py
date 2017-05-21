@@ -1,5 +1,6 @@
 import logging, inspect, socket, threading
 
+from .YiListener import *
 from .YiPy import *
 from .YiSide import *
 
@@ -18,13 +19,12 @@ YiReader flow, with .start():
 	* recieve data
 		* send data to provided callback
 '''
-# -todo 290 (streaming, fix, ffmpeg, exploit) +1: /289; separate thread; streaming to rtmp cause reading delay
 class YiReader():
 	yiAddr= None
-	yiSocket= None
+	yiPort= None
+	yiListener= None
 
-	runFlag= False
-
+	errorCB= None
 
 	
 	'''
@@ -33,10 +33,16 @@ class YiReader():
 		- first time to recieve Python code to execute YiAgent (by YiPy)
 		- then by YiPy to set streaming connection
 	'''
-	def __init__(self, addr='192.168.42.1', port=1231):
+	def __init__(self, addr='192.168.42.1', port=1231, _dataCB=None, _ctxCB=None, _stateCB=None, _errorCB=None):
 		self.yiAddr= addr
 		self.yiPort= port
-		
+
+		yiData= YiData(_dataCB, _ctxCB, _stateCB)
+		self.yiListener= YiListener(addr, port, yiData.restore)
+
+		self.errorCB= callable(_errorCB) and _errorCB
+
+
 		logging.info('Reader inited')
 
 
@@ -49,19 +55,17 @@ class YiReader():
 	 {context, length} dict. Then binary data is sequentally passed
 	 to _dataCB until next chunk.
 	'''
-	def start(self, _dataCB=None, _ctxCB=None, _stateCB=None, _errorCB=None):
-		if self.runFlag:
+	def start(self):
+		if self.yiListener.isAlive():
 			logging.warning('Already running')
 
 			return False
 
 
-		yiData= YiData(_dataCB, _ctxCB, _stateCB)
+		if self.yiRunAgent():
+			self.yiListener.start()
 
-		self.runFlag= True
-		threading.Timer(0, lambda:self.yiListen(yiData.restore)).start()
-		
-		return self.yiRunAgent(errorCB=_errorCB)
+			return True
 
 
 
@@ -69,7 +73,7 @@ class YiReader():
 	Close connection to YiAgent. That will stop YiAgent and YiReader normally.
 	'''
 	def stop(self):
-		self.runFlag= False
+		self.yiListener.stop()
 		
 		logging.info('Close')
 
@@ -80,48 +84,9 @@ class YiReader():
 
 
 	'''
-	Connect to YiAgent and listen back.
-	'''
-	def yiListen(self, _cb=None):
-		logging.info('Connecting to nc')
-		for n in range(5):
-			try:
-				self.yiSocket= socket.create_connection((self.yiAddr,self.yiPort), 1)
-				break
-			except:
-				None
-			
-
-		if not self.yiSocket:
-			logging.error('Not connected')
-			return
-
-		self.yiSocket.settimeout(1)
-
-
-		logging.info('Yi begin')
-
-		while self.runFlag:
-			try:
-				res= self.yiSocket.recv(16384)
-			except socket.timeout:
-				continue
-			except Exception as x:
-				logging.info('Yi end: %s' % x)
-				self.runFlag= False
-
-			callable(_cb) and _cb(res)
-
-
-		self.yiSocket.shutdown(socket.SHUT_RDWR)
-		self.yiSocket.close()
-
-
-
-	'''
 	Run YiAgent and related code at Yi4k.
 	'''
-	def yiRunAgent(self, _agentRoute='check', errorCB=None):
+	def yiRunAgent(self, _agentRoute='check'):
 		agentSrc= []
 		agentSrc.extend( inspect.getsourcelines(YiData)[0] )
 		agentSrc.extend( inspect.getsourcelines(YiSock)[0] )
@@ -135,14 +100,13 @@ class YiReader():
 			return False
 
 
-# =todo 300 (YiAgent, fix) +0: catch error on sudden disconnect
 		def yiRuntimeErrorCB(res):
-			self.runFlag= False	#socket could be orphan
+			self.yiListener.stop()
 
 			if res!=b'':
 				logging.error(res)
 
-				callable(errorCB) and errorCB(res)
+				self.errorCB and self.errorCB(res)
 
 		yipy.wait(yiRuntimeErrorCB)
 

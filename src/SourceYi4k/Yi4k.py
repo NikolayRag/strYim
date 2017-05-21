@@ -38,7 +38,7 @@ class Yi4k():
 	def __init__(self, atomCB=None, signalCB=None):
 		self.link(atomCB, signalCB)
 
-		self.yiReader= YiReader(self.yiAddr)
+		self.yiReader= YiReader(self.yiAddr, 1232, self.readerDataCB, self.readerContextCB, self.readerStateCB, self.readerErrCB)
 		self.yiDecoder= Mp4Recover(self.atomLoopbackCB)
 
 		self.yiControl= YiControl(self.yiAddr, self.cameraStopCB)
@@ -65,7 +65,7 @@ class Yi4k():
 #  todo 272 (Yi, config) +0: add 60 fps
 #  todo 273 (Yi, config) +0: add 1440 format
 	def start(self, fps=30, fmt=1080):
-		if not self.yiReader.start(self.readerDataCB, self.readerContextCB, self.readerStateCB, self.readerErrCB):
+		if not self.yiReader.start():
 			logging.error('Camera cannot be accessed by telnet')
 			return
 
