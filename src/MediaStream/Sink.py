@@ -137,6 +137,7 @@ class SinkRTMP():
 			self.ffmpeg= subprocess.Popen(ffmperArg, stderr=subprocess.PIPE, stdin=subprocess.PIPE, bufsize=1, universal_newlines=True, preexec_fn=os.setpgrp)
 
 
+		resultMatch= None
 		while not self.ffmpeg.poll():
 			ffResult= self.ffmpeg.stderr.readline()
 
@@ -148,8 +149,12 @@ class SinkRTMP():
 			if resultMatch:
 				logging.debug('speed=%s, %sfps' % (resultMatch.group('speed'), resultMatch.group('fps')))
 
+
 		self.ffmpeg= None
+
 		logging.info('Finished ffmpeg')
+		if resultMatch:
+			logging.info('speed=%s, %sfps' % (resultMatch.group('speed'), resultMatch.group('fps')))
 
 
 	def tcpInit(self, _ffport):
