@@ -72,7 +72,7 @@ class Streamer():
 	def stop(self):
 		self.link()
 
-		self.muxer.stop()
+		self.muxer and self.muxer.stop()
 		self.muxer= None
 
 		return self.result
