@@ -1,7 +1,9 @@
-# =todo 120 (ui) +0: add ui
 import Ui
 from args import *
-
+import kiLog
+kiLog.state(False, kiLog.WARNING)
+kiLog.state('Yi4k', kiLog.INFO)
+kiLog.state('Streamer', kiLog.INFO)
 
 
 '''

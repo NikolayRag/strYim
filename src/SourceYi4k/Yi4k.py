@@ -90,6 +90,8 @@ class Yi4k():
 	yiReader also stopped, as well as if camera stops manually.
 	'''
 	def stop(self):
+		logging.info('Stopping')
+
 		self.yiControl.stop()
 
 

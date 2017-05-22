@@ -24,7 +24,6 @@ class Streamer():
 	atomsQ= None
 
 	live= True
-	result= True
 
 
 	'''
@@ -47,6 +46,8 @@ class Streamer():
 			return
 
 		self.muxer= self.initMuxer(_dst, fps)
+
+		logging.info('Streaming to %s' % _dst)
 
 		return True
 
@@ -77,7 +78,7 @@ class Streamer():
 		self.muxer and self.muxer.stop()
 		self.muxer= None
 
-		return self.result
+		logging.info('Closed')
 
 
 
@@ -166,7 +167,7 @@ class Streamer():
 	def statCB(self, _val, _raise):
 		if _raise:
 			if _val==750:
-				logging.warning('Low streaming bandwidth, data is jammed')
+				logging.error('Low streaming bandwidth, data is jammed')
 				
 			logging.debug('Atoms over: %s' % _val)
 		else:

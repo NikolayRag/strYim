@@ -162,10 +162,7 @@ class Mp4Recover():
 		if len(atomBlock):
 			logging.debug('%d atoms found%s' % (len(atomBlock), ', finaly' if not KFrameLast else ''))
 		if foundFalse:
-			if KFrameLast:
-				logging.warning('%d false atoms in %d bytes' % (foundFalse, len(_data)))
-			else:
-				logging.debug('%d false atoms in %d bytes' % (foundFalse, len(_data)))
+			logging.info('%d false atoms in %d bytes' % (foundFalse, len(_data)))
 
 
 		return atomBlock

@@ -48,9 +48,6 @@ class YiReader():
 		self.errorCB= callable(_errorCB) and _errorCB
 
 
-		logging.info('Reader inited')
-
-
 
 	'''
 	Run YiAgent at camera and run it.
@@ -80,8 +77,6 @@ class YiReader():
 	def stop(self):
 		self.yiListener and self.yiListener.stop()
 		
-		logging.info('Close')
-
 
 
 
