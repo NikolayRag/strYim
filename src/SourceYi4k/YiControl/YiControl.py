@@ -44,7 +44,7 @@ class YiControl():
 	'''
 	def start(self, _fps, _fmt):
 		if self.started:
-			logging.error('Already started')
+			logging.warning('Already started')
 			return
 
 		yiFormat= (_fmt, _fps)
@@ -89,7 +89,7 @@ class YiControl():
 
 	def stop(self):
 		if not self.started:
-			logging.warning('Not started')
+			logging.info('Not started')
 			return True #used also if externally stopped
 
 		if not self.yi.sock:
