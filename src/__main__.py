@@ -45,7 +45,7 @@ if __name__ == '__main__':
 
 		#finish
 		threading.Timer(0,appSource.stop).start()
-		threading.Timer(0,appStreamer.stop).start()
+		threading.Timer(0,appStreamer.kill).start()
 
 
 		#prevent breaking shutdows routines by ctrl-c

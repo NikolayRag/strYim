@@ -39,7 +39,7 @@ class Ui():
 
 	
 	def stop(self):
-		self.appStreamer.stop()
+		self.appStreamer.kill()
 		self.appSource.stop()
 
 

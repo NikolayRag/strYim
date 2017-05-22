@@ -23,6 +23,7 @@ class Streamer():
 	muxer= None
 	atomsQ= None
 
+	live= True
 	result= True
 
 
@@ -77,6 +78,12 @@ class Streamer():
 
 
 
+	'''
+	Finalize streamer, stopping all threads
+	'''
+	def kill(self):
+		self.stop()
+		self.live= False
 
 
 ### PRIVATE
@@ -135,7 +142,7 @@ class Streamer():
 	Spool Atoms queue to muxer+sink
 	'''
 	def dispatchAtoms(self):
-		while self.muxer:
+		while self.live:
 			try:
 				self.muxer.add(self.atomsQ.get(timeout=.1))
 			except queue.Empty:
