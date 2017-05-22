@@ -39,6 +39,7 @@ class Streamer():
 
 
 	def start(self, _dst, fps=30000./1001):
+		self.link(self.source) #link back existing source if any
 		self.muxer= self.initMuxer(_dst, fps)
 
 		threading.Thread(target=self.dispatchAtoms).start()
@@ -54,10 +55,7 @@ class Streamer():
 	Source should have .link(atomCB) method.
 	'''
 	def link(self, _source=None):
-		if self.source:
-			self.source.link()
-			self.source= None
-
+		self.source and self.source.link()
 
 		if _source and callable(_source.link):
 			_source.link(self.atomPort)
@@ -70,7 +68,7 @@ class Streamer():
 	Streamer is not useful then.
 	'''
 	def stop(self):
-		self.link()
+		self.link() #prevent accepting Atoms
 
 		self.muxer and self.muxer.stop()
 		self.muxer= None
@@ -146,7 +144,7 @@ class Streamer():
 
 			self.stat.add(self.atomsQ.qsize())
 
-		
+
 		#clear queue
 		while True:
 			try:
