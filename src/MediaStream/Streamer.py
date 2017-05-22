@@ -37,13 +37,18 @@ class Streamer():
 
 		self.atomsQ= queue.Queue()
 
+		threading.Thread(target=self.dispatchAtoms).start()
+
 
 
 	def start(self, _dst, fps=30000./1001):
-		self.link(self.source) #link back existing source if any
+		if self.muxer:
+			logging.warning('Stream already running')
+			return
+
 		self.muxer= self.initMuxer(_dst, fps)
 
-		threading.Thread(target=self.dispatchAtoms).start()
+		return True
 
 
 
@@ -69,8 +74,6 @@ class Streamer():
 	Streamer is not useful then.
 	'''
 	def stop(self):
-		self.link() #prevent accepting Atoms
-
 		self.muxer and self.muxer.stop()
 		self.muxer= None
 
@@ -143,21 +146,17 @@ class Streamer():
 	'''
 	def dispatchAtoms(self):
 		while self.live:
+			cAtom= None
 			try:
-				self.muxer.add(self.atomsQ.get(timeout=.1))
+				cAtom= self.atomsQ.get(timeout=.1)
 			except queue.Empty:
 				pass
 
 
+			if self.muxer and cAtom:
+				self.muxer.add(cAtom)
+
 			self.stat.add(self.atomsQ.qsize())
-
-
-		#clear queue
-		while True:
-			try:
-				self.atomsQ.get(timeout=0)
-			except queue.Empty:
-				break
 
 
 
