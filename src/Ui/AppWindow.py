@@ -64,7 +64,7 @@ class AppWindow():
 		self.qApp = QApplication('')
 		self.qApp.setStyle(QStyleFactory.create('plastique'))
 
-		uiFile= path.join(self.modulePath,'stryim.ui')
+		uiFile= path.join(self.modulePath,'AppWindow.ui')
 		cMain= self.layout.main= QUiLoader().load(uiFile)
 
 
