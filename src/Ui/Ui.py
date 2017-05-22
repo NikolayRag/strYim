@@ -22,15 +22,14 @@ class Ui():
 		#init
 		self.appSource= Yi4k()
 		self.appStreamer= Streamer()
-		print(self.appStreamer)
 		self.appStreamer.link(self.appSource)
 
 	#  todo 242 (feature) +0: check destination
 		self.appStreamer.start(_args.args['dst'])
 		self.appSource.start()
 
-		self.appWindow= AppWindow(None, None, self.uiDstCanged)
-		self.appWindow.destination(_args.args['dst'])
+		self.appWindow= AppWindow(None, None)
+		self.appWindow.destination(_args.args['dst'], changedCB=self.uiDestination)
 
 		self.appWindow.exec()
 
@@ -39,6 +38,6 @@ class Ui():
 
 
 
-	def uiDstCanged(self, _newVal):
+	def uiDestination(self, _newVal):
 		self.args.args['dst']= _newVal
 		self.args.save()

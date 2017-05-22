@@ -57,10 +57,9 @@ class AppWindow():
 
 
 
-	def __init__(self, _playCB=None, _streamCB=None, _destCB=None):
+	def __init__(self, _playCB=None, _streamCB=None):
 		self.playCB= _playCB
 		self.streamCB= _streamCB
-		self.destCB= _destCB
 
 
 		self.qApp = QApplication('')
@@ -105,8 +104,7 @@ class AppWindow():
 		self.layout.addSrc.hide()
 
 
-		if callable(_destCB):
-			self.layout.dest.textChanged.connect(_destCB)
+		self.layout.dest.textChanged.connect(self.changedDest)
 
 
 
@@ -134,5 +132,20 @@ class AppWindow():
 
 
 
-	def destination(self, _dst):
+
+	def destination(self, _dst=None, changedCB=None):
+		if _dst==None:
+			return self.layout.dest.getText()
+
+		oldCB= self.destCB
+		self.destCB= None
 		self.layout.dest.setText(_dst)
+		self.destCB= oldCB
+
+		if callable(changedCB):
+			self.destCB= changedCB
+
+	
+
+	def changedDest(self, _val):
+		self.destCB and self.destCB(_val)
