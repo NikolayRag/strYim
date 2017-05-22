@@ -25,19 +25,30 @@ class Ui():
 		self.appStreamer.link(self.appSource)
 
 
-		self.appWindow= AppWindow(self.start, self.stop)
-		self.appWindow.destination(self.args.args['dst'], changedCB=self.uiDestination)
+		self.appWindow= AppWindow(self.stop)
+		self.appWindow.setSource(self.playSource)
+		self.appWindow.setDest(self.args.args['dst'], self.uiDestination, self.playDest)
 
 		self.appWindow.exec()
 
 
 
-	def start(self, _dst):
-		self.appStreamer.start(_dst)
-		self.appSource.start()
+	def playSource(self, _state):
+		if _state:
+			self.appSource.start()
+		else:
+			self.appSource.stop()
 
 
-	
+
+	def playDest(self, _state):
+		if _state:
+			self.appStreamer.start(self.args.args['dst'])
+		else:
+			self.appStreamer.stop()
+
+
+
 	def stop(self):
 		self.appStreamer.kill()
 		self.appSource.stop()

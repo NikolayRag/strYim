@@ -11,6 +11,9 @@ class Object():
 
 # -todo 239 (gui, feature) +0: make customizable destination list 
 
+'''
+Dragging window support
+'''
 class QWinFilter(QObject):
 	mouseOffset= None
 
@@ -51,14 +54,14 @@ class AppWindow():
 
 	destCB= None
 	stopCB= None
-	stopCB= None
+	playSourceCB= None
+	playDestCB= None
 
 	modulePath= path.abspath(path.dirname(__file__))
 
 
 
-	def __init__(self, _startCB=None, _stopCB=None):
-		self.startCB= callable(_startCB) and _startCB
+	def __init__(self, _stopCB=None):
 		self.stopCB= callable(_stopCB) and _stopCB
 
 
@@ -105,8 +108,8 @@ class AppWindow():
 
 
 		self.layout.dest.textChanged.connect(self.changedDest)
-		self.layout.play.toggled.connect(self.play)
-
+		self.layout.play.toggled.connect(self.onPlaySource)
+		self.layout.stream.toggled.connect(self.onPlayDest)
 
 
 
@@ -128,11 +131,13 @@ class AppWindow():
 
 
 
-	def play(self, _state):
-		if _state:
-			self.startCB and self.startCB(self.destination())
-		else:
-			self.stopCB and self.stopCB()
+	def onPlaySource(self, _state):
+		self.playSourceCB and self.playSourceCB(_state)
+
+
+		
+	def onPlayDest(self, _state):
+		self.playDestCB and self.playDestCB(_state)
 
 
 
@@ -144,18 +149,22 @@ class AppWindow():
 
 
 
+	def setSource(self, _playCB=None):
+		self.playSourceCB= callable(_playCB) and _playCB
 
-	def destination(self, _dst=None, changedCB=None):
-		if _dst==None:
-			return self.layout.dest.text()
 
+
+	def setDest(self, _dst=None, _changedCB=None, _playCB=None):
+		self.playDestCB= callable(_playCB) and _playCB
+
+# -todo 304 (ui, settings) +0: make updatable settings model
 		oldCB= self.destCB
 		self.destCB= None
 		self.layout.dest.setText(_dst)
 		self.destCB= oldCB
 
-		if callable(changedCB):
-			self.destCB= changedCB
+		if callable(_changedCB):
+			self.destCB= _changedCB
 
 	
 
