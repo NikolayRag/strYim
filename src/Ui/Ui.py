@@ -25,11 +25,15 @@ class Ui():
 		self.appStreamer.link(self.appSource)
 
 
-		self.appWindow= AppWindow(self.stop)
+		self.appWindow= AppWindow()
 		self.appWindow.setSource(self.playSource)
 		self.appWindow.setDest(self.args.args['dst'], self.uiDestination, self.playDest)
 
 		self.appWindow.exec()
+
+
+		self.appStreamer.kill()
+		self.appSource.stop()
 
 
 
@@ -46,12 +50,6 @@ class Ui():
 			self.appStreamer.start(self.args.args['dst'])
 		else:
 			self.appStreamer.stop()
-
-
-
-	def stop(self):
-		self.appStreamer.kill()
-		self.appSource.stop()
 
 
 

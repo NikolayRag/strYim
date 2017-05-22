@@ -53,7 +53,6 @@ class AppWindow():
 	layout.addSrc= None
 
 	destCB= None
-	stopCB= None
 	playSourceCB= None
 	playDestCB= None
 
@@ -61,10 +60,7 @@ class AppWindow():
 
 
 
-	def __init__(self, _stopCB=None):
-		self.stopCB= callable(_stopCB) and _stopCB
-
-
+	def __init__(self):
 		self.qApp = QApplication('')
 		self.qApp.setStyle(QStyleFactory.create('plastique'))
 
@@ -125,9 +121,6 @@ class AppWindow():
 
 
 		self.qApp.exec_()
-
-
-		self.stopCB and self.stopCB()
 
 
 
