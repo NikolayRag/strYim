@@ -24,15 +24,21 @@ class Ui():
 		self.appStreamer= Streamer()
 		self.appStreamer.link(self.appSource)
 
-	#  todo 242 (feature) +0: check destination
-		self.appStreamer.start(_args.args['dst'])
-		self.appSource.start()
 
-		self.appWindow= AppWindow(None, None)
-		self.appWindow.destination(_args.args['dst'], changedCB=self.uiDestination)
+		self.appWindow= AppWindow(self.start, self.stop)
+		self.appWindow.destination(self.args.args['dst'], changedCB=self.uiDestination)
 
 		self.appWindow.exec()
 
+
+
+	def start(self, _dst):
+		self.appStreamer.start(_dst)
+		self.appSource.start()
+
+
+	
+	def stop(self):
 		self.appStreamer.stop()
 		self.appSource.stop()
 

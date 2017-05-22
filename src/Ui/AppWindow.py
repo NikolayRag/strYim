@@ -49,17 +49,17 @@ class AppWindow():
 	layout.choose= None
 	layout.addSrc= None
 
-	playCB= None
-	streamCB= None
 	destCB= None
+	stopCB= None
+	stopCB= None
 
 	modulePath= path.abspath(path.dirname(__file__))
 
 
 
-	def __init__(self, _playCB=None, _streamCB=None):
-		self.playCB= _playCB
-		self.streamCB= _streamCB
+	def __init__(self, _startCB=None, _stopCB=None):
+		self.startCB= callable(_startCB) and _startCB
+		self.stopCB= callable(_stopCB) and _stopCB
 
 
 		self.qApp = QApplication('')
@@ -105,6 +105,7 @@ class AppWindow():
 
 
 		self.layout.dest.textChanged.connect(self.changedDest)
+		self.layout.play.toggled.connect(self.play)
 
 
 
@@ -123,6 +124,17 @@ class AppWindow():
 		self.qApp.exec_()
 
 
+		self.stopCB and self.stopCB()
+
+
+
+	def play(self, _state):
+		if _state:
+			self.startCB and self.startCB(self.destination())
+		else:
+			self.stopCB and self.stopCB()
+
+
 
 	'''
 	Toggle camera state
@@ -135,7 +147,7 @@ class AppWindow():
 
 	def destination(self, _dst=None, changedCB=None):
 		if _dst==None:
-			return self.layout.dest.getText()
+			return self.layout.dest.text()
 
 		oldCB= self.destCB
 		self.destCB= None
