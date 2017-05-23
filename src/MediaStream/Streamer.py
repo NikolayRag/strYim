@@ -40,7 +40,7 @@ class Streamer():
 
 
 
-	def start(self, _dst, fps=30000./1001):
+	def begin(self, _dst, fps=30000./1001):
 		if self.muxer:
 			logging.warning('Stream already running')
 			return
@@ -74,20 +74,15 @@ class Streamer():
 	Close destination.
 	Streamer is not useful then.
 	'''
-	def stop(self):
+	def end(self, _kill=False):
 		self.muxer and self.muxer.stop()
 		self.muxer= None
 
+		if _kill:
+			self.live= False
+
 		logging.info('Closed')
 
-
-
-	'''
-	Finalize streamer, stopping all threads
-	'''
-	def kill(self):
-		self.stop()
-		self.live= False
 
 
 ### PRIVATE

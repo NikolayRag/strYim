@@ -32,7 +32,7 @@ class Ui():
 		self.appWindow.exec()
 
 
-		self.appStreamer.kill()
+		self.appStreamer.end(True)
 		self.appSource.stop()
 
 
@@ -47,9 +47,9 @@ class Ui():
 
 	def playDest(self, _state):
 		if _state:
-			self.appStreamer.start(self.args.args['dst'])
+			self.appStreamer.begin(self.args.args['dst'])
 		else:
-			self.appStreamer.stop()
+			self.appStreamer.end()
 
 
 

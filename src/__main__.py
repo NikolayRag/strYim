@@ -1,6 +1,5 @@
 import logging, kiLog
 
-
 from args import *
 from MediaStream import *
 from SourceYi4k import *
@@ -31,7 +30,7 @@ if __name__ == '__main__':
 		appStreamer= Streamer()
 		appStreamer.link(appSource)
 
-		appStreamer.start(cArgs.args['dst'])
+		appStreamer.begin(cArgs.args['dst'])
 		appSource.start()
 
 
@@ -45,12 +44,13 @@ if __name__ == '__main__':
 
 		#finish
 		threading.Timer(0,appSource.stop).start()
-		threading.Timer(0,appStreamer.kill).start()
+		threading.Timer(0,lambda:appStreamer.end(True)).start()
 
 
 		#prevent breaking shutdows routines by ctrl-c
 		while len(threading.enumerate())>1:
+			print(threading.enumerate())
 			try:
-				time.sleep(.1)
+				time.sleep(.5)
 			except KeyboardInterrupt:
 				logging.warning('Cooldown in progress')
