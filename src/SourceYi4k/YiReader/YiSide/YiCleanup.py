@@ -60,6 +60,8 @@ class YiCleanup():
 	def cleanup(filesA, _notDaemon=True):
 		import time, os, json, socket, re
 
+		time.sleep(2)
+
 		def delFile(f,yiSock, sessId, beat):
 			yiSock.sendall( json.dumps({'msg_id':1281, 'token':sessId, "heartbeat":beat, "param":f}) )
 			str= ''
@@ -93,5 +95,5 @@ class YiCleanup():
 		yiSock.close()
 
 
-		if '_notDaemon' not in locals():
-			os.remove(__file__) #kill self
+#		if '_notDaemon' not in locals():
+		os.remove(__file__) #kill self

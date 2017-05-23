@@ -63,7 +63,7 @@ class YiAgent():
 			time.sleep(.5)
 
 
-		self.clean.fire()
+		self.clean.fire(True)
 
 		os.remove(__file__) #kill self
 
