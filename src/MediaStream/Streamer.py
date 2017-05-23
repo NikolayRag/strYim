@@ -15,7 +15,7 @@ import logging
 Main streaming controller.
 Route Atoms from linked Source to managed destination.
 '''
-class Streamer():
+class Streamer(threading.Thread):
 	stat= None
 
 	source= None
@@ -31,12 +31,14 @@ class Streamer():
 	Streaming destination will be opened, wainting for muxed Atoms.
 	'''
 	def __init__(self):
+		threading.Thread.__init__(self)
+
 		self.stat= Stat()
 		self.stat.trigger(StatTrigger(fn=self.stat.max, steps=[10,20,30,50,80,130,200,350,550,900,1500,2300,3800,6100,10000], cb=self.statCB))
 
 		self.atomsQ= queue.Queue()
 
-		threading.Thread(target=self.dispatchAtoms).start()
+		self.start()
 
 
 
@@ -140,7 +142,7 @@ class Streamer():
 	Thread cycle.
 	Spool Atoms queue to muxer+sink
 	'''
-	def dispatchAtoms(self):
+	def run(self):
 		while self.live:
 			cAtom= None
 			try:
