@@ -49,7 +49,6 @@ if __name__ == '__main__':
 
 		#prevent breaking shutdows routines by ctrl-c
 		while len(threading.enumerate())>1:
-			print(threading.enumerate())
 			try:
 				time.sleep(.5)
 			except KeyboardInterrupt:
