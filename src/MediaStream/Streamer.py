@@ -21,6 +21,7 @@ class Streamer(threading.Thread):
 	source= None
 
 	muxer= None
+	sink= None
 	atomsQ= None
 
 	live= True
@@ -122,7 +123,8 @@ class Streamer(threading.Thread):
 			if len(ext)>1 and ext[-1]=='aac':
 				muxer= MuxAAC
 
-		return muxer(sink(_dst))
+		self.sink= sink(_dst)
+		return muxer(self.sink)
 
 
 
@@ -151,8 +153,15 @@ class Streamer(threading.Thread):
 				pass
 
 
-			if self.muxer and cAtom:
-				self.muxer.add(cAtom)
+			if self.muxer:
+				if not self.sink.live():
+					logging.error('Sink is dead')
+			
+					self.end()
+
+				elif cAtom:
+					self.muxer.add(cAtom)
+
 
 			self.stat.add(self.atomsQ.qsize())
 

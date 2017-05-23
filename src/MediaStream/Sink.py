@@ -12,6 +12,9 @@ class SinkFile():
 	def __init__(self, _fn):
 		self.cFile= open(_fn, 'wb')
 
+	def live(self):
+		return self.cFile!=False
+
 	def add(self, _data):
 		self.cFile.write(_data)
 
@@ -41,6 +44,13 @@ class SinkTCP():
 		logging.info('Connected to %s, %d' % (addr,port))
 
 
+
+	def live(self):
+		if self.cSocket:
+			return True
+
+
+
 	def add(self, _data):
 		if not self.cSocket:
 			return
@@ -64,14 +74,15 @@ class SinkTCP():
 
 ### PRIVATE
 
-	def send(self, _data):
+
+
+	def tcpInit(self):
 		try:
-			self.cSocket.sendall(_data)
-
+			return socket.create_connection(('127.0.0.1',self.ffport))
 		except:
-			logging.error('Socket error')
+			logging.error('Init error')
 
-
+			return
 
 
 
@@ -101,10 +112,14 @@ class SinkRTMP(threading.Thread):
 
 
 
+	def live(self):
+		if self.cSocket and self.ffmpeg:
+			return True
+
 
 
 	def add(self, _data):
-		if not self.cSocket:
+		if not self.live():
 			return
 
 		try:
@@ -122,7 +137,7 @@ class SinkRTMP(threading.Thread):
 		if cSocket:
 			cSocket.close()
 
-		self.ffmpeg.kill()
+		self.ffmpeg and self.ffmpeg.kill()
 
 
 
@@ -159,6 +174,13 @@ class SinkRTMP(threading.Thread):
 			logging.info('speed=%s, %sfps' % (resultMatch.group('speed'), resultMatch.group('fps')))
 
 
+
 	def tcpInit(self):
-		return socket.create_connection(('127.0.0.1',self.ffport))
+		sock= None
+		try:
+			sock= socket.create_connection(('127.0.0.1',self.ffport), 5)
+		except:
+			logging.error('Init error')
+
+		return sock
 
