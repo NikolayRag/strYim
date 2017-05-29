@@ -75,16 +75,23 @@ class Streamer(threading.Thread):
 
 	'''
 	Close destination.
-	Streamer is not useful then.
 	'''
-	def end(self, _kill=False):
+	def end(self):
 		self.muxer and self.muxer.stop()
 		self.muxer= None
 
-		if _kill:
-			self.live= False
-
 		logging.info('Closed')
+
+
+
+	'''
+	Close and stop streamer.
+	It cant be restarted.
+	'''
+	def kill(self):
+		self.end()
+		
+		self.live= False
 
 
 

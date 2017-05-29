@@ -32,7 +32,7 @@ class Ui():
 		self.appWindow.exec()
 
 
-		self.appStreamer.end(True)
+		self.appStreamer.kill()
 		self.appSource.stop()
 
 
