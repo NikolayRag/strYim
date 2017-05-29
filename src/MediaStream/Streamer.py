@@ -117,15 +117,12 @@ class Streamer(threading.Thread):
 
 		MuxFLV.defaults(fps=_fps, srate=48000)
 		muxer= MuxFLV
-		sink= SinkRTMP
+		sink= SinkNet
 
-		if protocol[0]!='rtmp':
-			if len(protocol)>1 and protocol[0]=='tcp':
-				sink= SinkTCP
-			else:
-				sink= SinkFile
+		if protocol[0] not in ['rtmp', 'udp', 'tcp']:
+			sink= SinkFile
 
-			if len(ext)>1 and (ext[-1]=='264' or ext[-1]=='h264'):
+			if len(ext)>1 and (ext[-1] in ['264', 'h264']):
 				muxer= MuxH264
 			if len(ext)>1 and ext[-1]=='aac':
 				muxer= MuxAAC

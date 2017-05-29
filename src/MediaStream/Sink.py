@@ -24,96 +24,43 @@ class SinkFile():
 
 
 
-
-import re, threading
 '''
-TCP sink
+Network sink
 '''
-class SinkTCP():
-	ipMask= re.compile('^(tcp://)?(?P<addr>(\d+\.\d+\.\d+\.\d+)|([\w\d_\.]+))?(:(?P<port>\d*))?$')
-
-	cSocket= None
-
-	def __init__(self, _ip=''):
-		ipElements= self.ipMask.match(_ip)
-		addr= ipElements.group('addr') or '127.0.0.1'
-		port= int(ipElements.group('port') or 2345)
-
-		self.cSocket= socket.create_connection((addr,port))
-
-		logging.info('Connected to %s, %d' % (addr,port))
-
-
-
-	def live(self):
-		if self.cSocket:
-			return True
-
-
-
-	def add(self, _data):
-		if not self.cSocket:
-			return
-
-		try:
-			self.cSocket.sendall(_data)
-
-		except:
-			logging.error('Socket error')
-			self.cSocket= None
-
-
-
-	def close(self):
-		cSocket= self.cSocket
-		self.cSocket= None
-		if cSocket:
-			cSocket.close()
-
-
-
-### PRIVATE
-
-
-
-	def tcpInit(self):
-		try:
-			return socket.create_connection(('127.0.0.1',self.ffport))
-		except:
-			logging.error('Init error')
-
-			return
-
-
-
-
-'''
-RTMP sink
-'''
-import subprocess, threading, socket, os
+import subprocess, threading, socket, os, re
 from support import *
 
-class SinkRTMP(threading.Thread):
+class SinkNet(threading.Thread):
+	ipMask= re.compile('^((?P<protocol>tcp|udp|rtmp)://)?(?P<addr>(\d+\.\d+\.\d+\.\d+)|([\w\d_\.]+))?(:(?P<port>\d*))?(?P<path>.*)')
+
+# -todo 305 (clean, sink) +0: autodetect free port for ffmpeg
 	ffport= 2345
 	ffmpeg= None
-	rtmp= ''
+	ffSocket= None
 
-	cSocket= None
+	protocol= 'flv'
+	addr= ''
 
 
-	def __init__(self, _rtmp):
+
+	def __init__(self, _addr=''):
+		self.addr= _addr
+
+		ipElements= self.ipMask.match(_addr)
+		ipElements= ipElements and ipElements.group('protocol')
+		if ipElements=='udp':
+			self.protocol= 'mpegts'
+
+
 		threading.Thread.__init__(self)
-
-		self.rtmp= _rtmp
-
 		self.start()
 
-		self.cSocket= self.tcpInit()
+		self.ffSocket= self.tcpInit()
 
 
 
 	def live(self):
-		if self.cSocket and self.ffmpeg:
+		if self.ffSocket and self.ffmpeg:
 			return True
 
 
@@ -123,19 +70,19 @@ class SinkRTMP(threading.Thread):
 			return
 
 		try:
-			self.cSocket.sendall(_data)
+			self.ffSocket.sendall(_data)
 
 		except:
 			logging.error('Socket error')
-			self.cSocket= None
+			self.ffSocket= None
 
 
 
 	def close(self):
-		cSocket= self.cSocket
-		self.cSocket= None
-		if cSocket:
-			cSocket.close()
+		ffSocket= self.ffSocket
+		self.ffSocket= None
+		if ffSocket:
+			ffSocket.close()
 
 		self.ffmpeg and self.ffmpeg.kill()
 
@@ -147,7 +94,7 @@ class SinkRTMP(threading.Thread):
 #  todo 105 (sink, unsure) -1: hardcode RTMP protocol
 		logging.info('Running ffmpeg')
 
-		ffmperArg= [ROOT + '/ffmpeg/ffmpeg', '-i', 'tcp://127.0.0.1:%d?listen' % self.ffport, '-c', 'copy', '-f', 'flv', self.rtmp]
+		ffmperArg= [ROOT + '/ffmpeg/ffmpeg'] +('-re -i tcp://127.0.0.1:%d?listen -c copy -f' % self.ffport).split()+ [self.protocol, self.addr]
 		if sys.platform.startswith('win'):
 			self.ffmpeg= subprocess.Popen(ffmperArg, stderr=subprocess.PIPE, stdin=subprocess.PIPE, bufsize=1, universal_newlines=True, creationflags=0x00000200)
 		else:
