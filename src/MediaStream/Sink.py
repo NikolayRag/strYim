@@ -12,6 +12,9 @@ class SinkFile():
 	def __init__(self, _fn):
 		self.cFile= open(_fn, 'wb')
 
+	def live(self):
+		return self.cFile!=False
+
 	def add(self, _data):
 		self.cFile.write(_data)
 
@@ -41,6 +44,13 @@ class SinkTCP():
 		logging.info('Connected to %s, %d' % (addr,port))
 
 
+
+	def live(self):
+		if self.cSocket:
+			return True
+
+
+
 	def add(self, _data):
 		if not self.cSocket:
 			return
@@ -64,14 +74,15 @@ class SinkTCP():
 
 ### PRIVATE
 
-	def send(self, _data):
+
+
+	def tcpInit(self):
 		try:
-			self.cSocket.sendall(_data)
-
+			return socket.create_connection(('127.0.0.1',self.ffport))
 		except:
-			logging.error('Socket error')
+			logging.error('Init error')
 
-
+			return
 
 
 
@@ -82,7 +93,8 @@ RTMP sink
 import subprocess, threading, socket, os
 from support import *
 
-class SinkRTMP():
+class SinkRTMP(threading.Thread):
+	ffport= 2345
 	ffmpeg= None
 	rtmp= ''
 
@@ -90,19 +102,24 @@ class SinkRTMP():
 
 
 	def __init__(self, _rtmp):
+		threading.Thread.__init__(self)
+
 		self.rtmp= _rtmp
 
+		self.start()
 
-		ffport= 2345
-		threading.Timer(0, lambda: self.serverInit(ffport)).start()
-		self.cSocket= self.tcpInit(ffport)
+		self.cSocket= self.tcpInit()
 
 
+
+	def live(self):
+		if self.cSocket and self.ffmpeg:
+			return True
 
 
 
 	def add(self, _data):
-		if not self.cSocket:
+		if not self.live():
 			return
 
 		try:
@@ -120,17 +137,17 @@ class SinkRTMP():
 		if cSocket:
 			cSocket.close()
 
-		self.ffmpeg.kill()
+		self.ffmpeg and self.ffmpeg.kill()
 
 
 
 ### PRIVATE
 
-	def serverInit(self, _ffport):
+	def run(self):
 #  todo 105 (sink, unsure) -1: hardcode RTMP protocol
 		logging.info('Running ffmpeg')
 
-		ffmperArg= [ROOT + '/ffmpeg/ffmpeg', '-i', 'tcp://127.0.0.1:%d?listen' % _ffport, '-c', 'copy', '-f', 'flv', self.rtmp]
+		ffmperArg= [ROOT + '/ffmpeg/ffmpeg', '-i', 'tcp://127.0.0.1:%d?listen' % self.ffport, '-c', 'copy', '-f', 'flv', self.rtmp]
 		if sys.platform.startswith('win'):
 			self.ffmpeg= subprocess.Popen(ffmperArg, stderr=subprocess.PIPE, stdin=subprocess.PIPE, bufsize=1, universal_newlines=True, creationflags=0x00000200)
 		else:
@@ -157,6 +174,13 @@ class SinkRTMP():
 			logging.info('speed=%s, %sfps' % (resultMatch.group('speed'), resultMatch.group('fps')))
 
 
-	def tcpInit(self, _ffport):
-		return socket.create_connection(('127.0.0.1',_ffport))
+
+	def tcpInit(self):
+		sock= None
+		try:
+			sock= socket.create_connection(('127.0.0.1',self.ffport), 5)
+		except:
+			logging.error('Init error')
+
+		return sock
 

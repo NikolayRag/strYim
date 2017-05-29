@@ -21,27 +21,39 @@ class Streamer(threading.Thread):
 	source= None
 
 	muxer= None
+	sink= None
 	atomsQ= None
 
-	result= True
+	live= True
 
 
 	'''
 	Init settings.
 	Streaming destination will be opened, wainting for muxed Atoms.
 	'''
-	def __init__(self, _dst, fps=30000./1001):
+	def __init__(self):
 		threading.Thread.__init__(self)
 
 		self.stat= Stat()
 		self.stat.trigger(StatTrigger(fn=self.stat.max, steps=[10,20,30,50,80,130,200,350,550,900,1500,2300,3800,6100,10000], cb=self.statCB))
 
-		self.muxer= self.initMuxer(_dst, fps)
-
 		self.atomsQ= queue.Queue()
 
-
 		self.start()
+
+
+
+	def begin(self, _dst, fps=30000./1001):
+		if self.muxer:
+			logging.warning('Stream already running')
+			return
+
+		self.muxer= self.initMuxer(_dst, fps)
+
+		logging.info('Streaming to %s' % _dst)
+
+		return True
+
 
 
 	'''
@@ -53,10 +65,7 @@ class Streamer(threading.Thread):
 	Source should have .link(atomCB) method.
 	'''
 	def link(self, _source=None):
-		if self.source:
-			self.source.link()
-			self.source= None
-
+		self.source and self.source.link()
 
 		if _source and callable(_source.link):
 			_source.link(self.atomPort)
@@ -66,16 +75,23 @@ class Streamer(threading.Thread):
 
 	'''
 	Close destination.
-	Streamer is not useful then.
 	'''
-	def close(self):
-		self.muxer.stop()
-
+	def end(self):
+		self.muxer and self.muxer.stop()
 		self.muxer= None
 
-		return self.result
+		logging.info('Closed')
 
 
+
+	'''
+	Close and stop streamer.
+	It cant be restarted.
+	'''
+	def kill(self):
+		self.end()
+		
+		self.live= False
 
 
 
@@ -114,7 +130,8 @@ class Streamer(threading.Thread):
 			if len(ext)>1 and ext[-1]=='aac':
 				muxer= MuxAAC
 
-		return muxer(sink(_dst))
+		self.sink= sink(_dst)
+		return muxer(self.sink)
 
 
 
@@ -135,11 +152,22 @@ class Streamer(threading.Thread):
 	Spool Atoms queue to muxer+sink
 	'''
 	def run(self):
-		while self.muxer:
+		while self.live:
+			cAtom= None
 			try:
-				self.muxer.add(self.atomsQ.get(timeout=.1))
+				cAtom= self.atomsQ.get(timeout=.1)
 			except queue.Empty:
 				pass
+
+
+			if self.muxer:
+				if not self.sink.live():
+					logging.error('Sink is dead')
+			
+					self.end()
+
+				elif cAtom:
+					self.muxer.add(cAtom)
 
 
 			self.stat.add(self.atomsQ.qsize())
@@ -152,9 +180,8 @@ class Streamer(threading.Thread):
 	def statCB(self, _val, _raise):
 		if _raise:
 			if _val==750:
-				logging.warning('Low streaming bandwidth, data is jammed')
+				logging.error('Low streaming bandwidth, data is jammed')
 				
 			logging.debug('Atoms over: %s' % _val)
 		else:
 			logging.debug('Atoms under: %s' % _val)
-

@@ -76,7 +76,7 @@ class AACDetect():
 				continue
 
 			if not self.started and not aac.ics0.max_sfb:
-				logging.warning('AAC started from mid')
+				logging.info('AAC started from mid')
 
 			aacStartA.append(aacPos)
 

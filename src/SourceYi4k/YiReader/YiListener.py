@@ -27,6 +27,8 @@ class YiListener(threading.Thread):
 
 		self.cb= callable(_cb) and _cb
 
+		self.start()
+
 
 
 	def stop(self):

@@ -141,6 +141,7 @@ class Yi4k():
 		self.idle= True
 
 
+
 	def readerErrCB(self, _res):
 		if _res==False:
 			logging.error('Camera lost')

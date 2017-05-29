@@ -24,6 +24,8 @@ class YiReader():
 	yiPort= None
 	yiListener= None
 
+	yiData= None
+
 	errorCB= None
 
 	
@@ -41,13 +43,9 @@ class YiReader():
 			if callable(_stateCB) and _type==YiData.OVERFLOW:
 				_stateCB('Low camera bandwidth, data is skipped')
 
-		yiData= YiData(_dataCB, _ctxCB, agentErrorCB)
-		self.yiListener= YiListener(addr, port, yiData.restore)
+		self.yiData= YiData(_dataCB, _ctxCB, agentErrorCB)
 
 		self.errorCB= callable(_errorCB) and _errorCB
-
-
-		logging.info('Reader inited')
 
 
 
@@ -60,14 +58,14 @@ class YiReader():
 	 to _dataCB until next chunk.
 	'''
 	def start(self):
-		if self.yiListener.isAlive():
+		if self.yiListener and self.yiListener.isAlive():
 			logging.warning('Already running')
 
 			return False
 
 
 		if self.yiRunAgent():
-			self.yiListener.start()
+			self.yiListener= YiListener(self.yiAddr, self.yiPort, self.yiData.restore)
 
 			return True
 
@@ -77,10 +75,8 @@ class YiReader():
 	Close connection to YiAgent. That will stop YiAgent and YiReader normally.
 	'''
 	def stop(self):
-		self.yiListener.stop()
+		self.yiListener and self.yiListener.stop()
 		
-		logging.info('Close')
-
 
 
 
@@ -105,7 +101,7 @@ class YiReader():
 
 
 		def yiRuntimeErrorCB(res):
-			self.yiListener.stop()
+			self.yiListener and self.yiListener.stop()
 
 			if res!=b'':
 				logging.error(res)

@@ -11,6 +11,9 @@ class Object():
 
 # -todo 239 (gui, feature) +0: make customizable destination list 
 
+'''
+Dragging window support
+'''
 class QWinFilter(QObject):
 	mouseOffset= None
 
@@ -36,7 +39,7 @@ class QWinFilter(QObject):
 
 
 
-class Gui():
+class AppWindow():
 	qApp= None
 
 	layout= Object()
@@ -49,24 +52,19 @@ class Gui():
 	layout.choose= None
 	layout.addSrc= None
 
-	playCB= None
-	streamCB= None
 	destCB= None
+	playSourceCB= None
+	playDestCB= None
 
 	modulePath= path.abspath(path.dirname(__file__))
 
 
 
-	def __init__(self, _playCB=None, _streamCB=None, _destCB=None):
-		self.playCB= _playCB
-		self.streamCB= _streamCB
-		self.destCB= _destCB
-
-
+	def __init__(self):
 		self.qApp = QApplication('')
 		self.qApp.setStyle(QStyleFactory.create('plastique'))
 
-		uiFile= path.join(self.modulePath,'stryim.ui')
+		uiFile= path.join(self.modulePath,'AppWindow.ui')
 		cMain= self.layout.main= QUiLoader().load(uiFile)
 
 
@@ -105,9 +103,9 @@ class Gui():
 		self.layout.addSrc.hide()
 
 
-		if callable(_destCB):
-			self.layout.dest.textChanged.connect(_destCB)
-
+		self.layout.dest.textChanged.connect(self.changedDest)
+		self.layout.play.toggled.connect(self.onPlaySource)
+		self.layout.stream.toggled.connect(self.onPlayDest)
 
 
 
@@ -126,6 +124,16 @@ class Gui():
 
 
 
+	def onPlaySource(self, _state):
+		self.playSourceCB and self.playSourceCB(_state)
+
+
+		
+	def onPlayDest(self, _state):
+		self.playDestCB and self.playDestCB(_state)
+
+
+
 	'''
 	Toggle camera state
 	'''
@@ -134,5 +142,24 @@ class Gui():
 
 
 
-	def destination(self, _dst):
+	def setSource(self, _playCB=None):
+		self.playSourceCB= callable(_playCB) and _playCB
+
+
+
+	def setDest(self, _dst=None, _changedCB=None, _playCB=None):
+		self.playDestCB= callable(_playCB) and _playCB
+
+# -todo 304 (ui, settings) +0: make updatable settings model
+		oldCB= self.destCB
+		self.destCB= None
 		self.layout.dest.setText(_dst)
+		self.destCB= oldCB
+
+		if callable(_changedCB):
+			self.destCB= _changedCB
+
+	
+
+	def changedDest(self, _val):
+		self.destCB and self.destCB(_val)
