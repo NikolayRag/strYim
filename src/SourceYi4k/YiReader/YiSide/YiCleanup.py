@@ -1,3 +1,4 @@
+# -todo 306 (clean, YiAgent) +0: stop camera and restore settings in YiCleanup
 '''
 This module deletes video files by Yi API.
 '''
