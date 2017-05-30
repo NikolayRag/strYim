@@ -277,14 +277,13 @@ class SinkServer(threading.Thread, Sink):
 
 
 			while self.live():
-				cData= self.dataQ.get(timeout=.1)
-				if not cData:
+				try:
+					cData= self.dataQ.get(timeout=.1)
+				except queue.Empty:
 					continue
 
 				try:
 					cSocket.sendall(cData)
-				except queue.Empty:
-					pass
 				except:
 					break
 
