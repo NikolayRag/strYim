@@ -20,7 +20,6 @@ class Streamer(threading.Thread):
 
 	source= None
 
-	muxer= None
 	sink= None
 	atomsQ= None
 
@@ -44,11 +43,11 @@ class Streamer(threading.Thread):
 
 
 	def begin(self, _dst, fps=30000./1001):
-		if self.muxer:
+		if self.sink:
 			logging.warning('Stream already running')
 			return
 
-		self.muxer= self.initMuxer(_dst, fps)
+		self.sink= self.initSink(_dst, fps)
 
 		logging.info('Streaming to %s' % _dst)
 
@@ -77,8 +76,9 @@ class Streamer(threading.Thread):
 	Close destination.
 	'''
 	def end(self):
-		self.muxer and self.muxer.stop()
-		self.muxer= None
+		sink= self.sink
+		self.sink= None
+		sink and sink.close()
 
 		logging.info('Closed')
 
@@ -109,7 +109,7 @@ class Streamer(threading.Thread):
 	For non-rtmp desstination use ['.FLV'|'.264'|'.AAC'] extension
 	 to define output format.
 	'''
-	def initMuxer(self, _dst, _fps):
+	def initSink(self, _dst, _fps):
 		_dst= '/'.join(_dst.split('\\'))
 		protocol= _dst.split(':/')
 		ext= _dst.split('.')
@@ -117,21 +117,27 @@ class Streamer(threading.Thread):
 
 		MuxFLV.defaults(fps=_fps, srate=48000)
 		muxer= MuxFLV
-		sink= SinkRTMP
+		sink= SinkNet
 
-		if protocol[0]!='rtmp':
-			if len(protocol)>1 and protocol[0]=='tcp':
-				sink= SinkTCP
+		if protocol[0] not in ['rtmp', 'udp', 'tcp']:
+			if protocol[0] in ['srv']:
+				sink= SinkServer
 			else:
 				sink= SinkFile
 
-			if len(ext)>1 and (ext[-1]=='264' or ext[-1]=='h264'):
-				muxer= MuxH264
-			if len(ext)>1 and ext[-1]=='aac':
-				muxer= MuxAAC
+				if len(ext)>1 and (ext[-1] in ['264', 'h264']):
+					muxer= MuxH264
+				if len(ext)>1 and ext[-1]=='aac':
+					muxer= MuxAAC
 
-		self.sink= sink(_dst)
-		return muxer(self.sink)
+# =todo 307 (streaming, mux, sink) +0: Get stream prefix from source
+		headerA= [
+	  		b'\'M@3\x9ad\x03\xc0\x11?,\x8c\x04\x04\x05\x00\x00\x03\x03\xe9\x00\x00\xea`\xe8`\x00\xb7\x18\x00\x02\xdcl\xbb\xcb\x8d\x0c\x00\x16\xe3\x00\x00[\x8d\x97ypxD"R\xc0'
+			, b'\x28\xee\x38\x80'
+		]
+
+
+		return sink(_dst, muxer(headerA))
 
 
 
@@ -160,14 +166,12 @@ class Streamer(threading.Thread):
 				pass
 
 
-			if self.muxer:
-				if not self.sink.live():
+			if self.sink and cAtom:
+				if not self.sink.add(cAtom):
 					logging.error('Sink is dead')
 			
 					self.end()
 
-				elif cAtom:
-					self.muxer.add(cAtom)
 
 
 			self.stat.add(self.atomsQ.qsize())

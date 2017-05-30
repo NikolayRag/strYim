@@ -94,8 +94,8 @@
 !mp4 79: +0 "" kii 16/11/20 15:04:24
 	redundant
 
--flv 90: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" kii 16/11/21 06:22:44
-	construct META
+!flv 90: +0 "" ki 17/05/29 19:42:00
+	not needed
 
 +flv 91: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" kii 16/11/20 01:28:05
 	construct AVCDecoderConfigurationRecord
@@ -127,10 +127,10 @@
 +bytes 102: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\byteTransit.py" kii 16/11/21 01:23:24
 	make .add() the single public method
 
-+clean, release 104: +0 "src\MediaStream\Sink.py" ki 17/05/21 20:11:07
++clean, release 104: +0 "src\MediaStream\Sink.py" kii 17/05/21 20:11:07
 	hide ffmpeg output
 
- sink, unsure 105: -1 "src\MediaStream\Sink.py" ki 17/05/21 20:11:09
+ sink, unsure 105: -1 "src\MediaStream\Sink.py" kii 17/05/21 20:11:09
 	hardcode RTMP protocol
 
 +test, recover 107: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\mp4Recover.py" kii 16/11/26 06:37:00
@@ -151,7 +151,7 @@
 !sink 119: +0 "src\MediaStream\Sink.py" kii 17/05/18 11:57:43
 	make SinkRTMP nonblocking, stream-based
 
-=ui 120: +0 "src\stryim.py" kii 17/01/09 03:56:04
++ui 120: +0 "src\__main__w.py" kii 17/05/22 07:35:16
 	add ui
 
 +log 121: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\kiLog.py" kii 16/11/26 15:28:27
@@ -199,7 +199,7 @@
 +fix, aac 202: +1 "..\..\Application Data\Sublime Text 3\Packages\stryim\AACDetect.py" kii 16/12/22 21:25:13
 	make possible to start AAC queue NOT from max_sfb=0
 
- app, feature 218: +0 "src\stryim.py" kii 17/01/09 03:27:45
+ app, feature 218: +0 "src\Ui\Ui.py" kii 17/05/22 02:29:57
 	allow reconfiguration
 
 !app, clean, feature 219: +0 "" kii 17/01/03 01:05:20
@@ -244,7 +244,7 @@
  gui, feature 241: +0 "src\appGui\gui.py" kii 17/01/09 02:31:26
 	add/remove sources
 
- feature 242: +0 "src\__main__w.py" kii 17/01/10 17:03:23
+!feature 242: +0 "src\Ui\Ui.py" kii 17/05/22 06:35:57
 	check destination
 
 !feature, v2 244: -1 "" kii 17/05/18 10:05:01
@@ -262,7 +262,7 @@
 +YiAgent, check 260: +0 "src\SourceYi4k\YiReader.py" kii 17/05/02 04:07:05
 	catch recording stops or cannot start
 
- YiAgent, check 261: +0 "src\SourceYi4k\__init__.py" ki 17/05/20 21:56:43
+ YiAgent, check 261: +0 "src\SourceYi4k\__init__.py" kii 17/05/20 21:56:43
 	set camera settings
 
  telnet 262: -1 "src\appStreamer\kiTelnet.py" kii 17/04/19 01:50:05
@@ -274,7 +274,7 @@
 !YiAgent, check 265: +1 "" kii 17/05/04 03:36:17
 	move to 268 (telnet connection timeout)
 
-+YiAgent, check 266: +1 "src\SourceYi4k\__init__.py" ki 17/05/20 21:56:42
++YiAgent, check 266: +1 "src\SourceYi4k\__init__.py" kii 17/05/20 21:56:42
 	check camera die
 
 +YiAgent, check 267: +0 "src\SourceYi4k\YiReader.py" kii 17/05/04 00:43:27
@@ -307,7 +307,7 @@
 +Yi, clean 277: +0 "src\SourceYi4k\YiControl\YiControl.py" kii 17/05/07 14:05:47
 	remove recorded video files
 
-+Yi, fix 278: +0 "src\test.py" ki 17/05/20 18:02:54
++Yi, fix 278: +0 "src\test.py" kii 17/05/20 18:02:54
 	immedeate stop after start fails
 
 +Yi 279: +0 "src\SourceYi4k\YiControl\YiControl.py" kii 17/05/07 04:28:13
@@ -340,7 +340,7 @@
 +streaming, fix, ffmpeg, exploit 289: +2 "src\MediaStream\Streamer.py" kii 17/05/16 06:33:36
 	incoming data skipped if mux/sink delayed in the same thread; possibly issue of interfering with YiReader reciever loop
 
-+streaming, fix, ffmpeg, exploit 290: +1 "src\SourceYi4k\YiReader\YiReader.py" ki 17/05/21 05:33:36
++streaming, fix, ffmpeg, exploit 290: +1 "src\SourceYi4k\YiReader\YiReader.py" kii 17/05/21 05:33:36
 	/289; separate thread; streaming to rtmp cause reading delay
 
  mux 291: +0 "src\MediaStream\Streamer.py" kii 17/05/18 09:23:22
@@ -361,12 +361,21 @@
 +clean 299: +0 "src\__main__.py" kii 17/05/20 17:48:47
 	Show general console messages
 
-+YiAgent, fix 300: +0 "src\SourceYi4k\YiReader\YiReader.py" ki 17/05/21 05:06:43
++YiAgent, fix 300: +0 "src\SourceYi4k\YiReader\YiReader.py" kii 17/05/21 05:06:43
 	catch error on sudden disconnect
 
-+YiAgent, fix, network 301: +2 "src\SourceYi4k\YiReader\YiSide\YiSock.py" ki 17/05/21 06:10:25
++YiAgent, fix, network 301: +2 "src\SourceYi4k\YiReader\YiSide\YiSock.py" kii 17/05/21 06:10:25
 	settimg timeout breaks entire transfer
 
 +log, clean 302: +0 "src\__main__.py" kii 17/05/22 00:09:55
 	add runtime significant logging
+
+-ui, settings 304: +0 "src\Ui\AppWindow.py" kii 17/05/23 00:02:16
+	make updatable settings model
+
+-clean, sink 305: +0 "src\MediaStream\Sink.py" kii 17/05/28 18:14:12
+	autodetect free port for ffmpeg
+
+-clean, YiAgent 306: +0 "src\SourceYi4k\YiReader\YiSide\YiCleanup.py" kii 17/05/28 10:00:31
+	stop camera and restore settings in YiCleanup
 

@@ -17,9 +17,6 @@ class YiControl():
 		, (1080, 30):"1920x1080 30P 16:9"
 	}
 
-	camMaskRe= re.compile('^.*(?P<dir>\d\d\d)MEDIA/L(?P<seq>\d\d\d)(?P<num>\d\d\d\d).MP4$')
-
-
 	addr= None
 	stopCB= None
 	cleanFiles= True

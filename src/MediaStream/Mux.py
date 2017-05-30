@@ -1,12 +1,43 @@
+class Mux():
+	headerA= []
+
+
+
+	def __init__(self, _headerA=[]):
+		self.headerA= _headerA
+
+
+
+	'''
+	Produce header to be sent before data
+	'''
+	def header(self):
+		return b''.join(self.headerA)
+
+
+
+	def add(self, _atom):
+		return _atom.data
+
+
+
+	def finish(self):
+		return
+
+
+
+
+
+
+
 from .AAC import *
 import logging
 
 
 '''
 FLV Muxer class
-Requires Sink to be specified
 '''
-class MuxFLV():
+class MuxFLV(Mux):
 	stat= {'frames': 0, 'aac': 0}
 
 	stampCurrent= 0.
@@ -18,7 +49,6 @@ class MuxFLV():
 
 	useAudio= True
 
-	sink= None
 
 
 	@staticmethod
@@ -29,7 +59,10 @@ class MuxFLV():
 			MuxFLV.rateAudio= 1000./srate
 
 
-	def __init__(self, _sink, fps=None, audio=True, srate=None):
+
+	def __init__(self, _headerA, fps=None, audio=True, srate=None):
+		Mux.__init__(self, _headerA)
+
 		self.stat= {'frames': 0, 'aac': 0}
 
 		self.stampCurrent= 0.
@@ -42,30 +75,30 @@ class MuxFLV():
 			self.rateAudio= 1000./srate
 
 
-		self.sink= _sink
-
-		if not self.sink:
-			logging.error('Sink not specified')
-			return
-
-
 		self.useAudio= audio
 
-		self.flush( self.header(audio=self.useAudio) )
-#		self.flush( self.dataTag(self.flvMeta(self.useAudio)) )
-		self.flush( self.videoTag(0,True,self.videoDCR()) )
-		if self.useAudio:
-			self.flush( self.audioTag(0,self.audioSC()) )
+
+
+	'''
+	Given [SPS, PPS] array, builds FLV header.
+	'''
+	def header(self):
+		outHeader= []
+
+		outHeader.append( self.flvSign() )
+		outHeader.append( self.videoTag(0,True,self.videoDCR(self.headerA[0], self.headerA[1:])) )
+		outHeader.append( self.audioTag(0,self.audioSC()) )
+
+		return b''.join(outHeader)
+
 
 
 	def add(self, _atom):
-		if not self.sink:
-			return
-
 		if _atom.typeAVC and _atom.AVCVisible:
 			self.stat['frames']+= 1
-			flvTag= self.videoTag(1, _atom.AVCKey, _atom.data, self.stampV())
-			self.flush(flvTag)
+			
+			return self.videoTag(1, _atom.AVCKey, _atom.data, self.stampV())
+			
 
 		if self.useAudio and _atom.typeAAC:
 			if len(_atom.data)>2040:
@@ -73,27 +106,20 @@ class MuxFLV():
 				return
 
 			self.stat['aac']+= 1
-			flvTag= self.audioTag(1, _atom.data, self.stampA(_atom.AACSamples))
-			self.flush(flvTag)
+			
+			return self.audioTag(1, _atom.data, self.stampA(_atom.AACSamples))
 
 
-	def stop(self):
+
+	def finish(self):
 		logging.info('%d frames, %d aac' % (self.stat['frames'], self.stat['aac']))
-		if not self.sink:
-			return
 
-		self.flush( self.videoTag(2,True,stamp=self.stampV()) )
-		self.sink.close()
-
-		self.sink= None
+		return self.videoTag(2,True,stamp=self.stampV())
 
 
 
-	#private
+### PRIVATE
 
-	def flush(self, _data):
-		if self.sink:
-			self.sink.add(_data)
 
 
 	'''
@@ -156,11 +182,12 @@ class MuxFLV():
 
 
 	#FLV header: "FLV\x01..."
-	def header(self, video=True, audio=True):
+	def flvSign(self, video=True, audio=True):
 		video= 1* (video==True)
 		audio= 4* (audio==True)
 
-		return b'\x46\x4c\x56\x01' +bytes([video+audio]) +b'\x00\x00\x00\x09' +b'\x00\x00\x00\x00'
+		return b'FLV\x01' +bytes([video+audio]) +b'\x00\x00\x00\x09' +b'\x00\x00\x00\x00'
+
 
 
 	#Data tag
@@ -168,6 +195,7 @@ class MuxFLV():
 		tagA= self.tag(18, _stamp, [_data])
 
 		return b''.join(tagA)
+
 
 
 	#VIDEODATA+AVCVIDEOPACKET
@@ -193,13 +221,9 @@ class MuxFLV():
 
 
 	#AVCDecoderConfigurationRecord
-	def videoDCR(self):
+	def videoDCR(self, _sps, _pps):
 		nalSz= 4
 		
-#  todo 98 (flv) +0: Init stream with SPS and PPS provided
-		sps= b'\x27\x4d\x40\x33\x9a\x64\x03\xc0\x11\x3f\x2c\x8c\x04\x04\x05\x00\x00\x03\x03\xe9\x00\x00\xea\x60\xe8\x60\x00\xb7\x18\x00\x02\xdc\x6c\xbb\xcb\x8d\x0c\x00\x16\xe3\x00\x00\x5b\x8d\x97\x79\x70\x78\x44\x22\x52\xc0'
-		pps= [b'\x28\xee\x38\x80']
-
 		headDCR= [
 	   		  b'\x01'								#version
 	    	, b'\x4d'								#SPS profile
@@ -207,12 +231,12 @@ class MuxFLV():
 	    	, b'\x33'								#SPS level
 	    	, bytes([int('11111100',2) +nalSz-1])	#ff, 6xb reserved, nal-1 size
 	    	, bytes([int('11100000',2) +1])			#e1, 3xb reserved, sps num
-	    	, len(sps).to_bytes(2,'big')			#sps len
-	    	, sps
-			, bytes([ len(pps) ])
+	    	, len(_sps).to_bytes(2,'big')			#sps len
+	    	, _sps
+			, bytes([ len(_pps) ])
 	    ]
 
-		for cPps in pps:
+		for cPps in _pps:
 			headDCR.extend([ len(cPps).to_bytes(2,'big'), cPps ])
 
 
@@ -242,19 +266,8 @@ class MuxFLV():
 	def audioSC(self):
 		refDCR= b'\x11\x90\x00\x00\x00'
 
-		return b'\x11\x90\x00\x00\x00'
+		return refDCR
 
-
-
-# -todo 90 (flv) +0: construct META
-	def flvMeta(self, audio=True):
-		headMetaV= b'\x02\x00\nonMetaData\x08\x00\x00\x00\x0b\x00\x08duration\x00@D=\x91hr\xb0!\x00\x05width\x00@\x9e\x00\x00\x00\x00\x00\x00\x00\x06height\x00@\x90\xe0\x00\x00\x00\x00\x00\x00\rvideodatarate\x00@\xc7\x00\xcd\xe0\x00\x00\x00\x00\tframerate\x00@=\xf6\xff\x825\xd3D\x00\x0cvideocodecid\x00@\x1c\x00\x00\x00\x00\x00\x00\x00\x0bmajor_brand\x02\x00\x04isom\x00\rminor_version\x02\x00\x03512\x00\x11compatible_brands\x02\x00\x10isomiso2avc1mp41\x00\x07encoder\x02\x00\rLavf57.57.100\x00\x08filesize\x00A\x8d5\x11\x10\x00\x00\x00\x00\x00\t'
-		headMetaAV= b'\x02\x00\nonMetaData\x08\x00\x00\x00\x10\x00\x08duration\x00@N\x07\xae\x14z\xe1H\x00\x05width\x00@\x9e\x00\x00\x00\x00\x00\x00\x00\x06height\x00@\x90\xe0\x00\x00\x00\x00\x00\x00\nvideodatarate\x00@\xc6\xfc\x17@\x00\x00\x00\x00\tframerate\x00@=\xf8S\xe2Uk(\x00\x0cvideocodecid\x00@\x1c\x00\x00\x00\x00\x00\x00\x00\naudiodatarate\x00@_?\xa0\x00\x00\x00\x00\x00\x0faudiosamplerate\x00@\xe7p\x00\x00\x00\x00\x00\x00\x0faudiosamplesize\x00@0\x00\x00\x00\x00\x00\x00\x00\x06stereo\x01\x01\x00\x0caudiocodecid\x00@$\x00\x00\x00\x00\x00\x00\x00\x0bmajor_brand\x02\x00\x04avc1\x00\nminor_version\x02\x00\x010\x00\x11compatible_brands\x02\x00\x08avc1isom\x00\x07encoder\x02\x00\nLavf57.41.100\x00\x08filesize\x00A\x95\xd1\x9fx\x00\x00\x00\x00\x00\t'
-
-		if audio:
-			return headMetaAV
-
-		return headMetaV
 
 
 
@@ -270,57 +283,27 @@ class MuxFLV():
 
 '''
 h264 Muxer class
-Requires Sink to be specified
 '''
-class MuxH264():
-	h264Presets= {
-	  	(1080,2997,0): b'\'M@3\x9ad\x03\xc0\x11?,\x8c\x04\x04\x05\x00\x00\x03\x03\xe9\x00\x00\xea`\xe8`\x00\xb7\x18\x00\x02\xdcl\xbb\xcb\x8d\x0c\x00\x16\xe3\x00\x00[\x8d\x97ypxD"R\xc0'
-		, -1: b'\x28\xee\x38\x80'
-	}
-
-	sink= None
+class MuxH264(Mux):
+	def __init__(self, _headerA):
+		Mux.__init__(self, _headerA)
 
 
-	def __init__(self, _sink):
-		self.sink= _sink
 
-		if not self.sink:
-			logging.error('Sink not specified')
-			return
+	def header(self):
+		outHeader= []
+		for cData in self.headerA:
+			outHeader.append(b'\x00\x00\x00\x01' +cData)
 
-		self.header(self.h264Presets[(1080,2997,0)])
-		self.header(self.h264Presets[-1])
+		return b''.join(outHeader)
 
 
 
 	def add(self, _atom):
-		if not self.sink:
-			return
-
 		if _atom.typeAVC:
-			self.flush(b'\x00\x00\x00\x01' +_atom.data)
+			return (b'\x00\x00\x00\x01' +_atom.data)
 
 
-
-	def stop(self):
-		if not self.sink:
-			return
-
-		self.sink.close()
-
-		self.sink= None
-
-
-	def header(self, _data):
-		if not self.sink:
-			return
-
-		self.flush(b'\x00\x00\x00\x01' +_data)
-
-
-	def flush(self, _data):
-		if self.sink:
-			self.sink.add(_data)
 
 
 
@@ -329,12 +312,10 @@ class MuxH264():
 
 '''
 AAC Muxer class
-Requires Sink to be specified
 '''
-class MuxAAC():
-	sink= None
-
+class MuxAAC(Mux):
 	doADTS= True
+
 	adts= Bits.bitsCollect([
 		  (12, 0b111111111111)	#fff first 8 bits
 		, (1, 0)				#version, mpeg4=0
@@ -355,22 +336,14 @@ class MuxAAC():
 	adtsLen= 7
 
 
-	def __init__(self, _sink, adts=True):
-		self.sink= _sink
-
-		if not self.sink:
-			logging.error('Sink not specified')
-			return
-
+	def __init__(self, _headerA, adts=True):
+		Mux.__init__(self, _headerA)
 
 		self.doADTS= adts
 
 
 
 	def add(self, _atom):
-		if not self.sink:
-			return
-
 		if _atom.typeAAC:
 			if len(_atom.data)>(0b1111111111111):
 				logging.warning('Too big AAC found, skipped: %d' % len(_atom.data))
@@ -378,21 +351,6 @@ class MuxAAC():
 
 			if self.doADTS:
 				adtsHead= self.adts +(len(_atom.data)+self.adtsLen<<13)	#-13 bit pos
-				self.flush(adtsHead.to_bytes(self.adtsLen, 'big'))
+				return adtsHead.to_bytes(self.adtsLen, 'big') +_atom.data
 
-			self.flush(_atom.data)
-
-
-	def stop(self):
-		if not self.sink:
-			return
-
-		self.sink.close()
-
-		self.sink= None
-
-
-	def flush(self, _data):
-		if self.sink:
-			self.sink.add(_data)
-			
+			return _atom.data
