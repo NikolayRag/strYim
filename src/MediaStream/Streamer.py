@@ -120,12 +120,15 @@ class Streamer(threading.Thread):
 		sink= SinkNet
 
 		if protocol[0] not in ['rtmp', 'udp', 'tcp']:
-			sink= SinkFile
+			if protocol[0] in ['srv']:
+				sink= SinkServer
+			else:
+				sink= SinkFile
 
-			if len(ext)>1 and (ext[-1] in ['264', 'h264']):
-				muxer= MuxH264
-			if len(ext)>1 and ext[-1]=='aac':
-				muxer= MuxAAC
+				if len(ext)>1 and (ext[-1] in ['264', 'h264']):
+					muxer= MuxH264
+				if len(ext)>1 and ext[-1]=='aac':
+					muxer= MuxAAC
 
 # =todo 307 (streaming, mux, sink) +0: Get stream prefix from source
 		h264= {

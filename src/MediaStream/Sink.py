@@ -209,9 +209,77 @@ class SinkNet(threading.Thread, Sink):
 
 
 
-class SinkServer(Sink):
+import queue
+'''
+Listen for connections and provide buffered data.
+'''
+class SinkServer(threading.Thread, Sink):
+	socket= None
+	dataQ= None
 
 
 
-	def __init__(self, _dest=''):
-		Sink.__init__(self, _dest)
+	def __init__(self, _dest='', _prefix=b''):
+		Sink.__init__(self, _dest, _prefix)
+
+		self.dataQ= queue.Queue()
+
+		threading.Thread.__init__(self)
+		self.start()
+
+
+
+	def add(self, _data):
+		if not self.live():
+			return
+
+		self.dataQ.put(_data)
+		if self.dataQ.qsize()>1000: #frames limit
+			self.dataQ.get()
+
+
+
+	def close(self):
+		self.kill()
+
+
+
+### SERVER SUPPORT
+
+
+
+	def run(self):
+		cListen= socket.socket()
+		cListen.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
+		try:
+			cListen.bind(('127.0.0.1',1234))
+		except Exception as x:
+			print('error: %s' % x)
+			return
+
+		cListen.listen(1)
+#		cListen.settimeout(5)
+
+		try:
+			cSocket, a= cListen.accept()
+		except Exception as x:
+			print('error: %s' % x)
+
+			self.kill()
+			return
+
+		cSocket.settimeout(2)
+
+
+		cSocket.sendall(self.prefix)
+
+		while self.live():
+			try:
+				cSocket.sendall(self.dataQ.get(timeout=.1))
+			except queue.Empty:
+				pass
+			except:
+				self.kill()
+
+		cSocket.close()
