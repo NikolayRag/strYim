@@ -28,10 +28,10 @@ class YiAgent():
 
 	liveOldAge= 5 #maximum number of seconds to consider tested file 'live'
 	liveTriggerSize= 512*1024 #minimum file size to start reading
-	livePrefetch= 4*512*1024 #file shorter than this will be started from 0
+	livePrefetch= 2*512*1024 #file shorter than this will be started from 0
 
 	tailBuffer= 0
-	triggerOverflow= 16*512*1024 #chunk collected over this length considered overflow and skipped
+	triggerOverflow= 8*512*1024 #chunk collected over this length considered overflow and skipped
 
 	yiSock= None
 
