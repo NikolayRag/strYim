@@ -189,7 +189,7 @@ class MuxFLV(Mux):
 		video= 1* (video==True)
 		audio= 4* (audio==True)
 
-		return b'\x46\x4c\x56\x01' +bytes([video+audio]) +b'\x00\x00\x00\x09' +b'\x00\x00\x00\x00'
+		return b'FLV\x01' +bytes([video+audio]) +b'\x00\x00\x00\x09' +b'\x00\x00\x00\x00'
 
 
 	#Data tag
