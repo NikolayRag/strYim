@@ -94,7 +94,7 @@ class SinkFile(Sink):
 
 
 	def close(self):
-		self.write(self.muxer.stop())
+		self.write(self.muxer.finish())
 
 		self.cFile.close()
 
@@ -160,7 +160,7 @@ class SinkNet(threading.Thread, Sink):
 
 
 	def close(self):
-		self.write(self.muxer.stop())
+		self.write(self.muxer.finish())
 
 		if not self.live():
 			return

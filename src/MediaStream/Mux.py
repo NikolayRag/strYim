@@ -21,7 +21,7 @@ class Mux():
 
 
 
-	def stop(self):
+	def finish(self):
 		return
 
 
@@ -111,7 +111,7 @@ class MuxFLV(Mux):
 
 
 
-	def stop(self):
+	def finish(self):
 		logging.info('%d frames, %d aac' % (self.stat['frames'], self.stat['aac']))
 
 		return self.videoTag(2,True,stamp=self.stampV())
