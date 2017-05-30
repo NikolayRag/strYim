@@ -1,3 +1,64 @@
+class Sink():
+	isLive= True
+
+	dest= ''
+	prefix= b''
+
+
+	'''
+	Initialize with destination
+	'''
+	def __init__(self, _dest):
+		self.dest= _dest
+
+
+	'''
+	Add binary data to sink
+	'''
+	def add(self, _data):
+		None
+
+
+	'''
+	Close sink. It will not be usable anymore
+	'''
+	def close(self):
+		self.kill()
+
+
+
+### PRIVATE, shouldn't be overriden
+
+
+
+	'''
+	Set binary prefix to store.
+	It will be emited at start.
+	'''
+	def prefix(self, _prefix):
+		self.prefix= _prefix
+
+
+	'''
+	Check if sink is live
+	'''
+	def live(self):
+		return self.isLive
+
+
+
+	'''
+	.live() will return false
+	'''
+	def kill(self):
+		self.isLive= False
+
+
+
+
+
+
+
 '''
 Mux-suitable sinks
 '''
@@ -6,20 +67,25 @@ import logging
 '''
 File sink
 '''
-class SinkFile():
+class SinkFile(Sink):
 	cFile= None
+
 
 	def __init__(self, _fn):
 		self.cFile= open(_fn, 'wb')
 
-	def live(self):
-		return self.cFile!=False
-
+	
 	def add(self, _data):
-		self.cFile.write(_data)
+		if self.live():
+			self.cFile.write(_data)
+
 
 	def close(self):
 		self.cFile.close()
+
+		self.kill()
+
+
 
 
 
@@ -30,7 +96,7 @@ Network sink
 import subprocess, threading, socket, os, re
 from support import *
 
-class SinkNet(threading.Thread):
+class SinkNet(threading.Thread, Sink):
 	ipMask= re.compile('^((?P<protocol>tcp|udp|rtmp)://)?(?P<addr>(\d+\.\d+\.\d+\.\d+)|([\w\d_\.]+))?(:(?P<port>\d*))?(?P<path>.*)')
 
 # -todo 305 (clean, sink) +0: autodetect free port for ffmpeg
@@ -39,14 +105,13 @@ class SinkNet(threading.Thread):
 	ffSocket= None
 
 	protocol= 'flv'
-	addr= ''
 
 
 
-	def __init__(self, _addr=''):
-		self.addr= _addr
+	def __init__(self, _dest=''):
+		Sink.__init__(self, _dest)
 
-		ipElements= self.ipMask.match(_addr)
+		ipElements= self.ipMask.match(_dest)
 		ipElements= ipElements and ipElements.group('protocol')
 		if ipElements=='udp':
 			self.protocol= 'mpegts'
@@ -59,12 +124,6 @@ class SinkNet(threading.Thread):
 
 
 
-	def live(self):
-		if self.ffSocket and self.ffmpeg:
-			return True
-
-
-
 	def add(self, _data):
 		if not self.live():
 			return
@@ -73,18 +132,20 @@ class SinkNet(threading.Thread):
 			self.ffSocket.sendall(_data)
 
 		except:
+			self.kill()
+
 			logging.error('Socket error')
-			self.ffSocket= None
 
 
 
 	def close(self):
-		ffSocket= self.ffSocket
-		self.ffSocket= None
-		if ffSocket:
-			ffSocket.close()
+		if not self.live():
+			return
+		self.kill()
 
-		self.ffmpeg and self.ffmpeg.kill()
+		self.ffSocket.close()
+
+		self.ffmpeg.kill()
 
 
 
@@ -94,7 +155,7 @@ class SinkNet(threading.Thread):
 #  todo 105 (sink, unsure) -1: hardcode RTMP protocol
 		logging.info('Running ffmpeg')
 
-		ffmperArg= [ROOT + '/ffmpeg/ffmpeg'] +('-re -i tcp://127.0.0.1:%d?listen -c copy -f' % self.ffport).split()+ [self.protocol, self.addr]
+		ffmperArg= [ROOT + '/ffmpeg/ffmpeg'] +('-re -i tcp://127.0.0.1:%d?listen -c copy -f' % self.ffport).split()+ [self.protocol, self.dest]
 		if sys.platform.startswith('win'):
 			self.ffmpeg= subprocess.Popen(ffmperArg, stderr=subprocess.PIPE, stdin=subprocess.PIPE, bufsize=1, universal_newlines=True, creationflags=0x00000200)
 		else:
@@ -114,7 +175,7 @@ class SinkNet(threading.Thread):
 				logging.debug('speed=%s, %sfps' % (resultMatch.group('speed'), resultMatch.group('fps')))
 
 
-		self.ffmpeg= None
+		self.kill()
 
 		logging.info('Finished ffmpeg')
 		if resultMatch:
@@ -127,6 +188,8 @@ class SinkNet(threading.Thread):
 		try:
 			sock= socket.create_connection(('127.0.0.1',self.ffport), 5)
 		except:
+			self.kill()
+
 			logging.error('Init error')
 
 		return sock
