@@ -323,7 +323,10 @@ class SinkServer(threading.Thread, Sink):
 
 			cSocket.settimeout(5)
 
-			cSocket.sendall(self.muxer.header())
+			try:
+				cSocket.sendall(self.muxer.header())
+			except:
+				pass
 
 
 			self.limit= self.limitCycle
@@ -340,7 +343,11 @@ class SinkServer(threading.Thread, Sink):
 					break
 
 
-			cSocket.sendall(self.muxer.stop())
+			try:
+				cSocket.sendall(self.muxer.finish())
+			except:
+				pass
+
 
 			cSocket.close()
 
