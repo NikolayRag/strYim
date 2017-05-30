@@ -127,7 +127,13 @@ class Streamer(threading.Thread):
 			if len(ext)>1 and ext[-1]=='aac':
 				muxer= MuxAAC
 
-		self.sink= sink(_dst)
+# =todo 307 (streaming, mux, sink) +0: Get stream prefix from source
+		h264= {
+		  	(1080,2997,0): b'\'M@3\x9ad\x03\xc0\x11?,\x8c\x04\x04\x05\x00\x00\x03\x03\xe9\x00\x00\xea`\xe8`\x00\xb7\x18\x00\x02\xdcl\xbb\xcb\x8d\x0c\x00\x16\xe3\x00\x00[\x8d\x97ypxD"R\xc0'
+			, -1: b'\x28\xee\x38\x80'
+		}
+
+		self.sink= sink(_dst, muxer.makeHeader([h264[(1080,2997,0)], h264[-1]]))
 		return muxer(self.sink)
 
 

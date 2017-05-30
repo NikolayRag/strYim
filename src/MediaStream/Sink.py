@@ -8,8 +8,9 @@ class Sink():
 	'''
 	Initialize with destination
 	'''
-	def __init__(self, _dest):
+	def __init__(self, _dest, _prefix=b''):
 		self.dest= _dest
+		self.setPrefix(_prefix)
 
 
 	'''
@@ -35,7 +36,7 @@ class Sink():
 	Set binary prefix to store.
 	It will be emited at start.
 	'''
-	def prefix(self, _prefix):
+	def setPrefix(self, _prefix):
 		self.prefix= _prefix
 
 
@@ -71,13 +72,20 @@ class SinkFile(Sink):
 	cFile= None
 
 
-	def __init__(self, _fn):
-		self.cFile= open(_fn, 'wb')
+
+	def __init__(self, _dest, _prefix=b''):
+		Sink.__init__(self, _dest, _prefix)
+
+		self.cFile= open(_dest, 'wb')
+
+		self.add(self.prefix)
+
 
 	
 	def add(self, _data):
 		if self.live():
 			self.cFile.write(_data)
+
 
 
 	def close(self):
@@ -108,8 +116,8 @@ class SinkNet(threading.Thread, Sink):
 
 
 
-	def __init__(self, _dest=''):
-		Sink.__init__(self, _dest)
+	def __init__(self, _dest, _prefix=b''):
+		Sink.__init__(self, _dest, _prefix)
 
 		ipElements= self.ipMask.match(_dest)
 		ipElements= ipElements and ipElements.group('protocol')
@@ -121,6 +129,9 @@ class SinkNet(threading.Thread, Sink):
 		self.start()
 
 		self.ffSocket= self.tcpInit()
+
+		self.add(self.prefix)
+
 
 
 
@@ -194,3 +205,13 @@ class SinkNet(threading.Thread, Sink):
 
 		return sock
 
+
+
+
+
+class SinkServer(Sink):
+
+
+
+	def __init__(self, _dest=''):
+		Sink.__init__(self, _dest)
