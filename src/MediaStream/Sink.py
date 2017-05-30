@@ -259,27 +259,35 @@ class SinkServer(threading.Thread, Sink):
 			return
 
 		cListen.listen(1)
-#		cListen.settimeout(5)
+		cListen.settimeout(5)
 
-		try:
-			cSocket, a= cListen.accept()
-		except Exception as x:
-			print('error: %s' % x)
+		while self.live(): #reconnection loop
 
-			self.kill()
-			return
-
-		cSocket.settimeout(2)
-
-
-		cSocket.sendall(self.prefix)
-
-		while self.live():
 			try:
-				cSocket.sendall(self.dataQ.get(timeout=.1))
-			except queue.Empty:
-				pass
-			except:
-				self.kill()
+				cSocket, a= cListen.accept()
+			except Exception as x:
+				logging.debug('Listening: %s' % x)
 
-		cSocket.close()
+				continue
+
+
+			cSocket.settimeout(.5)
+
+			cSocket.sendall(self.prefix)
+
+
+			while self.live():
+				cData= self.dataQ.get(timeout=.1)
+				if not cData:
+					continue
+
+				try:
+					cSocket.sendall(cData)
+				except queue.Empty:
+					pass
+				except:
+					break
+
+			cSocket.close()
+
+		cListen.close()
