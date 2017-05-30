@@ -217,12 +217,16 @@ class SinkServer(threading.Thread, Sink):
 	socket= None
 	dataQ= None
 
+	limitIdle= (50, 50) #limit, drop to: without connection
+	limitCycle= (500, 250) #limit, drop to: with connection
+	limit= None #current
 
 
 	def __init__(self, _dest='', _prefix=b''):
 		Sink.__init__(self, _dest, _prefix)
 
 		self.dataQ= queue.Queue()
+		self.limit= self.limitIdle
 
 		threading.Thread.__init__(self)
 		self.start()
@@ -233,9 +237,16 @@ class SinkServer(threading.Thread, Sink):
 		if not self.live():
 			return
 
+		if not self.dataQ: #Queue is started at connection
+			return
+
 		self.dataQ.put(_data)
-		if self.dataQ.qsize()>1000: #frames limit
-			self.dataQ.get()
+		if self.dataQ.qsize()>self.limit[0]: #frames trigger
+			if self.limit == self.limitCycle:
+				logging.error('Buffer full')
+
+			while self.dataQ.qsize()>self.limit[1]: #drop
+				self.dataQ.get()
 
 
 
@@ -270,11 +281,15 @@ class SinkServer(threading.Thread, Sink):
 
 				continue
 
+			logging.info('connected')
 
-			cSocket.settimeout(.5)
+
+			cSocket.settimeout(5)
 
 			cSocket.sendall(self.prefix)
 
+
+			self.limit= self.limitCycle
 
 			while self.live():
 				try:
@@ -287,6 +302,10 @@ class SinkServer(threading.Thread, Sink):
 				except:
 					break
 
+
 			cSocket.close()
+
+			self.limit= self.limitIdle
+
 
 		cListen.close()
