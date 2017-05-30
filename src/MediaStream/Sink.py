@@ -105,7 +105,7 @@ import subprocess, threading, socket, os, re
 from support import *
 
 class SinkNet(threading.Thread, Sink):
-	ipMask= re.compile('^((?P<protocol>tcp|udp|rtmp)://)?(?P<addr>(\d+\.\d+\.\d+\.\d+)|([\w\d_\.]+))?(:(?P<port>\d*))?(?P<path>.*)')
+	ipMask= re.compile('^((?P<protocol>\w+)://)?(?P<addr>(\d+\.\d+\.\d+\.\d+)|([\w\d_\.]+))?(:(?P<port>\d*))?(?P<path>.*)')
 
 # -todo 305 (clean, sink) +0: autodetect free port for ffmpeg
 	ffport= 2345
@@ -214,6 +214,11 @@ import queue
 Listen for connections and provide buffered data.
 '''
 class SinkServer(threading.Thread, Sink):
+	ipMask= re.compile('^((?P<protocol>\w+)://)?(?P<addr>(\d+\.\d+\.\d+\.\d+)|([\w\d_\.]+))?(:(?P<port>\d*))?(?P<path>.*)')
+
+	addr= '127.0.0.1'
+	port= 1234
+
 	socket= None
 	dataQ= None
 
@@ -223,6 +228,12 @@ class SinkServer(threading.Thread, Sink):
 
 
 	def __init__(self, _dest='', _prefix=b''):
+		ipElements= self.ipMask.match(_dest)
+		if ipElements:
+			self.addr= ipElements.group('addr')
+			self.port= int(ipElements.group('port'))
+
+
 		Sink.__init__(self, _dest, _prefix)
 
 		self.dataQ= queue.Queue()
@@ -264,7 +275,7 @@ class SinkServer(threading.Thread, Sink):
 		cListen.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
 		try:
-			cListen.bind(('127.0.0.1',1234))
+			cListen.bind((self.addr,self.port))
 		except Exception as x:
 			print('error: %s' % x)
 			return
