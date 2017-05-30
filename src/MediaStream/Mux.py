@@ -1,11 +1,31 @@
 class Mux():
+	headerA= []
+
+
+
+	def __init__(self, _headerA=[]):
+		self.headerA= _headerA
+
+
 
 	'''
 	Produce header to be sent before data
 	'''
-	@staticmethod
-	def makeHeader(_data=[]):
-		return b''
+	def header(self):
+		return b''.join(self.headerA)
+
+
+
+	def add(self, _atom):
+		return _atom.data
+
+
+
+	def stop(self):
+		return
+
+
+
 
 
 
@@ -16,7 +36,6 @@ import logging
 
 '''
 FLV Muxer class
-Requires Sink to be specified
 '''
 class MuxFLV(Mux):
 	stat= {'frames': 0, 'aac': 0}
@@ -30,7 +49,6 @@ class MuxFLV(Mux):
 
 	useAudio= True
 
-	sink= None
 
 
 	@staticmethod
@@ -42,22 +60,9 @@ class MuxFLV(Mux):
 
 
 
-	'''
-	Given [SPS, PPS] array, builds FLV header.
-	'''
-	@staticmethod
-	def makeHeader(_data=[]):
-		outHeader= []
+	def __init__(self, _headerA, fps=None, audio=True, srate=None):
+		Mux.__init__(self, _headerA)
 
-		outHeader.append( MuxFLV.header() )
-		outHeader.append( MuxFLV.videoTag(0,True,MuxFLV.videoDCR(_data[0], _data[1:])) )
-		outHeader.append( MuxFLV.audioTag(0,MuxFLV.audioSC()) )
-
-		return b''.join(outHeader)
-
-
-
-	def __init__(self, _sink, fps=None, audio=True, srate=None):
 		self.stat= {'frames': 0, 'aac': 0}
 
 		self.stampCurrent= 0.
@@ -70,25 +75,30 @@ class MuxFLV(Mux):
 			self.rateAudio= 1000./srate
 
 
-		self.sink= _sink
-
-		if not self.sink:
-			logging.error('Sink not specified')
-			return
-
-
 		self.useAudio= audio
 
 
 
-	def add(self, _atom):
-		if not self.sink:
-			return
+	'''
+	Given [SPS, PPS] array, builds FLV header.
+	'''
+	def header(self):
+		outHeader= []
 
+		outHeader.append( self.flvSign() )
+		outHeader.append( self.videoTag(0,True,self.videoDCR(self.headerA[0], self.headerA[1:])) )
+		outHeader.append( self.audioTag(0,self.audioSC()) )
+
+		return b''.join(outHeader)
+
+
+
+	def add(self, _atom):
 		if _atom.typeAVC and _atom.AVCVisible:
 			self.stat['frames']+= 1
-			flvTag= MuxFLV.videoTag(1, _atom.AVCKey, _atom.data, self.stampV())
-			self.flush(flvTag)
+			
+			return self.videoTag(1, _atom.AVCKey, _atom.data, self.stampV())
+			
 
 		if self.useAudio and _atom.typeAAC:
 			if len(_atom.data)>2040:
@@ -96,27 +106,20 @@ class MuxFLV(Mux):
 				return
 
 			self.stat['aac']+= 1
-			flvTag= MuxFLV.audioTag(1, _atom.data, self.stampA(_atom.AACSamples))
-			self.flush(flvTag)
+			
+			return self.audioTag(1, _atom.data, self.stampA(_atom.AACSamples))
+
 
 
 	def stop(self):
 		logging.info('%d frames, %d aac' % (self.stat['frames'], self.stat['aac']))
-		if not self.sink:
-			return
 
-		self.flush( MuxFLV.videoTag(2,True,stamp=self.stampV()) )
-		self.sink.close()
-
-		self.sink= None
+		return self.videoTag(2,True,stamp=self.stampV())
 
 
 
-	#private
+### PRIVATE
 
-	def flush(self, _data):
-		if self.sink:
-			self.sink.add(_data)
 
 
 	'''
@@ -151,13 +154,8 @@ class MuxFLV(Mux):
 
 
 
-### STATIC SUPPORTS
-
-
-
 	#FLVTAG, including 4 bytes size
-	@staticmethod
-	def tag(_type, _stamp=0, _data=[b'']):
+	def tag(self, _type, _stamp=0, _data=[b'']):
 		if _stamp<0 or _stamp>0x7fffffff:
 			logging.error('Stamp out of range: %.1f' % _stamp)
 			_stamp= 0
@@ -184,25 +182,24 @@ class MuxFLV(Mux):
 
 
 	#FLV header: "FLV\x01..."
-	@staticmethod
-	def header(video=True, audio=True):
+	def flvSign(self, video=True, audio=True):
 		video= 1* (video==True)
 		audio= 4* (audio==True)
 
 		return b'FLV\x01' +bytes([video+audio]) +b'\x00\x00\x00\x09' +b'\x00\x00\x00\x00'
 
 
+
 	#Data tag
-	@staticmethod
-	def dataTag(_data, _stamp=0):
-		tagA= MuxFLV.tag(18, _stamp, [_data])
+	def dataTag(self, _data, _stamp=0):
+		tagA= self.tag(18, _stamp, [_data])
 
 		return b''.join(tagA)
 
 
+
 	#VIDEODATA+AVCVIDEOPACKET
-	@staticmethod
-	def videoTag(_type, _key, _data=b'', stamp=0):
+	def videoTag(self, _type, _key, _data=b'', stamp=0):
 		dataLen= b''
 		if _type==1:
 			dataLen= len(_data).to_bytes(4, 'big')
@@ -216,7 +213,7 @@ class MuxFLV(Mux):
 			, _data
 		]
 
-		tagA= MuxFLV.tag(9, stamp, vData)		#prepare tag for data substitution
+		tagA= self.tag(9, stamp, vData)		#prepare tag for data substitution
 
 
 		return b''.join(tagA)
@@ -224,8 +221,7 @@ class MuxFLV(Mux):
 
 
 	#AVCDecoderConfigurationRecord
-	@staticmethod
-	def videoDCR(_sps, _pps):
+	def videoDCR(self, _sps, _pps):
 		nalSz= 4
 		
 		headDCR= [
@@ -251,8 +247,7 @@ class MuxFLV(Mux):
 
 
 	#AUDIODATA+AACAUDIODATA
-	@staticmethod
-	def audioTag(_type, _data=b'', stamp=0):
+	def audioTag(self, _type, _data=b'', stamp=0):
 
 		aData= [
 			  bytes([ (10<<4) +(3<<2) +(1<<1) +1 ])	#af: 4xb=AAC, 2xb=AACSR, 16bit, stereo
@@ -260,7 +255,7 @@ class MuxFLV(Mux):
 			, _data
 		]
 
-		tagA= MuxFLV.tag(8, stamp, aData)			#prepare tag for data substitution
+		tagA= self.tag(8, stamp, aData)			#prepare tag for data substitution
 
 
 		return b''.join(tagA)
@@ -268,8 +263,7 @@ class MuxFLV(Mux):
 
 
 	#AudioSpecificConfig
-	@staticmethod
-	def audioSC():
+	def audioSC(self):
 		refDCR= b'\x11\x90\x00\x00\x00'
 
 		return refDCR
@@ -289,54 +283,27 @@ class MuxFLV(Mux):
 
 '''
 h264 Muxer class
-Requires Sink to be specified
 '''
 class MuxH264(Mux):
-	sink= None
+	def __init__(self, _headerA):
+		Mux.__init__(self, _headerA)
 
 
 
-	@staticmethod
-	def makeHeader(_data=[]):
+	def header(self):
 		outHeader= []
-		for cData in _data:
+		for cData in self.headerA:
 			outHeader.append(b'\x00\x00\x00\x01' +cData)
 
 		return b''.join(outHeader)
 
 
 
-	def __init__(self, _sink):
-		self.sink= _sink
-
-		if not self.sink:
-			logging.error('Sink not specified')
-			return
-
-
-
 	def add(self, _atom):
-		if not self.sink:
-			return
-
 		if _atom.typeAVC:
-			self.flush(b'\x00\x00\x00\x01' +_atom.data)
+			return (b'\x00\x00\x00\x01' +_atom.data)
 
 
-
-	def stop(self):
-		if not self.sink:
-			return
-
-		self.sink.close()
-
-		self.sink= None
-
-
-
-	def flush(self, _data):
-		if self.sink:
-			self.sink.add(_data)
 
 
 
@@ -345,12 +312,10 @@ class MuxH264(Mux):
 
 '''
 AAC Muxer class
-Requires Sink to be specified
 '''
 class MuxAAC(Mux):
-	sink= None
-
 	doADTS= True
+
 	adts= Bits.bitsCollect([
 		  (12, 0b111111111111)	#fff first 8 bits
 		, (1, 0)				#version, mpeg4=0
@@ -371,22 +336,14 @@ class MuxAAC(Mux):
 	adtsLen= 7
 
 
-	def __init__(self, _sink, adts=True):
-		self.sink= _sink
-
-		if not self.sink:
-			logging.error('Sink not specified')
-			return
-
+	def __init__(self, _headerA, adts=True):
+		Mux.__init__(self, _headerA)
 
 		self.doADTS= adts
 
 
 
 	def add(self, _atom):
-		if not self.sink:
-			return
-
 		if _atom.typeAAC:
 			if len(_atom.data)>(0b1111111111111):
 				logging.warning('Too big AAC found, skipped: %d' % len(_atom.data))
@@ -394,21 +351,6 @@ class MuxAAC(Mux):
 
 			if self.doADTS:
 				adtsHead= self.adts +(len(_atom.data)+self.adtsLen<<13)	#-13 bit pos
-				self.flush(adtsHead.to_bytes(self.adtsLen, 'big'))
+				return adtsHead.to_bytes(self.adtsLen, 'big') +_atom.data
 
-			self.flush(_atom.data)
-
-
-	def stop(self):
-		if not self.sink:
-			return
-
-		self.sink.close()
-
-		self.sink= None
-
-
-	def flush(self, _data):
-		if self.sink:
-			self.sink.add(_data)
-			
+			return _atom.data

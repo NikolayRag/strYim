@@ -1,23 +1,36 @@
+import logging
+from .Mux import *
+
+
 class Sink():
 	isLive= True
 
 	dest= ''
-	prefix= b''
+	muxer= None
+
 
 
 	'''
 	Initialize with destination
 	'''
-	def __init__(self, _dest, _prefix=b''):
+	def __init__(self, _dest, _muxer):
 		self.dest= _dest
-		self.setPrefix(_prefix)
+		if isinstance(_muxer, Mux):
+			self.muxer= _muxer
+		else:
+			logging.warning('Muxer is not specified or invalid, bypass')
+
+			self.muxer= Mux()
+
 
 
 	'''
-	Add binary data to sink
+	Mux atom into sink
 	'''
-	def add(self, _data):
-		None
+	def add(self, _atom):
+		if self.live():
+			return True
+
 
 
 	'''
@@ -30,14 +43,6 @@ class Sink():
 
 ### PRIVATE, shouldn't be overriden
 
-
-
-	'''
-	Set binary prefix to store.
-	It will be emited at start.
-	'''
-	def setPrefix(self, _prefix):
-		self.prefix= _prefix
 
 
 	'''
@@ -73,26 +78,39 @@ class SinkFile(Sink):
 
 
 
-	def __init__(self, _dest, _prefix=b''):
-		Sink.__init__(self, _dest, _prefix)
+	def __init__(self, _dest, _muxer=None):
+		Sink.__init__(self, _dest, _muxer)
 
 		self.cFile= open(_dest, 'wb')
 
-		self.add(self.prefix)
+		self.write(self.muxer.header())
 
 
 	
-	def add(self, _data):
+	def add(self, _atom):
 		if self.live():
-			self.cFile.write(_data)
+			return self.write(self.muxer.add(_atom))
 
 
 
 	def close(self):
+		self.write(self.muxer.stop())
+
 		self.cFile.close()
 
 		self.kill()
 
+
+
+### PRIVATE
+
+
+
+	def write(self, _data):
+		if _data:
+			self.cFile.write(_data)
+
+		return True
 
 
 
@@ -116,8 +134,8 @@ class SinkNet(threading.Thread, Sink):
 
 
 
-	def __init__(self, _dest, _prefix=b''):
-		Sink.__init__(self, _dest, _prefix)
+	def __init__(self, _dest, _muxer=None):
+		Sink.__init__(self, _dest, _muxer)
 
 		ipElements= self.ipMask.match(_dest)
 		ipElements= ipElements and ipElements.group('protocol')
@@ -130,26 +148,20 @@ class SinkNet(threading.Thread, Sink):
 
 		self.ffSocket= self.tcpInit()
 
-		self.add(self.prefix)
+		self.write(self.muxer.header())
 
 
 
 
-	def add(self, _data):
-		if not self.live():
-			return
-
-		try:
-			self.ffSocket.sendall(_data)
-
-		except:
-			self.kill()
-
-			logging.error('Socket error')
+	def add(self, _atom):
+		if self.live():
+			return self.write(self.muxer.add(_atom))
 
 
 
 	def close(self):
+		self.write(self.muxer.stop())
+
 		if not self.live():
 			return
 		self.kill()
@@ -161,6 +173,22 @@ class SinkNet(threading.Thread, Sink):
 
 
 ### PRIVATE
+
+
+
+	def write(self, _data):
+		try:
+			if _data:
+				self.ffSocket.sendall(_data)
+
+			return True
+
+		except:
+			self.kill()
+
+			logging.error('Socket error')
+
+
 
 	def run(self):
 #  todo 105 (sink, unsure) -1: hardcode RTMP protocol
@@ -227,14 +255,14 @@ class SinkServer(threading.Thread, Sink):
 	limit= None #current
 
 
-	def __init__(self, _dest='', _prefix=b''):
+	def __init__(self, _dest='', _muxer=None):
 		ipElements= self.ipMask.match(_dest)
 		if ipElements:
 			self.addr= ipElements.group('addr')
 			self.port= int(ipElements.group('port'))
 
 
-		Sink.__init__(self, _dest, _prefix)
+		Sink.__init__(self, _dest, _muxer)
 
 		self.dataQ= queue.Queue()
 		self.limit= self.limitIdle
@@ -244,20 +272,18 @@ class SinkServer(threading.Thread, Sink):
 
 
 
-	def add(self, _data):
-		if not self.live():
-			return
+	def add(self, _atom):
+		if self.live():
+			self.dataQ.put(self.muxer.add(_atom))
 
-		if not self.dataQ: #Queue is started at connection
-			return
+			if self.dataQ.qsize()>self.limit[0]: #frames trigger
+				if self.limit == self.limitCycle:
+					logging.error('Buffer full')
 
-		self.dataQ.put(_data)
-		if self.dataQ.qsize()>self.limit[0]: #frames trigger
-			if self.limit == self.limitCycle:
-				logging.error('Buffer full')
+				while self.dataQ.qsize()>self.limit[1]: #drop
+					self.dataQ.get()
 
-			while self.dataQ.qsize()>self.limit[1]: #drop
-				self.dataQ.get()
+			return True
 
 
 
@@ -297,7 +323,7 @@ class SinkServer(threading.Thread, Sink):
 
 			cSocket.settimeout(5)
 
-			cSocket.sendall(self.prefix)
+			cSocket.sendall(self.muxer.header())
 
 
 			self.limit= self.limitCycle
@@ -313,6 +339,8 @@ class SinkServer(threading.Thread, Sink):
 				except:
 					break
 
+
+			cSocket.sendall(self.muxer.stop())
 
 			cSocket.close()
 
