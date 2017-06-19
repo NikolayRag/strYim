@@ -27,6 +27,7 @@ class YiAgent():
 	camMaskRe= re.compile('^.*(?P<dir>\d\d\d)MEDIA/L(?P<seq>\d\d\d)(?P<num>\d\d\d\d).MP4$')
 
 	liveOldAge= 5 #maximum number of seconds to consider tested file 'live'
+	liveBlock= 512*1024 #read/send block size
 	liveTriggerSize= 512*1024 #minimum file size to start reading
 	livePrefetch= 2*512*1024 #file shorter than this will be started from 0
 
@@ -196,12 +197,12 @@ class YiAgent():
 	'''
 	def readBlock(self, _f, _pos, _leave=0):
 		_f.seek(0, os.SEEK_END)
-		fSize= _f.tell()
+		fRemain= _f.tell() -_pos
 
 		content= b''
-		if (fSize-_pos) > _leave:
+		if fRemain > _leave:
 			_f.seek(_pos)
-			content= _f.read(fSize-_pos-_leave)
+			content= _f.read(min(fRemain-_leave,self.liveBlock))
 
 		return content
 
