@@ -106,17 +106,17 @@ class Mp4Recover():
 		matchesA= []
 
 		foundFalse= 0
-		foundStart= 0
+		nextStart= 0
 		while True:
-			atomMatch= self.analyzeAtom(_data, foundStart, self.signAVC[signI], self.signAVC[signI1])
+			atomMatch= self.analyzeAtom(_data, nextStart, self.signAVC[signI], self.signAVC[signI1])
 			if atomMatch==None: #not enough data, stop
 				break
 
 			if atomMatch==False: #retry further
 				foundFalse+= 1
 
-				foundStart= _data.find(self.signAVC[signI], foundStart+1+4)-4	#rewind to actual start
-				if foundStart<0:	#dried while in search
+				nextStart= _data.find(self.signAVC[signI], nextStart+1+4)-4	#rewind to actual start
+				if nextStart<0:	#dried while in search
 					break
 
 				continue
@@ -128,16 +128,17 @@ class Mp4Recover():
 				break
 
 
-			foundStart=	atomMatch.outPos	#shortcut for next
+			nextStart= atomMatch.outPos	#shortcut for next
 
 
 			if atomMatch.typeAAC:
-				AACIn= atomMatch.inPos
+				thisStart= atomMatch.inPos
 
-				splitAACA= self.detectHelper.detect(_data[AACIn:atomMatch.outPos])
+				splitAACA= self.detectHelper.detect(_data[thisStart:nextStart])
 				if len(splitAACA):
 					for aac in splitAACA:
-						matchesA.append(Atom(AACIn+aac[0],AACIn+aac[1]).setAAC())
+						matchesA.append(Atom(thisStart+aac[0],thisStart+aac[1]).setAAC())
+				
 				else:
 					logging.warning('AAC data should be phased out by accident')
 
