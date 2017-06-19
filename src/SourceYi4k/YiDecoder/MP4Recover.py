@@ -118,7 +118,7 @@ class Mp4Recover():
 
 
 		if matches:
-			logging.debug('%d atoms found' % matches)
+			logging.debug('%d atoms found%s' % (matches, ', finaly' if _finalize else ''))
 
 
 		return nextStart
