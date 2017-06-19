@@ -37,7 +37,7 @@ class Mp4Recover():
 	def __init__(self, _atomCB):
 		self.detectHelper= AACDetect()
 	
-		self.transit= ByteTransit(self.atomsFromRaw)
+		self.transit= ByteTransit(self.analyzeMp4)
 
 		self.atomCB= callable(_atomCB) and _atomCB
 
@@ -53,7 +53,7 @@ class Mp4Recover():
 			 must be consumed.
 	'''
 	def add(self, _data, _ctx=None):
-		#Data sent to ByteTransit is cached and dispatched to .atomsFromRaw()
+		#Data sent to ByteTransit is cached and dispatched to .analyzeMp4()
 		self.transit.add(_data, _ctx)
 
 
@@ -69,46 +69,21 @@ class Mp4Recover():
 
 		finalize
 			boolean, indicates no more data for this context will be sent (if consumed all).
-	'''
-	def atomsFromRaw(self, _data, _finalize=False):
-		recoverMatchesA= self.analyzeMp4(_data, _finalize)
 
-
-		dataCosumed= 0
-		for match in recoverMatchesA:
-			match.bindData(_data)
-			self.atomCB and self.atomCB(match)
-
-			dataCosumed= match.outPos
-
-
-		return dataCosumed
-
-
-
-
-
-	'''
-	Search .mp4 bytes for 264 and AAC frames.
-	Return [Atom(),..] array.
-	
 	First frame searched is IDR (Key frame).
-	Last frame is the one before last IDR frame or MOOV atom found.
-
-	If called subsequently on growing stream,
-	 2nd and next call's data[0] will surely point to IDR.
 	'''
 	def analyzeMp4(self, _data, _finalize=False):
-		matchesA= []
+		matches= 0
 
 		nextStart= 0
 		while True:
 			atomMatch= self.findAtom(_data, nextStart)
+			
 			if not atomMatch:
 				break
-
-
-			if atomMatch.typeMoov:	#abort limiting
+			
+			if atomMatch.typeMoov:
+				_finalize= True
 				break
 
 
@@ -121,16 +96,19 @@ class Mp4Recover():
 				splitAACA= self.detectHelper.detect(_data[thisStart:nextStart])
 				if len(splitAACA):
 					for aac in splitAACA:
-						matchesA.append(Atom(thisStart+aac[0],thisStart+aac[1]).setAAC())
+						self.pushAtom(Atom(thisStart+aac[0],thisStart+aac[1]).setAAC(), _data)
+						matches+= 1
 				
 				else:
 					logging.warning('AAC data should be phased out by accident')
 
-					matchesA.append(atomMatch)
+					self.pushAtom(atomMatch, _data)
+					matches+= 1
 
 
 			if atomMatch.typeAVC:
-				matchesA.append(atomMatch)
+				self.pushAtom(atomMatch, _data)
+				matches+= 1
 
 
 		if _finalize:
@@ -139,12 +117,20 @@ class Mp4Recover():
 			self.signI= 0
 
 
-		if len(matchesA):
-			logging.debug('%d atoms found' % (len(matchesA)))
+		if matches:
+			logging.debug('%d atoms found' % matches)
 
 
-		return matchesA
+		return nextStart
 
+
+
+	'''
+	Pass Atom with data to defined callback
+	'''
+	def pushAtom(self, _atom, _data):
+		_atom.bindData(_data)
+		self.atomCB and self.atomCB(_atom)
 
 
 
