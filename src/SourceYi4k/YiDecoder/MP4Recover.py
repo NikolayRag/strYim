@@ -205,9 +205,6 @@ class Mp4Recover():
 
 
 		if signThis==self.signMoov:
-			if outPos>len(_data): #Not enough data to test
-				return None
-
 			return Atom(_inPos,outPos).setMOOV()
 
 
