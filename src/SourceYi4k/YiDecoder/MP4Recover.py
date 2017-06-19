@@ -108,11 +108,11 @@ class Mp4Recover():
 		foundFalse= 0
 		foundStart= 0
 		while True:
-			atomMatchA= self.analyzeAtom(_data, foundStart, self.signAVC[signI], self.signAVC[signI1])
-			if atomMatchA==None: #not enough data, stop
+			atomMatch= self.analyzeAtom(_data, foundStart, self.signAVC[signI], self.signAVC[signI1])
+			if atomMatch==None: #not enough data, stop
 				break
 
-			if atomMatchA==False: #retry further
+			if atomMatch==False: #retry further
 				foundFalse+= 1
 
 				foundStart= _data.find(self.signAVC[signI], foundStart+1+4)-4	#rewind to actual start
@@ -123,31 +123,40 @@ class Mp4Recover():
 
 
 			#Atom found
-			for atomMatch in atomMatchA:
-				if atomMatch.typeMoov:	#abort limiting
-					KFrameLast= None
-					break
-
-
-				matchesA.append(atomMatch)
-
-				foundStart=	atomMatch.outPos	#shortcut for next
-
-
-				if atomMatch.typeAVC:
-					signI= signI1
-
-					signI1+= 1
-					if signI1==len(self.signAVC):
-						signI1= 0
-
-
-					if atomMatch.AVCKey:	#limits to keyframes
-						KFrameLast= len(matchesA)-1
-
-			if KFrameLast== None:	#MOOV was detected
+			if atomMatch.typeMoov:	#abort limiting
+				KFrameLast= None
 				break
 
+
+			foundStart=	atomMatch.outPos	#shortcut for next
+
+
+			if atomMatch.typeAAC:
+				AACIn= atomMatch.inPos
+
+				splitAACA= self.detectHelper.detect(_data[AACIn:atomMatch.outPos])
+				if len(splitAACA):
+					for aac in splitAACA:
+						matchesA.append(Atom(AACIn+aac[0],AACIn+aac[1]).setAAC())
+				else:
+					logging.warning('AAC data should be phased out by accident')
+
+					matchesA.append(atomMatch)
+
+
+			if atomMatch.typeAVC:
+				matchesA.append(atomMatch)
+
+
+				signI= signI1
+
+				signI1+= 1
+				if signI1==len(self.signAVC):
+					signI1= 0
+
+
+				if atomMatch.AVCKey:	#limits to keyframes
+					KFrameLast= len(matchesA)-1
 
 
 		if _finalize:
@@ -201,7 +210,7 @@ class Mp4Recover():
 			if outPos>len(_data): #Not enough data to test
 				return None
 
-			return [Atom(_inPos,outPos).setMOOV()]
+			return Atom(_inPos,outPos).setMOOV()
 
 
 		if signThis==_signAVC:
@@ -216,7 +225,7 @@ class Mp4Recover():
 			):
 				return False
 
-			return [Atom(_inPos+4,outPos).setAVC(signThis==self.signAVC[0])]
+			return Atom(_inPos+4,outPos).setAVC(signThis==self.signAVC[0])
 
 
 		#AAC, as all between-frame data assumed to be
@@ -238,18 +247,7 @@ class Mp4Recover():
 				return None
 
 
-			AACA= []
-			for aac in self.detectHelper.detect(_data[_inPos:outPos]):
-				AACA.append(Atom(_inPos+aac[0],_inPos+aac[1]).setAAC())
-
-			if len(AACA):
-				return AACA
-
-
-			logging.warning('AAC data should be phased out by accident')
-
-			#fallback if all AACs are "bad".
-			return [Atom(_inPos,outPos).setAAC()]
+			return Atom(_inPos,outPos).setAAC()
 
 
 		return False
