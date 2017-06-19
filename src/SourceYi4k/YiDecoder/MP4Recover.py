@@ -21,6 +21,7 @@ class Mp4Recover():
 	signMoov= b'\x6d\x6f\x6f\x76'
 	signAAC= b'\x21'
 	signAVC= [b'\x25\xb8\x01\x00', b'\x21\xe0\x10\x11', b'\x21\xe0\x20\x21', b'\x21\xe0\x30\x31', b'\x21\xe0\x40\x41', b'\x21\xe0\x50\x51', b'\x21\xe0\x60\x61', b'\x21\xe0\x70\x71']
+	signI= 0 #start over with
 
 	transit= None
 	atomCB= None
@@ -36,8 +37,7 @@ class Mp4Recover():
 	def __init__(self, _atomCB):
 		self.detectHelper= AACDetect()
 	
-		self.transit= ByteTransit(self.atomsFromRaw, 500000)
-
+		self.transit= ByteTransit(self.atomsFromRaw)
 
 		self.atomCB= callable(_atomCB) and _atomCB
 
@@ -99,32 +99,16 @@ class Mp4Recover():
 	 2nd and next call's data[0] will surely point to IDR.
 	'''
 	def analyzeMp4(self, _data, _finalize=False):
-		signI= 0
-		signI1= 1 #cached version
-
-		KFrameLast= 0	#Last IDR frame to cut out if not finalize
 		matchesA= []
 
-		foundFalse= 0
 		nextStart= 0
 		while True:
-			atomMatch= self.analyzeAtom(_data, nextStart, self.signAVC[signI], self.signAVC[signI1])
-			if atomMatch==None: #not enough data, stop
+			atomMatch= self.findAtom(_data, nextStart)
+			if not atomMatch:
 				break
 
-			if atomMatch==False: #retry further
-				foundFalse+= 1
 
-				nextStart= _data.find(self.signAVC[signI], nextStart+1+4)-4	#rewind to actual start
-				if nextStart<0:	#dried while in search
-					break
-
-				continue
-
-
-			#Atom found
 			if atomMatch.typeMoov:	#abort limiting
-				KFrameLast= None
 				break
 
 
@@ -149,35 +133,48 @@ class Mp4Recover():
 				matchesA.append(atomMatch)
 
 
-				signI= signI1
-
-				signI1+= 1
-				if signI1==len(self.signAVC):
-					signI1= 0
-
-
-				if atomMatch.AVCKey:	#limits to keyframes
-					KFrameLast= len(matchesA)-1
-
-
 		if _finalize:
-			KFrameLast= None
-
 			self.detectHelper.reset()
-
-
-		atomBlock= matchesA[:KFrameLast]
 		
-		
-		if len(atomBlock):
-			logging.debug('%d atoms found%s' % (len(atomBlock), ', finaly' if not KFrameLast else ''))
-		if foundFalse:
-			logging.info('%d false atoms in %d bytes' % (foundFalse, len(_data)))
+			self.signI= 0
 
 
-		return atomBlock
+		if len(matchesA):
+			logging.debug('%d atoms found' % (len(matchesA)))
 
 
+		return matchesA
+
+
+
+
+	'''
+	Find first Atom from specified position
+	'''
+	def findAtom(self, _data, _start):
+		signI1= self.signI +1
+		if signI1==len(self.signAVC):
+			signI1= 0
+
+
+		while True:
+			atomMatch= self.analyzeAtom(_data, _start, self.signAVC[self.signI], self.signAVC[signI1])
+
+			if atomMatch==None: #not enough data, stop
+				return
+
+			if atomMatch==False: #retry further
+				logging.debug('false atoms in %d bytes' % (len(_data)))
+
+				_start= _data.find(self.signAVC[self.signI], _start+1+4)-4	#rewind to actual start
+				if _start<0:	#dried while in search
+					return
+
+			if atomMatch:
+				if atomMatch.typeAVC:
+					self.signI= signI1
+
+				return atomMatch
 
 
 
