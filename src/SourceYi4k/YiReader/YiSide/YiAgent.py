@@ -23,7 +23,7 @@ class YiAgent():
 
 
 	camRoot= '/tmp/fuse_d/DCIM'
-	camMask= '???MEDIA/L???????.MP4'
+	camMaskA= ['???MEDIA/L???????.MP4']
 	camMaskRe= re.compile('^.*(?P<dir>\d\d\d)MEDIA/L(?P<seq>\d\d\d)(?P<num>\d\d\d\d).MP4$')
 
 	liveOldAge= 5 #maximum number of seconds to consider tested file 'live'
@@ -75,17 +75,16 @@ class YiAgent():
 	'''
 # -todo 270 (YiAgent, clean) +0: detect only file which grown in current session
 	def detectActiveFile(self):
-		mp4Mask= "%s/%s" % (self.camRoot, self.camMask)
-
 		lastStamp= 0
 		activeFile= None
 		
-		for mp4File in glob.glob(mp4Mask):
-			mtime= os.path.getmtime(mp4File)
-			
-			if mtime>lastStamp:
-				lastStamp= mtime
-				activeFile= mp4File
+		for cMask in self.camMaskA:
+			for mp4File in glob.glob("%s/%s" % (self.camRoot, cMask)):
+				mtime= os.path.getmtime(mp4File)
+				
+				if mtime>lastStamp:
+					lastStamp= mtime
+					activeFile= mp4File
 
 
 		if not activeFile:
@@ -116,7 +115,7 @@ class YiAgent():
 		while True:
 			fPartsExpect= self.incFile(fParts)
 			
-			fileRes= self.readFile(fParts, fPos, fPartsExpect)
+			fileRes= self.readFile(self.buildName(fParts), fPos, fParts['num'], self.buildName(fPartsExpect))
 			if fileRes==-1:
 				return
 
@@ -125,6 +124,7 @@ class YiAgent():
 
 			fParts= fPartsExpect
 			fPos= 0
+
 
 
 	def incFile(self, _fParts):
@@ -148,14 +148,11 @@ class YiAgent():
 	Read file untill it's exhausted.
 	That is until expected file arrives and current file returns 0 bytes.
 	'''
-	def readFile(self, _fParts, _fPos, _fPartsExpect):
-		fName= self.buildName(_fParts)
-		fNameExpect= self.buildName(_fPartsExpect)
-
-		self.yiSock.msgLog(fName)
+	def readFile(self, _fName, _fPos, _ctx=1, _fNameExpect=None):
+		self.yiSock.msgLog(_fName)
 
 		blankTry= 0
-		fn= '%s/%s' % (self.camRoot, fName)
+		fn= '%s/%s' % (self.camRoot, _fName)
 		with open(fn, 'rb') as f:
 			self.clean.add(fn)
 
@@ -167,7 +164,7 @@ class YiAgent():
 					blankTry= 0
 					if len(content)>self.triggerOverflow:
 						self.yiSock.msgOverflow(len(content))
-					elif not self.yiSock.send(content, _fParts['num']):
+					elif not self.yiSock.send(content, _ctx):
 						return -1
 
 					continue
@@ -180,14 +177,15 @@ class YiAgent():
 				time.sleep(.2)
 
 
-				fNext= '%s/%s' % (self.camRoot, fNameExpect)
-				
-				#next file created recently
-				if (
-					os.path.isfile(fNext)
-					and time.time()-os.path.getmtime(fNext) < self.liveOldAge
-				):
-					return 1
+				if _fNameExpect:
+					fNext= '%s/%s' % (self.camRoot, _fNameExpect)
+					
+					#next file created recently
+					if (
+						os.path.isfile(fNext)
+						and time.time()-os.path.getmtime(fNext) < self.liveOldAge
+					):
+						return 1
 
 
 
