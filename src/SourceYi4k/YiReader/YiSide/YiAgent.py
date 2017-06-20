@@ -23,8 +23,9 @@ class YiAgent():
 
 
 	camRoot= '/tmp/fuse_d/DCIM'
-	camMaskA= ['???MEDIA/L???????.MP4']
-	camMaskRe= re.compile('^.*(?P<dir>\d\d\d)MEDIA/L(?P<seq>\d\d\d)(?P<num>\d\d\d\d).MP4$')
+	camMaskA= ['???MEDIA/L???????.MP4', '???MEDIA/YDXJ????.MP4']
+	camMaskReChain= re.compile('^.*(?P<dir>\d\d\d)MEDIA/L(?P<seq>\d\d\d)(?P<num>\d\d\d\d).MP4$')
+	camMaskReFlat= re.compile('^.*(?P<dir>\d\d\d)MEDIA/YDXJ(?P<num>\d\d\d\d).MP4$')
 
 	liveOldAge= 5 #maximum number of seconds to consider tested file 'live'
 	liveBlock= 512*1024 #read/send block size
@@ -55,8 +56,20 @@ class YiAgent():
 		while self.yiSock.valid():	#Check port state while record is paused.
 			fileNew= self.detectActiveFile()
 			if fileNew:
-				if not self.chainStart(fileNew):
-					break
+				fPos= max( fileNew['size']-self.livePrefetch, 0)
+
+				fNameMatch= self.camMaskReChain.match(fileNew['fname'])
+				if fNameMatch:
+					fParts= {'dir':int(fNameMatch.group('dir')), 'seq':int(fNameMatch.group('seq')), 'num':int(fNameMatch.group('num'))}
+					if not self.chainStart(fParts, fPos):
+						break
+
+				fNameMatch= self.camMaskReFlat.match(fileNew['fname'])
+				if fNameMatch:
+					fName= "%03dMEDIA/YDXJ0%03d.MP4" % (int(fNameMatch.group('dir')), int(fNameMatch.group('num')))
+					if not self.readFile(fName, fPos):
+						break
+
 
 				if not self.yiSock.send():	#reset context
 					break
@@ -106,24 +119,19 @@ class YiAgent():
 	start to read files from _file,
 	assuming it's Loop mode (file name is Laaabbbb.MP4)
 	'''
-	def chainStart(self, _file):
-		fNameMatch= self.camMaskRe.match(_file['fname'])
-		fParts= {'dir':int(fNameMatch.group('dir')), 'seq':int(fNameMatch.group('seq')), 'num':int(fNameMatch.group('num'))}
-
-		fPos= max( _file['size']-self.livePrefetch, 0)
-
+	def chainStart(self, _fParts, _fPos):
 		while True:
-			fPartsExpect= self.incFile(fParts)
-			
-			fileRes= self.readFile(self.buildName(fParts), fPos, fParts['num'], self.buildName(fPartsExpect))
+			fPartsExpect= self.incFile(_fParts)
+
+			fileRes= self.readFile(self.buildName(_fParts), _fPos, _fParts['num'], self.buildName(fPartsExpect))
 			if fileRes==-1:
 				return
 
 			if fileRes==None: 
 				return True
 
-			fParts= fPartsExpect
-			fPos= 0
+			_fParts= fPartsExpect
+			_fPos= 0
 
 
 

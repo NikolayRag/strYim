@@ -31,7 +31,7 @@ if __name__ == '__main__':
 		appStreamer.link(appSource)
 
 		appStreamer.begin(cArgs.args['dst'])
-		appSource.start()
+		appSource.start(flat=cArgs.args['flat'])
 
 
 		#handle ctrl-c

@@ -39,7 +39,7 @@ class Ui():
 
 	def playSource(self, _state):
 		if _state:
-			self.appSource.start()
+			self.appSource.start(flat=self.args.args['flat'])
 		else:
 			self.appSource.stop()
 
