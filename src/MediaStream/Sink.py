@@ -340,7 +340,7 @@ class SinkServer(threading.Thread, Sink):
 					continue
 
 				try:
-					cSocket.sendall(cData)
+					cSocket.sendall(cData or b'')
 				except:
 					break
 
