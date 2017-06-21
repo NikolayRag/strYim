@@ -31,34 +31,8 @@ add(data, ctx)
 
 
 '''
-class ByteTransitChunk():
-	dataIO = None
-
-	def __init__(self):
-		self.dataIO = io.BytesIO(b'')
-
-
-	def add(self, _data):
-		self.dataIO.write(_data)
-
-
-	def read(self):
-		self.dataIO.seek(0)
-		return self.dataIO.read()
-
-
-	def shrink(self, _amt):
-		self.dataIO.seek(_amt)
-		data= self.dataIO.read()
-
-		self.dataIO = io.BytesIO(b'')
-		self.dataIO.write(data)
-
-
-
-
 class ByteTransit():
-	chunk= False
+	dataIO = None
 	context= None
 
 	dispatchCB= None
@@ -69,7 +43,7 @@ class ByteTransit():
 		self.dispatchCB= callable(_dispatchCB) and _dispatchCB
 		self.trigger= _trigger
 
-		self.chunk= ByteTransitChunk()
+		self.dataIO = io.BytesIO(b'')
 
 
 
@@ -81,7 +55,7 @@ class ByteTransit():
 
 
 		if _data:
-			self.chunk.add(_data)
+			self.dataIO.write(_data)
 
 			self.dispatch()
 
@@ -90,7 +64,8 @@ class ByteTransit():
 	#private
 
 	def dispatch(self, _force=False):
-		dataLeft= self.chunk.read()
+		self.dataIO.seek(0)
+		dataLeft= self.dataIO.read()
 
 
 		if not _force:
@@ -100,5 +75,16 @@ class ByteTransit():
 
 		dispatched= self.dispatchCB and self.dispatchCB(dataLeft, _force)
 
-		if dispatched:
-			self.chunk.shrink(dispatched)
+		self.shrink(dispatched)
+
+
+
+	def shrink(self, _amt):
+		if not _amt:
+			return
+
+		self.dataIO.seek(_amt)
+		data= self.dataIO.read()
+
+		self.dataIO = io.BytesIO(b'')
+		self.dataIO.write(data)
