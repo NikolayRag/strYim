@@ -43,8 +43,9 @@ class ByteTransitChunk():
 		self.position= 0
 		self.length= 0
 
+
 	def len(self):
-		return self.length
+		return self.length-self.position
 
 	
 	def add(self, _data):
@@ -52,10 +53,12 @@ class ByteTransitChunk():
 		self.length+= len(_data)
 
 
-#  todo 62 (speed, bytes) +0: read more quickly maybe
-	def read(self, _from=0, _to=-1):
-		self.dataIO.seek(_from)
+	def read(self, _to=-1):
+		self.dataIO.seek(self.position)
 		return self.dataIO.read(_to)
+
+	def shrink(self, _amt):
+		self.position+= amt
 
 
 
@@ -86,7 +89,7 @@ class ByteTransit():
 	#private
 
 	def dispatch(self, _force=False):
-		dataLeft= self.chunk.read(self.chunk.position)
+		dataLeft= self.chunk.read()
 
 
 		if not _force:
@@ -100,7 +103,7 @@ class ByteTransit():
 			dispatched= self.dispatchCB(dataLeft, _force)
 
 		if (dispatched or 0)>0:
-			self.chunk.position+= dispatched
+			self.chunk.shrink(dispatched)
 
 		return dispatched
 
@@ -113,7 +116,7 @@ class ByteTransit():
 	def context(self, _ctx):
 		if self.chunk and self.chunk.context!=_ctx:
 			while self.dispatch(True): #old
-				if self.chunk.position>=self.chunk.len(): #that was last, no need to continue
+				if not self.chunk.len(): #that was last, no need to continue
 					break
 
 		if not self.chunk or self.chunk.context!=_ctx:
