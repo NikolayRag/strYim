@@ -324,11 +324,11 @@ class SinkServer(threading.Thread, Sink):
 
 
 			cSocket.settimeout(5)
-
+			cHeader= self.muxer.header() or b''
 			try:
-				cSocket.sendall(self.muxer.header())
+				cSocket.sendall(cHeader)
 			except:
-				pass
+				self.kill()
 
 
 			self.limit= self.limitCycle
