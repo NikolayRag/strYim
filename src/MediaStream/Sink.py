@@ -274,14 +274,16 @@ class SinkServer(threading.Thread, Sink):
 
 	def add(self, _atom):
 		if self.live():
-			self.dataQ.put(self.muxer.add(_atom))
+			data= self.muxer.add(_atom)
+			if data:
+				self.dataQ.put(data)
 
-			if self.dataQ.qsize()>self.limit[0]: #frames trigger
-				if self.limit == self.limitCycle:
-					logging.error('Buffer full')
+				if self.dataQ.qsize()>self.limit[0]: #frames trigger
+					if self.limit == self.limitCycle:
+						logging.error('Buffer full')
 
-				while self.dataQ.qsize()>self.limit[1]: #drop
-					self.dataQ.get()
+					while self.dataQ.qsize()>self.limit[1]: #drop
+						self.dataQ.get()
 
 			return True
 
