@@ -285,6 +285,7 @@ class SinkServer(threading.Thread, Sink):
 					while self.dataQ.qsize()>self.limit[1]: #drop
 						self.dataQ.get()
 
+				logging.debug('Buffered in: %d' % self.dataQ.qsize())
 			return True
 
 
@@ -305,7 +306,7 @@ class SinkServer(threading.Thread, Sink):
 		try:
 			cListen.bind((self.addr,self.port))
 		except Exception as x:
-			print('error: %s' % x)
+			logging.error('Connection: %s' % x)
 			return
 
 		cListen.listen(1)
@@ -341,7 +342,8 @@ class SinkServer(threading.Thread, Sink):
 
 				try:
 					cSocket.sendall(cData or b'')
-				except:
+				except Exception as x:
+					logging.info('Socket error: %s' % x)
 					break
 
 
