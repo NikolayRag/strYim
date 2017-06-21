@@ -32,13 +32,11 @@ add(data, ctx)
 
 '''
 class ByteTransitChunk():
-	context= None
 	dataIO = None
 	position= 0
 	length= 0
 
 	def __init__(self, _context=None):
-		self.context= _context
 		self.dataIO = io.BytesIO(b'')
 		self.position= 0
 		self.length= 0
@@ -65,19 +63,24 @@ class ByteTransitChunk():
 
 class ByteTransit():
 	chunk= False
+	context= None
 
 	dispatchCB= None
 	trigger= 0
 	
+
 	def __init__(self, _dispatchCB, _trigger=0):
 		self.dispatchCB= _dispatchCB
 		self.trigger= _trigger
 
+		self.chunk= ByteTransitChunk()
+
 
 
 	def add(self, _data, _ctx=None):
-		if _ctx:
-			self.context(_ctx)
+		if self.context!=_ctx:
+			self.flush(_ctx)
+
 
 		if _data:
 			self.chunk.add(_data)
@@ -110,17 +113,14 @@ class ByteTransit():
 
 
 	'''
-	Check last element context, create new if mismatch
-	Retrn True is context was changed
+	Dispatch current chunk
+	and recreate new blank
 	'''
-	def context(self, _ctx):
-		if self.chunk and self.chunk.context!=_ctx:
-			while self.dispatch(True): #old
-				if not self.chunk.len(): #that was last, no need to continue
-					break
+	def flush(self, _ctx):
+		while self.dispatch(True): #old
+			if not self.chunk.len(): #that was last, no need to continue
+				break
 
-		if not self.chunk or self.chunk.context!=_ctx:
-			self.chunk= ByteTransitChunk(_ctx)	#new
-
-			return True
+# =todo 315 (bytes, clean) +0: make rolling shrink
+		self.chunk= ByteTransitChunk()	#new
 
