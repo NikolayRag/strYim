@@ -36,7 +36,7 @@ class ByteTransitChunk():
 	position= 0
 	length= 0
 
-	def __init__(self, _context=None):
+	def __init__(self):
 		self.dataIO = io.BytesIO(b'')
 		self.position= 0
 		self.length= 0
@@ -80,6 +80,7 @@ class ByteTransit():
 	def add(self, _data, _ctx=None):
 		if self.context!=_ctx:
 			self.flush(_ctx)
+			self.context= _ctx
 
 
 		if _data:
