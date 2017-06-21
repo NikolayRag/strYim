@@ -1,3 +1,4 @@
+# =todo 311 (Yi, recover) +2: fix lost frames at end block
 from .ByteTransit import *
 from .YiAAC import *
 from MediaStream import Atom
@@ -69,8 +70,6 @@ class Mp4Recover():
 
 		finalize
 			boolean, indicates no more data for this context will be sent (if consumed all).
-
-	First frame searched is IDR (Key frame).
 	'''
 	def analyzeMp4(self, _data, _finalize=False):
 		matches= 0
@@ -135,7 +134,7 @@ class Mp4Recover():
 
 
 	'''
-	Find first Atom from specified position
+	Find first Atom of desired signature from specified position
 	'''
 	def findAtom(self, _data, _start):
 		signI1= self.signI +1
