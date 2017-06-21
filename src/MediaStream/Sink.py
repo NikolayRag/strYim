@@ -346,7 +346,7 @@ class SinkServer(threading.Thread, Sink):
 
 
 			try:
-				cSocket.sendall(self.muxer.finish())
+				cSocket.sendall(self.muxer.finish() or b'')
 			except:
 				pass
 
