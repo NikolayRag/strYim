@@ -33,28 +33,26 @@ add(data, ctx)
 '''
 class ByteTransitChunk():
 	dataIO = None
-	position= 0
-	length= 0
 
 	def __init__(self):
 		self.dataIO = io.BytesIO(b'')
-		self.position= 0
-		self.length= 0
 
 
 	def add(self, _data):
 		self.dataIO.write(_data)
-		self.length+= len(_data)
 
 
-	def read(self, _to=-1):
-		self.dataIO.seek(self.position)
-		return self.dataIO.read(_to)
+	def read(self):
+		self.dataIO.seek(0)
+		return self.dataIO.read()
 
 
-# =todo 315 (bytes, clean) +0: make rolling shrink
 	def shrink(self, _amt):
-		self.position+= amt
+		self.dataIO.seek(_amt)
+		data= self.dataIO.read()
+
+		self.dataIO = io.BytesIO(b'')
+		self.dataIO.write(data)
 
 
 
