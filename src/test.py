@@ -152,7 +152,7 @@ def t7():
 #Mux and sink from .mp4
 import os
 def t8():
-	origFile= 'test-v/1cam.mp4'
+	origFile= 'tmp.mp4'
 	if not os.path.isfile(origFile):
 		return
 
@@ -160,9 +160,13 @@ def t8():
 	kiLog.state('MuxFLV', kiLog.DEBUG)
 	kiLog.state('Mp4Recover', kiLog.DEBUG)
 
-	sink= MediaStream.SinkFile('tmp.flv')
-	mux= MediaStream.MuxFLV(sink)
-	decoder= SourceYi4k.Mp4Recover(mux.add)
+	headerA= [
+  		b'\'M@3\x9ad\x03\xc0\x11?,\x8c\x04\x04\x05\x00\x00\x03\x03\xe9\x00\x00\xea`\xe8`\x00\xb7\x18\x00\x02\xdcl\xbb\xcb\x8d\x0c\x00\x16\xe3\x00\x00[\x8d\x97ypxD"R\xc0'
+		, b'\x28\xee\x38\x80'
+	]
+	mux= MediaStream.MuxFLV(headerA)
+	sink= MediaStream.SinkFile('tmp0.flv', mux)
+	decoder= SourceYi4k.Mp4Recover(sink.add)
 	with open(origFile, 'rb') as f:
 		while True:
 			b= f.read(524288)
@@ -203,7 +207,7 @@ def test(fn):
 	print()
 
 
-test(t9)
+test(t8)
 
 
 logging.info('End')
