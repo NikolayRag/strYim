@@ -42,10 +42,6 @@ class ByteTransitChunk():
 		self.length= 0
 
 
-	def len(self):
-		return self.length-self.position
-
-	
 	def add(self, _data):
 		self.dataIO.write(_data)
 		self.length+= len(_data)
@@ -55,6 +51,8 @@ class ByteTransitChunk():
 		self.dataIO.seek(self.position)
 		return self.dataIO.read(_to)
 
+
+# =todo 315 (bytes, clean) +0: make rolling shrink
 	def shrink(self, _amt):
 		self.position+= amt
 
@@ -70,7 +68,7 @@ class ByteTransit():
 	
 
 	def __init__(self, _dispatchCB, _trigger=0):
-		self.dispatchCB= _dispatchCB
+		self.dispatchCB= callable(_dispatchCB) and _dispatchCB
 		self.trigger= _trigger
 
 		self.chunk= ByteTransitChunk()
@@ -79,8 +77,9 @@ class ByteTransit():
 
 	def add(self, _data, _ctx=None):
 		if self.context!=_ctx:
-			self.flush(_ctx)
 			self.context= _ctx
+			self.dispatch(True)
+			
 
 
 		if _data:
@@ -101,27 +100,7 @@ class ByteTransit():
 				return 0
 
 
-		dispatched= False
+		dispatched= self.dispatchCB and self.dispatchCB(dataLeft, _force)
 
-		if callable(self.dispatchCB):
-			dispatched= self.dispatchCB(dataLeft, _force)
-
-		if (dispatched or 0)>0:
+		if dispatched:
 			self.chunk.shrink(dispatched)
-
-		return dispatched
-
-
-
-	'''
-	Dispatch current chunk
-	and recreate new blank
-	'''
-	def flush(self, _ctx):
-		while self.dispatch(True): #old
-			if not self.chunk.len(): #that was last, no need to continue
-				break
-
-# =todo 315 (bytes, clean) +0: make rolling shrink
-		self.chunk= ByteTransitChunk()	#new
-
