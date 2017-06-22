@@ -1,35 +1,27 @@
 import io
 
 '''
-Manage context-grouped chunks of byte data.
-Data is added to active chunks, splitted by context and then
- sequentally dispatched to callback function.
-
+Buffer incoming binary data and dispatch it to callback fn.
 
 ByteTransit(cb, trigger)
-	Caches added data and dispatch it, respecting consumed ammount. 
-
+	Init with callback and trigger ammount.
 
 	cb(data, forced)
 		Dispatch callback.
 		Should return ammount of bytes consumed,
 		 remaining chunk will be shifted that size.
-		Dispatch is forced when context changes. It will be called in a cycle
-		 while remaining context is not dried up.
+		Dispatch is forced when context changes.
+		 It will be called assuming all data is consumed.
 
-		
 	trigger
-		Size of data available in chunk for dispatch callback to take place.
+		Size of data available for dispatch callback to take place.
 		Zero for immediate dispatch.
 
 
 add(data, ctx)
-	Add binary data to ctx context.
-	Switching context forces remaining all data to be dispatched
+	Add binary data with ctx context.
+	Switching context forces all remaining data to be dispatched
 	 implying it is all consumed. 
-
-
-
 '''
 class ByteTransit():
 	dataIO = None
