@@ -21,6 +21,8 @@ if __name__ == '__main__':
 		
 		for c in (cArgs.args['logverb'] or []):
 			kiLog.state(c, kiLog.DEBUG)
+		for c in (cArgs.args['loginfo'] or []):
+			kiLog.state(c, kiLog.INFO)
 		for c in (cArgs.args['logwarn'] or []):
 			kiLog.state(c, kiLog.WARING)
 

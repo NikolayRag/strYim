@@ -100,6 +100,7 @@ class Args():
 
 		cParser.add_argument('-YiIP', default='192.168.42.1', type=str, help=argparse.SUPPRESS)
 		cParser.add_argument('-logverb', default=False, type=str, nargs='+', help=argparse.SUPPRESS)
+		cParser.add_argument('-loginfo', default=False, type=str, nargs='+', help=argparse.SUPPRESS)
 		cParser.add_argument('-logwarn', default=False, type=str, nargs='+', help=argparse.SUPPRESS)
 
 		
