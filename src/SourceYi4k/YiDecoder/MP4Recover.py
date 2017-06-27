@@ -30,6 +30,9 @@ class Mp4Recover():
 
 	detectHelper= None
 
+	matches= 0
+	matchesF= 0
+
 
 	'''
 	Provide Atom() consuming callback to be fired when collected raw data
@@ -72,7 +75,7 @@ class Mp4Recover():
 			boolean, indicates no more data for this context will be sent (if consumed all).
 	'''
 	def analyzeMp4(self, _data, _finalize=False):
-		matches= 0
+		matchesBefore= self.matches
 
 		nextStart= 0
 		while True:
@@ -82,6 +85,8 @@ class Mp4Recover():
 				break
 			
 			if atomMatch.typeMoov:
+				logging.info('MOOV')
+				
 				_finalize= True
 				break
 
@@ -96,28 +101,31 @@ class Mp4Recover():
 				if len(splitAACA):
 					for aac in splitAACA:
 						self.pushAtom(Atom(thisStart+aac[0],thisStart+aac[1]).setAAC(), _data)
-						matches+= 1
 				
 				else:
 					logging.warning('AAC data should be phased out by accident')
 
 					self.pushAtom(atomMatch, _data)
-					matches+= 1
 
 
 			if atomMatch.typeAVC:
 				self.pushAtom(atomMatch, _data)
-				matches+= 1
+				self.matchesF+= 1
+
+
+		if matchesBefore:
+			logging.debug('%d atoms found' % matchesBefore)
 
 
 		if _finalize:
+			logging.info('Total %d atoms found, %d frames' % (self.matches, self.matchesF))
+			self.matches= 0
+			self.matchesF= 0
+
+
 			self.detectHelper.reset()
 		
 			self.signI= 0
-
-
-		if matches:
-			logging.debug('%d atoms found%s' % (matches, ', finaly' if _finalize else ''))
 
 
 		return nextStart
@@ -128,6 +136,8 @@ class Mp4Recover():
 	Pass Atom with data to defined callback
 	'''
 	def pushAtom(self, _atom, _data):
+		self.matches+= 1
+
 		_atom.bindData(_data)
 		self.atomCB and self.atomCB(_atom)
 
