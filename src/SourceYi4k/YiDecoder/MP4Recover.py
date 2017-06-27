@@ -84,14 +84,14 @@ class Mp4Recover():
 			if not atomMatch:
 				break
 			
+			nextStart= atomMatch.outPos	#shortcut for next
+
+
 			if atomMatch.typeMoov:
 				logging.info('MOOV')
 				
 				_finalize= True
 				break
-
-
-			nextStart= atomMatch.outPos	#shortcut for next
 
 
 			if atomMatch.typeAAC:
