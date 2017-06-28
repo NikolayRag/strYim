@@ -64,13 +64,15 @@ class YiAgent():
 
 				if fNameMatch.group('typeL'):
 					fParts= {'fname':fileNew['fname'], 'dir':int(fNameMatch.group('dir')), 'seq':int(fNameMatch.group('seqL')), 'num':int(fNameMatch.group('num'))}
-					if not self.startLoop(fParts, fPos):
-						break
+					incFn= self.incLoop
 
 				if fNameMatch.group('typeF'):
 					fName= "%03dMEDIA/YDXJ0%03d.MP4" % (int(fNameMatch.group('dir')), int(fNameMatch.group('num')))
 					if not self.readFile(fName, fPos):
 						break
+
+				if not self.startChain(fParts, fPos, incFn):
+					break
 
 
 				if not self.yiSock.send():	#reset context
@@ -119,11 +121,11 @@ class YiAgent():
 
 	'''
 	start to read files from _file,
-	assuming it's Loop mode (file name is Laaabbbb.MP4)
+	using _incFn function to increment file in chain
 	'''
-	def startLoop(self, _fParts, _fPos):
+	def startChain(self, _fParts, _fPos, _incFn):
 		while True:
-			fPartsExpect= self.incLoop(_fParts)
+			fPartsExpect= _incFn(_fParts)
 
 			fileRes= self.readFile(_fParts['fname'], _fPos, _fParts['num'], fPartsExpect['fname'])
 			if fileRes==-1:
