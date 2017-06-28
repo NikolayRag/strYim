@@ -63,7 +63,7 @@ class YiAgent():
 				fPos= max( fileNew['size']-self.livePrefetch, 0)
 
 				if fNameMatch.group('typeL'):
-					fParts= {'dir':int(fNameMatch.group('dir')), 'seq':int(fNameMatch.group('seqL')), 'num':int(fNameMatch.group('num'))}
+					fParts= {'fname':fileNew['fname'], 'dir':int(fNameMatch.group('dir')), 'seq':int(fNameMatch.group('seqL')), 'num':int(fNameMatch.group('num'))}
 					if not self.startLoop(fParts, fPos):
 						break
 
@@ -125,7 +125,7 @@ class YiAgent():
 		while True:
 			fPartsExpect= self.incLoop(_fParts)
 
-			fileRes= self.readFile(self.buildName(_fParts), _fPos, _fParts['num'], self.buildName(fPartsExpect))
+			fileRes= self.readFile(_fParts['fname'], _fPos, _fParts['num'], fPartsExpect['fname'])
 			if fileRes==-1:
 				return
 
@@ -145,12 +145,11 @@ class YiAgent():
 			newParts['num']= 1
 			newParts['dir']+= 1
 
+		newParts['fname']= '%s/%03dMEDIA/L%03d0%03d.MP4' % (self.camRoot, newParts['dir'], newParts['seq'], newParts['num'])
+
 		return newParts
 
 
-
-	def buildName(self, _fParts):
-		return '%s/%03dMEDIA/L%03d0%03d.MP4' % (self.camRoot, _fParts['dir'], _fParts['seq'], _fParts['num'])
 
 
 
