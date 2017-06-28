@@ -23,9 +23,8 @@ class YiAgent():
 
 
 	camRoot= '/tmp/fuse_d/DCIM'
-	camMaskA= ['???MEDIA/L???????.MP4', '???MEDIA/YDXJ????.MP4']
-	camMaskReChain= re.compile('^.*(?P<dir>\d\d\d)MEDIA/L(?P<seq>\d\d\d)(?P<num>\d\d\d\d).MP4$')
-	camMaskReFlat= re.compile('^.*(?P<dir>\d\d\d)MEDIA/YDXJ(?P<num>\d\d\d\d).MP4$')
+	camMaskA= ['???MEDIA/L???????.MP4', '???MEDIA/YDXJ????.MP4', '???MEDIA/YN??????.MP4']
+	camMaskRe= re.compile('^.*(?P<dir>\d\d\d)MEDIA/((?P<typeL>L)(?P<seqL>\d\d\d)|(?P<typeF>Y[DN])(XJ|(?P<seqF>\d\d)))(?P<num>\d\d\d\d).MP4$')
 
 	liveOldAge= 5 #maximum number of seconds to consider tested file 'live'
 	liveBlock= 512*1024 #read/send block size
@@ -56,16 +55,19 @@ class YiAgent():
 		while self.yiSock.valid():	#Check port state while record is paused.
 			fileNew= self.detectActiveFile()
 			if fileNew:
+				fNameMatch= self.camMaskRe.match(fileNew['fname'])
+				if not fNameMatch:
+					continue
+
+
 				fPos= max( fileNew['size']-self.livePrefetch, 0)
 
-				fNameMatch= self.camMaskReChain.match(fileNew['fname'])
-				if fNameMatch:
-					fParts= {'dir':int(fNameMatch.group('dir')), 'seq':int(fNameMatch.group('seq')), 'num':int(fNameMatch.group('num'))}
+				if fNameMatch.group('typeL'):
+					fParts= {'dir':int(fNameMatch.group('dir')), 'seq':int(fNameMatch.group('seqL')), 'num':int(fNameMatch.group('num'))}
 					if not self.startLoop(fParts, fPos):
 						break
 
-				fNameMatch= self.camMaskReFlat.match(fileNew['fname'])
-				if fNameMatch:
+				if fNameMatch.group('typeF'):
 					fName= "%03dMEDIA/YDXJ0%03d.MP4" % (int(fNameMatch.group('dir')), int(fNameMatch.group('num')))
 					if not self.readFile(fName, fPos):
 						break
