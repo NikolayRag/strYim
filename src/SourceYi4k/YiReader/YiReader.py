@@ -1,3 +1,4 @@
+# =todo 321 (Yi, agent) +2: make Reader reading HTTP, as it's become available
 import logging, inspect, socket, threading
 
 from .YiListener import *

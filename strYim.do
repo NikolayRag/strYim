@@ -391,7 +391,7 @@
 -YiAgent, log 310: +0 "src\SourceYi4k\YiReader\YiSide\YiAgent.py" kii 17/05/30 18:07:38
 	inform of current state more verbosely
 
-=Yi, recover 311: +2 "src\SourceYi4k\YiDecoder\MP4Recover.py" kii 17/06/11 23:27:50
++Yi, recover 311: +2 "src\SourceYi4k\YiDecoder\MP4Recover.py" kii 17/06/28 06:07:48
 	fix lost frames at end block
 
 +Yi, recover 316: +0 "src\SourceYi4k\YiDecoder\MP4Recover.py" ki 17/06/28 05:17:03
@@ -402,4 +402,10 @@
 
 +YiAgent, read 319: +0 "src\SourceYi4k\YiReader\YiSide\YiAgent.py" ki 17/06/28 05:07:57
 	readBlock() reads and sends data
+
++Yi, recover 320: +0 "src\SourceYi4k\YiReader\YiSide\YiAgent.py" ki 17/06/29 00:42:22
+	catch flat mode file chain
+
+=Yi, agent 321: +2 "src\SourceYi4k\YiReader\YiReader.py" ki 17/06/29 00:41:56
+	make Reader reading HTTP, as it's become available
 
