@@ -191,6 +191,8 @@ class YiAgent():
 						os.path.isfile(fNext)
 						and time.time()-os.path.getmtime(fNext) < self.liveOldAge
 					):
+						self.readBlock(f, _fPos, 0, _ctx) #get remaining stuff
+
 						return 1
 
 
