@@ -114,7 +114,7 @@ class Mp4Recover():
 
 
 		if matchesBefore:
-			logging.debug('%d atoms found' % matchesBefore)
+			logging.debug('%d atoms found' % (self.matches-matchesBefore))
 
 
 		if _finalize:
