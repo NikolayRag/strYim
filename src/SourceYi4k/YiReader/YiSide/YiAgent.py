@@ -67,7 +67,7 @@ class YiAgent():
 					incFn= self.incLoop
 
 				if fNameMatch.group('typeF'):
-					fParts= {'fname':fileNew['fname'], 'dir':int(fNameMatch.group('dir')), 'seq':int(fNameMatch.group('seqF')), 'num':int(fNameMatch.group('num'))}
+					fParts= {'fname':fileNew['fname'], 'dir':int(fNameMatch.group('dir')), 'seq':int(fNameMatch.group('seqF') or 0), 'num':int(fNameMatch.group('num'))}
 					incFn= self.incFlat
 
 				if not self.startChain(fParts, fPos, incFn):
@@ -153,7 +153,7 @@ class YiAgent():
 
 
 	def incFlat(self, _fParts):
-		newParts= {'dir':_fParts['dir'], 'seq':_fParts['seq'] or 0, 'num':_fParts['num']}
+		newParts= {'dir':_fParts['dir'], 'seq':_fParts['seq'], 'num':_fParts['num']}
 
 		newParts['seq']+= 1
 
