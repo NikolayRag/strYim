@@ -165,15 +165,13 @@ class YiAgent():
 			self.clean.add(fn)
 
 			while self.yiSock.valid():
-				content= self.readBlock(f, _fPos, self.tailBuffer)
-				_fPos+= len(content)
+				readAmt= self.readBlock(f, _fPos, self.tailBuffer, _ctx)
+				if readAmt==-1:
+					return -1
 
-				if content:
+				if readAmt:
+					_fPos+= readAmt
 					blankTry= 0
-					if len(content)>self.triggerOverflow:
-						self.yiSock.msgOverflow(len(content))
-					elif not self.yiSock.send(content, _ctx):
-						return -1
 
 					continue
 
@@ -199,18 +197,32 @@ class YiAgent():
 
 
 	'''
-	Read from file, leaving some data at end
+	Read available data from file and send it to host in cycle.
+	Some data can be left.
 	'''
-	def readBlock(self, _f, _pos, _leave=0):
+	def readBlock(self, _f, _pos, _leave=0, _ctx=0):
 		_f.seek(0, os.SEEK_END)
-		fRemain= _f.tell() -_pos
+		fRemain= _f.tell() -_pos -_leave
 
-		content= b''
-		if fRemain > _leave:
-			_f.seek(_pos)
-			content= _f.read(min(fRemain-_leave,self.liveBlock))
+		if fRemain>self.triggerOverflow:
+			self.yiSock.msgOverflow(fRemain)
+			return 0
 
-		return content
+
+		_f.seek(_pos)
+
+		fBlock= fRemain
+		while fBlock>0:
+			amt= min(fBlock,self.liveBlock)
+
+			content= _f.read(amt)
+			if not self.yiSock.send(content, _ctx):
+				return -1
+
+			fBlock-= amt
+
+
+		return fRemain
 
 
 
