@@ -61,7 +61,7 @@ class YiAgent():
 				fNameMatch= self.camMaskReChain.match(fileNew['fname'])
 				if fNameMatch:
 					fParts= {'dir':int(fNameMatch.group('dir')), 'seq':int(fNameMatch.group('seq')), 'num':int(fNameMatch.group('num'))}
-					if not self.chainStart(fParts, fPos):
+					if not self.startLoop(fParts, fPos):
 						break
 
 				fNameMatch= self.camMaskReFlat.match(fileNew['fname'])
@@ -119,9 +119,9 @@ class YiAgent():
 	start to read files from _file,
 	assuming it's Loop mode (file name is Laaabbbb.MP4)
 	'''
-	def chainStart(self, _fParts, _fPos):
+	def startLoop(self, _fParts, _fPos):
 		while True:
-			fPartsExpect= self.incFile(_fParts)
+			fPartsExpect= self.incLoop(_fParts)
 
 			fileRes= self.readFile(self.buildName(_fParts), _fPos, _fParts['num'], self.buildName(fPartsExpect))
 			if fileRes==-1:
@@ -135,7 +135,7 @@ class YiAgent():
 
 
 
-	def incFile(self, _fParts):
+	def incLoop(self, _fParts):
 		newParts= {'dir':_fParts['dir'], 'seq':_fParts['seq'], 'num':_fParts['num']}
 
 		newParts['num']+= 1
