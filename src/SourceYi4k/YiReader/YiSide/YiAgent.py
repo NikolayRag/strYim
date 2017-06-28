@@ -22,7 +22,7 @@ class YiAgent():
 	global threading, time, os, glob, re
 
 
-	camRoot= '/tmp/SD0/DCIM'
+	camRoot= '/tmp/fuse_d/DCIM'
 	camMaskA= ['???MEDIA/L???????.MP4', '???MEDIA/YDXJ????.MP4', '???MEDIA/YN??????.MP4']
 	camMaskRe= re.compile('^.*(?P<dir>\d\d\d)MEDIA/((?P<typeL>L)(?P<seqL>\d\d\d)|(?P<typeF>Y[DN])(XJ|(?P<seqF>\d\d)))(?P<num>\d\d\d\d).MP4$')
 
