@@ -76,6 +76,7 @@ class Mp4Recover():
 	def analyzeMp4(self, _data, _finalize=False):
 		matchesBefore= self.matches
 
+		endMoov= False
 		nextStart= 0
 		while True:
 			atomMatch= self.findAtom(_data, nextStart)
@@ -87,9 +88,7 @@ class Mp4Recover():
 
 
 			if atomMatch.typeMoov:
-				logging.info('MOOV')
-				
-				_finalize= True
+				endMoov= True
 				break
 
 
@@ -116,8 +115,10 @@ class Mp4Recover():
 			logging.debug('%d atoms found' % (self.matches-matchesBefore))
 
 
-		if _finalize:
-			logging.info('Total %d atoms found, %d frames' % (self.matches, self.matchesF))
+		if _finalize or endMoov:
+			if self.matches:
+				logging.info('Total %d atoms found, %d frames%s' % (self.matches, self.matchesF, ' +MOOV' if endMoov else ''))
+
 			self.matches= 0
 			self.matchesF= 0
 
