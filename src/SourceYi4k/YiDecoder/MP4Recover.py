@@ -1,4 +1,3 @@
-# =todo 311 (Yi, recover) +2: fix lost frames at end block
 from .ByteTransit import *
 from .YiAAC import *
 from MediaStream import Atom

@@ -394,3 +394,12 @@
 =Yi, recover 311: +2 "src\SourceYi4k\YiDecoder\MP4Recover.py" kii 17/06/11 23:27:50
 	fix lost frames at end block
 
++Yi, recover 316: +0 "src\SourceYi4k\YiDecoder\MP4Recover.py" ki 17/06/28 05:17:03
+	manage loop gaps
+
++YiAgent, read 318: +0 "src\SourceYi4k\YiReader\YiSide\YiAgent.py" ki 17/06/28 05:08:11
+	read liveBlocks in cycle while available
+
++YiAgent, read 319: +0 "src\SourceYi4k\YiReader\YiSide\YiAgent.py" ki 17/06/28 05:07:57
+	readBlock() reads and sends data
+
