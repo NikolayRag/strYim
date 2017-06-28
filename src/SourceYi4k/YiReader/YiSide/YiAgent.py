@@ -67,9 +67,8 @@ class YiAgent():
 					incFn= self.incLoop
 
 				if fNameMatch.group('typeF'):
-					fName= "%03dMEDIA/YDXJ0%03d.MP4" % (int(fNameMatch.group('dir')), int(fNameMatch.group('num')))
-					if not self.readFile(fName, fPos):
-						break
+					fParts= {'fname':fileNew['fname'], 'dir':int(fNameMatch.group('dir')), 'seq':int(fNameMatch.group('seqF')), 'num':int(fNameMatch.group('num'))}
+					incFn= self.incFlat
 
 				if not self.startChain(fParts, fPos, incFn):
 					break
@@ -152,6 +151,15 @@ class YiAgent():
 		return newParts
 
 
+
+	def incFlat(self, _fParts):
+		newParts= {'dir':_fParts['dir'], 'seq':_fParts['seq'] or 0, 'num':_fParts['num']}
+
+		newParts['seq']+= 1
+
+		newParts['fname']= "%s/%03dMEDIA/YN%02d0%03d.MP4" % (self.camRoot, newParts['dir'], newParts['seq'], newParts['num'])
+
+		return newParts
 
 
 
