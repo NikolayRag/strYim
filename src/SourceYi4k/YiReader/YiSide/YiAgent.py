@@ -22,7 +22,7 @@ class YiAgent():
 	global threading, time, os, glob, re
 
 
-	camRoot= '/tmp/fuse_d/DCIM'
+	camRoot= '/tmp/SD0/DCIM'
 	camMaskA= ['???MEDIA/L???????.MP4', '???MEDIA/YDXJ????.MP4', '???MEDIA/YN??????.MP4']
 	camMaskRe= re.compile('^.*(?P<dir>\d\d\d)MEDIA/((?P<typeL>L)(?P<seqL>\d\d\d)|(?P<typeF>Y[DN])(XJ|(?P<seqF>\d\d)))(?P<num>\d\d\d\d).MP4$')
 
@@ -150,7 +150,7 @@ class YiAgent():
 
 
 	def buildName(self, _fParts):
-		return '%03dMEDIA/L%03d0%03d.MP4' % (_fParts['dir'], _fParts['seq'], _fParts['num'])
+		return '%s/%03dMEDIA/L%03d0%03d.MP4' % (self.camRoot, _fParts['dir'], _fParts['seq'], _fParts['num'])
 
 
 
@@ -162,9 +162,8 @@ class YiAgent():
 		self.yiSock.msgLog(_fName)
 
 		blankTry= 0
-		fn= '%s/%s' % (self.camRoot, _fName)
-		with open(fn, 'rb') as f:
-			self.clean.add(fn)
+		with open(_fName, 'rb') as f:
+			self.clean.add(_fName)
 
 			while self.yiSock.valid():
 				readAmt= self.readBlock(f, _fPos, self.tailBuffer, _ctx)
@@ -186,13 +185,10 @@ class YiAgent():
 
 
 				if _fNameExpect:
-					fNext= '%s/%s' % (self.camRoot, _fNameExpect)
-					
-					#next file created recently
 					if (
-						os.path.isfile(fNext)
-						and time.time()-os.path.getmtime(fNext) < self.liveOldAge
-					):
+						os.path.isfile(_fNameExpect)
+						and time.time()-os.path.getmtime(_fNameExpect) < self.liveOldAge
+					): #next file created recently
 						self.readBlock(f, _fPos, 0, _ctx) #get remaining stuff
 
 						return 1
