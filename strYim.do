@@ -406,9 +406,15 @@
 +Yi, recover 320: +0 "src\SourceYi4k\YiReader\YiSide\YiAgent.py" ki 17/06/29 00:42:22
 	catch flat mode file chain
 
-=Yi, agent 321: +2 "src\SourceYi4k\YiReader\YiReader.py" ki 17/06/29 00:41:56
-	make Reader reading HTTP, as it's become available
+=Yi, agent 321: +2 "src\SourceYi4k\YiReader\YiReader.py" kii 17/06/29 05:47:20
+	make Reader reading ranged HTTP
 
 +Yi, clean, fix 322: +2 "src\SourceYi4k\YiReader\YiSide\YiCleanup.py" ki 17/06/29 05:41:21
 	subsequent flat files dont delete
+
+-args, sink 323: +0 "src\MediaStream\Sink.py" ki 17/06/29 05:45:04
+	add TCP buffer size arg
+
+-args 324: +0 "src\args.py" ki 17/06/29 05:46:15
+	add bandwidth test arg
 

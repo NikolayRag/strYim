@@ -249,7 +249,7 @@ class SinkServer(threading.Thread, Sink):
 
 	socket= None
 	dataQ= None
-
+# -todo 323 (args, sink) +0: add TCP buffer size arg
 	limitIdle= (250, 250) #limit, drop to: without connection
 	limitCycle= (500, 250) #limit, drop to: with connection
 	limit= None #current

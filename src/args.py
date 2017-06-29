@@ -1,3 +1,4 @@
+# -todo 324 (args) +0: add bandwidth test arg
 import argparse, os, json
 import logging
 
