@@ -19,8 +19,10 @@ if __name__ == '__main__':
 		kiLog.state('Streamer', kiLog.INFO)
 		kiLog.state('Yi4k', kiLog.INFO)
 		
-		for c in (cArgs.args['logverb'] or []):
+		for c in (cArgs.args['logdebug'] or []):
 			kiLog.state(c, kiLog.DEBUG)
+		for c in (cArgs.args['loginfo'] or []):
+			kiLog.state(c, kiLog.INFO)
 		for c in (cArgs.args['logwarn'] or []):
 			kiLog.state(c, kiLog.WARING)
 
@@ -31,7 +33,7 @@ if __name__ == '__main__':
 		appStreamer.link(appSource)
 
 		appStreamer.begin(cArgs.args['dst'])
-		appSource.start()
+		appSource.start(flat=cArgs.args['flat'])
 
 
 		#handle ctrl-c

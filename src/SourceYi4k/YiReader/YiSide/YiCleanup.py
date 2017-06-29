@@ -61,8 +61,6 @@ class YiCleanup():
 	def cleanup(filesA, _notDaemon=True):
 		import time, os, json, socket, re
 
-		time.sleep(2)
-
 		def delFile(f,yiSock, sessId, beat):
 			yiSock.sendall( json.dumps({'msg_id':1281, 'token':sessId, "heartbeat":beat, "param":f}) )
 			str= ''
@@ -78,6 +76,7 @@ class YiCleanup():
 
 
 		yiSock= socket.create_connection(('127.0.0.1',7878),1)
+		yiSock.settimeout(20)
 		yiSock.sendall( json.dumps({'msg_id':257}) )
 		sessId= json.loads( yiSock.recv(1024).decode() )['param']
 		beat= 0

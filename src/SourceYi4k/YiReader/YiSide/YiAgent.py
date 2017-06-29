@@ -23,10 +23,11 @@ class YiAgent():
 
 
 	camRoot= '/tmp/fuse_d/DCIM'
-	camMask= '???MEDIA/L???????.MP4'
-	camMaskRe= re.compile('^.*(?P<dir>\d\d\d)MEDIA/L(?P<seq>\d\d\d)(?P<num>\d\d\d\d).MP4$')
+	camMaskA= ['???MEDIA/L???????.MP4', '???MEDIA/YDXJ????.MP4', '???MEDIA/YN??????.MP4']
+	camMaskRe= re.compile('^.*(?P<dir>\d\d\d)MEDIA/((?P<typeL>L)(?P<seqL>\d\d\d)|(?P<typeF>Y[DN])(XJ|(?P<seqF>\d\d)))(?P<num>\d\d\d\d).MP4$')
 
 	liveOldAge= 5 #maximum number of seconds to consider tested file 'live'
+	liveBlock= 512*1024 #read/send block size
 	liveTriggerSize= 512*1024 #minimum file size to start reading
 	livePrefetch= 2*512*1024 #file shorter than this will be started from 0
 
@@ -54,8 +55,24 @@ class YiAgent():
 		while self.yiSock.valid():	#Check port state while record is paused.
 			fileNew= self.detectActiveFile()
 			if fileNew:
-				if not self.chainStart(fileNew):
+				fNameMatch= self.camMaskRe.match(fileNew['fname'])
+				if not fNameMatch:
+					continue
+
+
+				fPos= max( fileNew['size']-self.livePrefetch, 0)
+
+				if fNameMatch.group('typeL'):
+					fParts= {'fname':fileNew['fname'], 'dir':int(fNameMatch.group('dir')), 'seq':int(fNameMatch.group('seqL')), 'num':int(fNameMatch.group('num'))}
+					incFn= self.incLoop
+
+				if fNameMatch.group('typeF'):
+					fParts= {'fname':fileNew['fname'], 'dir':int(fNameMatch.group('dir')), 'seq':int(fNameMatch.group('seqF') or 0), 'num':int(fNameMatch.group('num'))}
+					incFn= self.incFlat
+
+				if not self.startChain(fParts, fPos, incFn):
 					break
+
 
 				if not self.yiSock.send():	#reset context
 					break
@@ -74,17 +91,16 @@ class YiAgent():
 	'''
 # -todo 270 (YiAgent, clean) +0: detect only file which grown in current session
 	def detectActiveFile(self):
-		mp4Mask= "%s/%s" % (self.camRoot, self.camMask)
-
 		lastStamp= 0
 		activeFile= None
 		
-		for mp4File in glob.glob(mp4Mask):
-			mtime= os.path.getmtime(mp4File)
-			
-			if mtime>lastStamp:
-				lastStamp= mtime
-				activeFile= mp4File
+		for cMask in self.camMaskA:
+			for mp4File in glob.glob("%s/%s" % (self.camRoot, cMask)):
+				mtime= os.path.getmtime(mp4File)
+				
+				if mtime>lastStamp:
+					lastStamp= mtime
+					activeFile= mp4File
 
 
 		if not activeFile:
@@ -104,29 +120,25 @@ class YiAgent():
 
 	'''
 	start to read files from _file,
-	assuming it's Loop mode (file name is Laaabbbb.MP4)
+	using _incFn function to increment file in chain
 	'''
-	def chainStart(self, _file):
-		fNameMatch= self.camMaskRe.match(_file['fname'])
-		fParts= {'dir':int(fNameMatch.group('dir')), 'seq':int(fNameMatch.group('seq')), 'num':int(fNameMatch.group('num'))}
-
-		fPos= max( _file['size']-self.livePrefetch, 0)
-
+	def startChain(self, _fParts, _fPos, _incFn):
 		while True:
-			fPartsExpect= self.incFile(fParts)
-			
-			fileRes= self.readFile(fParts, fPos, fPartsExpect)
+			fPartsExpect= _incFn(_fParts)
+
+			fileRes= self.readFile(_fParts['fname'], _fPos, _fParts['num'], fPartsExpect['fname'])
 			if fileRes==-1:
 				return
 
 			if fileRes==None: 
 				return True
 
-			fParts= fPartsExpect
-			fPos= 0
+			_fParts= fPartsExpect
+			_fPos= 0
 
 
-	def incFile(self, _fParts):
+
+	def incLoop(self, _fParts):
 		newParts= {'dir':_fParts['dir'], 'seq':_fParts['seq'], 'num':_fParts['num']}
 
 		newParts['num']+= 1
@@ -134,12 +146,20 @@ class YiAgent():
 			newParts['num']= 1
 			newParts['dir']+= 1
 
+		newParts['fname']= '%s/%03dMEDIA/L%03d0%03d.MP4' % (self.camRoot, newParts['dir'], newParts['seq'], newParts['num'])
+
 		return newParts
 
 
 
-	def buildName(self, _fParts):
-		return '%03dMEDIA/L%03d0%03d.MP4' % (_fParts['dir'], _fParts['seq'], _fParts['num'])
+	def incFlat(self, _fParts):
+		newParts= {'dir':_fParts['dir'], 'seq':_fParts['seq'], 'num':_fParts['num']}
+
+		newParts['seq']+= 1
+
+		newParts['fname']= "%s/%03dMEDIA/YN%02d0%03d.MP4" % (self.camRoot, newParts['dir'], newParts['seq'], newParts['num'])
+
+		return newParts
 
 
 
@@ -147,27 +167,21 @@ class YiAgent():
 	Read file untill it's exhausted.
 	That is until expected file arrives and current file returns 0 bytes.
 	'''
-	def readFile(self, _fParts, _fPos, _fPartsExpect):
-		fName= self.buildName(_fParts)
-		fNameExpect= self.buildName(_fPartsExpect)
-
-		self.yiSock.msgLog(fName)
+	def readFile(self, _fName, _fPos, _ctx=1, _fNameExpect=None):
+		self.yiSock.msgLog(_fName)
 
 		blankTry= 0
-		fn= '%s/%s' % (self.camRoot, fName)
-		with open(fn, 'rb') as f:
-			self.clean.add(fn)
+		with open(_fName, 'rb') as f:
+			self.clean.add(_fName)
 
 			while self.yiSock.valid():
-				content= self.readBlock(f, _fPos, self.tailBuffer)
-				_fPos+= len(content)
+				readAmt= self.readBlock(f, _fPos, self.tailBuffer, _ctx)
+				if readAmt==-1:
+					return -1
 
-				if content:
+				if readAmt:
+					_fPos+= readAmt
 					blankTry= 0
-					if len(content)>self.triggerOverflow:
-						self.yiSock.msgOverflow(len(content))
-					elif not self.yiSock.send(content, _fParts['num']):
-						return -1
 
 					continue
 
@@ -179,31 +193,45 @@ class YiAgent():
 				time.sleep(.2)
 
 
-				fNext= '%s/%s' % (self.camRoot, fNameExpect)
-				
-				#next file created recently
-				if (
-					os.path.isfile(fNext)
-					and time.time()-os.path.getmtime(fNext) < self.liveOldAge
-				):
-					return 1
+				if _fNameExpect:
+					if (
+						os.path.isfile(_fNameExpect)
+						and time.time()-os.path.getmtime(_fNameExpect) < self.liveOldAge
+					): #next file created recently
+						self.readBlock(f, _fPos, 0, _ctx) #get remaining stuff
+
+						return 1
 
 
 
 
 	'''
-	Read from file, leaving some data at end
+	Read available data from file and send it to host in cycle.
+	Some data can be left.
 	'''
-	def readBlock(self, _f, _pos, _leave=0):
+	def readBlock(self, _f, _pos, _leave=0, _ctx=0):
 		_f.seek(0, os.SEEK_END)
-		fSize= _f.tell()
+		fRemain= _f.tell() -_pos -_leave
 
-		content= b''
-		if (fSize-_pos) > _leave:
-			_f.seek(_pos)
-			content= _f.read(fSize-_pos-_leave)
+		if fRemain>self.triggerOverflow:
+			self.yiSock.msgOverflow(fRemain)
+			return 0
 
-		return content
+
+		_f.seek(_pos)
+
+		fBlock= fRemain
+		while fBlock>0:
+			amt= min(fBlock,self.liveBlock)
+
+			content= _f.read(amt)
+			if not self.yiSock.send(content, _ctx):
+				return -1
+
+			fBlock-= amt
+
+
+		return fRemain
 
 
 

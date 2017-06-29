@@ -21,12 +21,16 @@ class Mp4Recover():
 	signMoov= b'\x6d\x6f\x6f\x76'
 	signAAC= b'\x21'
 	signAVC= [b'\x25\xb8\x01\x00', b'\x21\xe0\x10\x11', b'\x21\xe0\x20\x21', b'\x21\xe0\x30\x31', b'\x21\xe0\x40\x41', b'\x21\xe0\x50\x51', b'\x21\xe0\x60\x61', b'\x21\xe0\x70\x71']
+	signI= 0 #start over with
 
 	transit= None
 	atomCB= None
 
 
 	detectHelper= None
+
+	matches= 0
+	matchesF= 0
 
 
 	'''
@@ -36,8 +40,7 @@ class Mp4Recover():
 	def __init__(self, _atomCB):
 		self.detectHelper= AACDetect()
 	
-		self.transit= ByteTransit(self.atomsFromRaw, 500000)
-
+		self.transit= ByteTransit(self.analyzeMp4)
 
 		self.atomCB= callable(_atomCB) and _atomCB
 
@@ -53,7 +56,7 @@ class Mp4Recover():
 			 must be consumed.
 	'''
 	def add(self, _data, _ctx=None):
-		#Data sent to ByteTransit is cached and dispatched to .atomsFromRaw()
+		#Data sent to ByteTransit is cached and dispatched to .analyzeMp4()
 		self.transit.add(_data, _ctx)
 
 
@@ -70,104 +73,103 @@ class Mp4Recover():
 		finalize
 			boolean, indicates no more data for this context will be sent (if consumed all).
 	'''
-	def atomsFromRaw(self, _data, _finalize=False):
-		recoverMatchesA= self.analyzeMp4(_data, _finalize)
-
-
-		dataCosumed= 0
-		for match in recoverMatchesA:
-			match.bindData(_data)
-			self.atomCB and self.atomCB(match)
-
-			dataCosumed= match.outPos
-
-
-		return dataCosumed
-
-
-
-
-
-	'''
-	Search .mp4 bytes for 264 and AAC frames.
-	Return [Atom(),..] array.
-	
-	First frame searched is IDR (Key frame).
-	Last frame is the one before last IDR frame or MOOV atom found.
-
-	If called subsequently on growing stream,
-	 2nd and next call's data[0] will surely point to IDR.
-	'''
 	def analyzeMp4(self, _data, _finalize=False):
-		signI= 0
-		signI1= 1 #cached version
+		matchesBefore= self.matches
 
-		KFrameLast= 0	#Last IDR frame to cut out if not finalize
-		matchesA= []
-
-		foundFalse= 0
-		foundStart= 0
+		endMoov= False
+		nextStart= 0
 		while True:
-			atomMatchA= self.analyzeAtom(_data, foundStart, self.signAVC[signI], self.signAVC[signI1])
-			if atomMatchA==None: #not enough data, stop
+			atomMatch= self.findAtom(_data, nextStart)
+			
+			if not atomMatch:
 				break
-
-			if atomMatchA==False: #retry further
-				foundFalse+= 1
-
-				foundStart= _data.find(self.signAVC[signI], foundStart+1+4)-4	#rewind to actual start
-				if foundStart<0:	#dried while in search
-					break
-
-				continue
+			
+			nextStart= atomMatch.outPos	#shortcut for next
 
 
-			#Atom found
-			for atomMatch in atomMatchA:
-				if atomMatch.typeMoov:	#abort limiting
-					KFrameLast= None
-					break
-
-
-				matchesA.append(atomMatch)
-
-				foundStart=	atomMatch.outPos	#shortcut for next
-
-
-				if atomMatch.typeAVC:
-					signI= signI1
-
-					signI1+= 1
-					if signI1==len(self.signAVC):
-						signI1= 0
-
-
-					if atomMatch.AVCKey:	#limits to keyframes
-						KFrameLast= len(matchesA)-1
-
-			if KFrameLast== None:	#MOOV was detected
+			if atomMatch.typeMoov:
+				endMoov= True
 				break
 
 
+			if atomMatch.typeAAC:
+				thisStart= atomMatch.inPos
 
-		if _finalize:
-			KFrameLast= None
+				splitAACA= self.detectHelper.detect(_data[thisStart:nextStart])
+				if len(splitAACA):
+					for aac in splitAACA:
+						self.pushAtom(Atom(thisStart+aac[0],thisStart+aac[1]).setAAC(), _data)
+				
+				else:
+					logging.warning('AAC data should be phased out by accident')
+
+					self.pushAtom(atomMatch, _data)
+
+
+			if atomMatch.typeAVC:
+				self.pushAtom(atomMatch, _data)
+				self.matchesF+= 1
+
+
+		if matchesBefore:
+			logging.debug('%d atoms found' % (self.matches-matchesBefore))
+
+
+		if _finalize or endMoov:
+			if self.matches:
+				logging.info('Total %d atoms found, %d frames%s' % (self.matches, self.matchesF, ' +MOOV' if endMoov else ''))
+
+			self.matches= 0
+			self.matchesF= 0
+
 
 			self.detectHelper.reset()
-
-
-		atomBlock= matchesA[:KFrameLast]
 		
-		
-		if len(atomBlock):
-			logging.debug('%d atoms found%s' % (len(atomBlock), ', finaly' if not KFrameLast else ''))
-		if foundFalse:
-			logging.info('%d false atoms in %d bytes' % (foundFalse, len(_data)))
+			self.signI= 0
 
 
-		return atomBlock
+		return nextStart
 
 
+
+	'''
+	Pass Atom with data to defined callback
+	'''
+	def pushAtom(self, _atom, _data):
+		self.matches+= 1
+
+		_atom.bindData(_data)
+		self.atomCB and self.atomCB(_atom)
+
+
+
+	'''
+	Find first Atom of desired signature from specified position
+	'''
+	def findAtom(self, _data, _start):
+		signI1= self.signI +1
+		if signI1==len(self.signAVC):
+			signI1= 0
+
+
+		while True:
+			atomMatch= self.analyzeAtom(_data, _start, self.signAVC[self.signI], self.signAVC[signI1])
+
+			if atomMatch==None: #not enough data, stop
+				return
+
+			if atomMatch==False: #retry further
+				logging.debug('false atoms in %d bytes' % (len(_data)))
+
+				_start= _data.find(self.signAVC[self.signI], _start+1+4)-4	#rewind to actual start
+				if _start<0:	#dried while in search
+					return
+
+			if atomMatch:
+				if atomMatch.typeAVC:
+					self.signI= signI1
+
+				return atomMatch
 
 
 
@@ -198,10 +200,7 @@ class Mp4Recover():
 
 
 		if signThis==self.signMoov:
-			if outPos>len(_data): #Not enough data to test
-				return None
-
-			return [Atom(_inPos,outPos).setMOOV()]
+			return Atom(_inPos,outPos).setMOOV()
 
 
 		if signThis==_signAVC:
@@ -216,7 +215,7 @@ class Mp4Recover():
 			):
 				return False
 
-			return [Atom(_inPos+4,outPos).setAVC(signThis==self.signAVC[0])]
+			return Atom(_inPos+4,outPos).setAVC(signThis==self.signAVC[0])
 
 
 		#AAC, as all between-frame data assumed to be
@@ -238,18 +237,7 @@ class Mp4Recover():
 				return None
 
 
-			AACA= []
-			for aac in self.detectHelper.detect(_data[_inPos:outPos]):
-				AACA.append(Atom(_inPos+aac[0],_inPos+aac[1]).setAAC())
-
-			if len(AACA):
-				return AACA
-
-
-			logging.warning('AAC data should be phased out by accident')
-
-			#fallback if all AACs are "bad".
-			return [Atom(_inPos,outPos).setAAC()]
+			return Atom(_inPos,outPos).setAAC()
 
 
 		return False

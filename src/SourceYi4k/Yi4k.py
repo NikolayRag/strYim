@@ -64,13 +64,13 @@ class Yi4k():
 	'''
 #  todo 272 (Yi, config) +0: add 60 fps
 #  todo 273 (Yi, config) +0: add 1440 format
-	def start(self, fps=30, fmt=1080):
+	def start(self, fps=30, fmt=1080, flat=False):
 		if not self.yiReader.start():
 			logging.error('Camera cannot be accessed by telnet')
 			return
 
 
-		if not self.yiControl.start(fps, fmt):
+		if not self.yiControl.start(fps, fmt, flat):
 			logging.error('Camera cannot start')
 
 			self.yiReader.stop()

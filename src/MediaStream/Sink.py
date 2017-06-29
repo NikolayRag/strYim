@@ -249,8 +249,8 @@ class SinkServer(threading.Thread, Sink):
 
 	socket= None
 	dataQ= None
-
-	limitIdle= (100, 100) #limit, drop to: without connection
+# -todo 323 (args, sink) +0: add TCP buffer size arg
+	limitIdle= (250, 250) #limit, drop to: without connection
 	limitCycle= (500, 250) #limit, drop to: with connection
 	limit= None #current
 
@@ -274,15 +274,18 @@ class SinkServer(threading.Thread, Sink):
 
 	def add(self, _atom):
 		if self.live():
-			self.dataQ.put(self.muxer.add(_atom))
+			data= self.muxer.add(_atom)
+			if data:
+				self.dataQ.put(data)
 
-			if self.dataQ.qsize()>self.limit[0]: #frames trigger
-				if self.limit == self.limitCycle:
-					logging.error('Buffer full')
+				if self.dataQ.qsize()>self.limit[0]: #frames trigger
+					if self.limit == self.limitCycle:
+						logging.error('Buffer full')
 
-				while self.dataQ.qsize()>self.limit[1]: #drop
-					self.dataQ.get()
+					while self.dataQ.qsize()>self.limit[1]: #drop
+						self.dataQ.get()
 
+				logging.debug('Buffered in: %d' % self.dataQ.qsize())
 			return True
 
 
@@ -303,7 +306,7 @@ class SinkServer(threading.Thread, Sink):
 		try:
 			cListen.bind((self.addr,self.port))
 		except Exception as x:
-			print('error: %s' % x)
+			logging.error('Connection: %s' % x)
 			return
 
 		cListen.listen(1)
@@ -322,11 +325,11 @@ class SinkServer(threading.Thread, Sink):
 
 
 			cSocket.settimeout(5)
-
+			cHeader= self.muxer.header() or b''
 			try:
-				cSocket.sendall(self.muxer.header())
+				cSocket.sendall(cHeader)
 			except:
-				pass
+				self.kill()
 
 
 			self.limit= self.limitCycle
@@ -338,13 +341,14 @@ class SinkServer(threading.Thread, Sink):
 					continue
 
 				try:
-					cSocket.sendall(cData)
-				except:
+					cSocket.sendall(cData or b'')
+				except Exception as x:
+					logging.info('Socket error: %s' % x)
 					break
 
 
 			try:
-				cSocket.sendall(self.muxer.finish())
+				cSocket.sendall(self.muxer.finish() or b'')
 			except:
 				pass
 

@@ -39,7 +39,7 @@ class YiControl():
 	'''
 	_yiFormat is a (lines,fps)
 	'''
-	def start(self, _fps, _fmt):
+	def start(self, _fps, _fmt, _flat=False):
 		if self.started:
 			logging.warning('Already started')
 			return
@@ -59,13 +59,20 @@ class YiControl():
 
 		self.settings= self.yi.cmd(Yi4kAPI.getSettings)
 
-		resA= [
-			  self.yi.cmd(Yi4kAPI.setRecordMode, 'record_loop')
-			, self.yi.cmd(Yi4kAPI.setLoopDuration, '5 minutes')
-			, self.yi.cmd(Yi4kAPI.setVideoQuality, 'normal')
+		if _flat:
+			resA= [
+				  self.yi.cmd(Yi4kAPI.setRecordMode, 'record')
+			]
+		else:
+			resA= [
+				  self.yi.cmd(Yi4kAPI.setRecordMode, 'record_loop')
+				, self.yi.cmd(Yi4kAPI.setLoopDuration, '5 minutes')
+			]
+		resA.extend([
+			  self.yi.cmd(Yi4kAPI.setVideoQuality, 'normal')
 			, self.yi.cmd(Yi4kAPI.setVideoStandard, 'NTSC')
 			, self.yi.cmd(Yi4kAPI.setVideoResolution, self.presets[yiFormat])
-		]
+		])
 		logging.info('Set to: %s' % resA)
 
 		res= self.yi.cmd(Yi4kAPI.startRecording)

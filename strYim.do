@@ -94,7 +94,7 @@
 !mp4 79: +0 "" kii 16/11/20 15:04:24
 	redundant
 
-!flv 90: +0 "" ki 17/05/29 19:42:00
+!flv 90: +0 "" kii 17/05/29 19:42:00
 	not needed
 
 +flv 91: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\stryim.py" kii 16/11/20 01:28:05
@@ -112,7 +112,7 @@
 +bytes 95: +0 "..\..\Application Data\Sublime Text 3\Packages\stryim\mp4RecoverExe.py" kii 16/11/21 01:57:58
 	move use of byteTransit inside mp4RecoverExe
 
- flv 98: +0 "src\MediaStream\Mux.py" kii 17/05/18 09:49:12
++flv 98: +0 "src\MediaStream\Mux.py" kii 17/05/30 04:22:40
 	Init stream with SPS and PPS provided
 
 !aac 99: +1 "" kii 16/11/23 03:54:25
@@ -378,4 +378,43 @@
 
 -clean, YiAgent 306: +0 "src\SourceYi4k\YiReader\YiSide\YiCleanup.py" kii 17/05/28 10:00:31
 	stop camera and restore settings in YiCleanup
+
+=streaming, mux, sink 307: +0 "src\MediaStream\Streamer.py" kii 17/05/30 04:25:25
+	Get stream prefix from source
+
++streaming, sink 308: +0 "src\MediaStream\Sink.py" kii 17/05/30 05:35:18
+	allow reconnection
+
++streaming, sink 309: +0 "src\MediaStream\Sink.py" kii 17/05/30 06:40:47
+	jitter issue if connected with pause
+
+-YiAgent, log 310: +0 "src\SourceYi4k\YiReader\YiSide\YiAgent.py" kii 17/05/30 18:07:38
+	inform of current state more verbosely
+
++Yi, recover 311: +2 "src\SourceYi4k\YiDecoder\MP4Recover.py" kii 17/06/28 06:07:48
+	fix lost frames at end block
+
++Yi, recover 316: +0 "src\SourceYi4k\YiDecoder\MP4Recover.py" ki 17/06/28 05:17:03
+	manage loop gaps
+
++YiAgent, read 318: +0 "src\SourceYi4k\YiReader\YiSide\YiAgent.py" ki 17/06/28 05:08:11
+	read liveBlocks in cycle while available
+
++YiAgent, read 319: +0 "src\SourceYi4k\YiReader\YiSide\YiAgent.py" ki 17/06/28 05:07:57
+	readBlock() reads and sends data
+
++Yi, recover 320: +0 "src\SourceYi4k\YiReader\YiSide\YiAgent.py" ki 17/06/29 00:42:22
+	catch flat mode file chain
+
+=Yi, agent 321: +2 "src\SourceYi4k\YiReader\YiReader.py" kii 17/06/29 05:47:20
+	make Reader reading ranged HTTP
+
++Yi, clean, fix 322: +2 "src\SourceYi4k\YiReader\YiSide\YiCleanup.py" ki 17/06/29 05:41:21
+	subsequent flat files dont delete
+
+-args, sink 323: +0 "src\MediaStream\Sink.py" ki 17/06/29 05:45:04
+	add TCP buffer size arg
+
+-args 324: +0 "src\args.py" ki 17/06/29 05:46:15
+	add bandwidth test arg
 
