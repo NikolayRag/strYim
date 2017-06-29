@@ -49,7 +49,7 @@ class YiCleanup():
 ### PRIVATE
 
 
-# =todo 322 (Yi, clean, fix) +2: subsequent flat files dont delete
+
 	'''
 	Delete video files.
 	Try several times if files are locked.

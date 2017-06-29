@@ -409,6 +409,6 @@
 =Yi, agent 321: +2 "src\SourceYi4k\YiReader\YiReader.py" ki 17/06/29 00:41:56
 	make Reader reading HTTP, as it's become available
 
-=Yi, clean, fix 322: +2 "src\SourceYi4k\YiReader\YiSide\YiCleanup.py" ki 17/06/29 03:24:01
++Yi, clean, fix 322: +2 "src\SourceYi4k\YiReader\YiSide\YiCleanup.py" ki 17/06/29 05:41:21
 	subsequent flat files dont delete
 
