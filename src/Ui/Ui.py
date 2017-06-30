@@ -3,7 +3,9 @@ from MediaStream import *
 from SourceYi4k import *
 
 
-#  todo 218 (app, feature) +0: allow reconfiguration
+#  todo 218 (app, feature, unsure) +0: allow reconfiguration
+# =todo 325 (app, feature, gui) +0: show state
+# =todo 326 (app, check) +0: inspect header passing when restoring camera/stream
 '''
 Gui flow.
 Stream can be restarted with different settings.

@@ -199,7 +199,7 @@
 +fix, aac 202: +1 "..\..\Application Data\Sublime Text 3\Packages\stryim\AACDetect.py" kii 16/12/22 21:25:13
 	make possible to start AAC queue NOT from max_sfb=0
 
- app, feature 218: +0 "src\Ui\Ui.py" kii 17/05/22 02:29:57
+ app, feature, unsure 218: +0 "src\Ui\Ui.py" ki 17/06/30 22:23:16
 	allow reconfiguration
 
 !app, clean, feature 219: +0 "" kii 17/01/03 01:05:20
@@ -235,7 +235,7 @@
 +app, clean 238: +1 "src\__main__.py" kii 17/05/20 15:30:20
 	simplify cmdline flow
 
--gui, feature 239: +0 "src\appGui\gui.py" kii 17/01/09 02:51:14
+-gui, feature 239: -1 "src\Ui\AppWindow.py" ki 17/06/30 22:15:07
 	make customizable destination list 
 
 + 240: +0 "" kii 17/05/20 15:32:51
@@ -406,8 +406,8 @@
 +Yi, recover 320: +0 "src\SourceYi4k\YiReader\YiSide\YiAgent.py" ki 17/06/29 00:42:22
 	catch flat mode file chain
 
-=Yi, agent 321: +2 "src\SourceYi4k\YiReader\YiReader.py" kii 17/06/29 05:47:20
-	make Reader reading ranged HTTP
+=Yi, agent 321: +2 "src\SourceYi4k\YiReader\YiReader.py" ki 17/06/30 02:05:47
+	make Reader reading HTTP, as it's become available
 
 +Yi, clean, fix 322: +2 "src\SourceYi4k\YiReader\YiSide\YiCleanup.py" ki 17/06/29 05:41:21
 	subsequent flat files dont delete
@@ -417,4 +417,10 @@
 
 -args 324: +0 "src\args.py" ki 17/06/29 05:46:15
 	add bandwidth test arg
+
+=app, feature, gui 325: +0 "src\Ui\Ui.py" ki 17/06/30 22:24:02
+	show state
+
+=app, check 326: +0 "src\Ui\Ui.py" ki 17/06/30 22:24:46
+	inspect header passing when restoring camera/stream
 

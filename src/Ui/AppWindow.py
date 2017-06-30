@@ -9,7 +9,7 @@ class Object():
 
 
 
-# -todo 239 (gui, feature) +0: make customizable destination list 
+# -todo 239 (gui, feature) -1: make customizable destination list 
 
 '''
 Dragging window support
