@@ -8,12 +8,15 @@ class Sink():
 	dest= ''
 	muxer= None
 
+	stateCB= None
 
 
 	'''
 	Initialize with destination
 	'''
 	def __init__(self, _dest, _muxer):
+		self.setStateCB()
+
 		self.dest= _dest
 		if isinstance(_muxer, Mux):
 			self.muxer= _muxer
@@ -41,7 +44,31 @@ class Sink():
 
 
 
+	'''
+	Set state changing callback
+	'''
+	def setStateCB(self, _cb=None):
+		if callable(_cb):
+			self.stateCB= _cb
+
+			return
+
+		self.stateCB= self.stateCBDummy
+
+
+
 ### PRIVATE, shouldn't be overriden
+
+
+	'''
+	Dummy callback.
+
+		_error indicates sink is in invalid state.
+
+		_state supplied would be (-1,1) float, where best is 0.
+	'''
+	def stateCBDummy(self, _error, _state):
+		None
 
 
 
