@@ -94,9 +94,18 @@ class SinkFile(Sink):
 	def __init__(self, _dest, _muxer=None, _stateCB=None):
 		Sink.__init__(self, _dest, _muxer, _stateCB)
 
-		self.cFile= open(_dest, 'wb')
+		try:
+			self.cFile= open(_dest, 'wb')
 
-		self.stateCB(False, .5)
+			self.stateCB(False, .5)
+		
+		except:
+			self.stateCB(True, 0)
+
+			self.kill()
+
+			return
+
 
 		self.write(self.muxer.header())
 
@@ -340,10 +349,14 @@ class SinkServer(threading.Thread, Sink):
 			cListen.bind((self.addr,self.port))
 		except Exception as x:
 			logging.error('Connection: %s' % x)
+
+			self.stateCB(True, '%s' % x)
 			return
+
 
 		cListen.listen(1)
 		cListen.settimeout(5)
+
 
 		while self.live(): #reconnection loop
 

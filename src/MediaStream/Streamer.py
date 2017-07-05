@@ -210,7 +210,7 @@ class Streamer(threading.Thread):
 			return
 
 		if _error:
-			self.stateCB(StreamError, 'Sink error')
+			self.stateCB(StreamErr, 'Sink error')
 
 			return
 
