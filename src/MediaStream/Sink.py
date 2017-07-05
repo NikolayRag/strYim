@@ -391,7 +391,6 @@ class SinkServer(threading.Thread, Sink):
 					cSocket.sendall(cData or b'')
 				except Exception as x:
 					logging.info('Socket error: %s' % x)
-					self.stateCB(True, 0)
 
 					break
 

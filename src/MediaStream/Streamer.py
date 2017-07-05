@@ -211,12 +211,15 @@ class Streamer(threading.Thread):
 
 		if _error:
 			self.stateCB(StreamErr, 'Sink error')
-
 			return
 
-		if _state<.15 or _state>.85:
-			self.stateCB(StreamWarn, 'Sink barely handles data')
 
-			return
+		warningMsg= None
 
-		self.stateCB(StreamAir, 0)
+		if _state<.2:
+			warningMsg= 'underflow'
+
+		if _state>.8:
+			warningMsg= 'overflow'
+
+		self.stateCB([StreamAir, StreamWarn][warningMsg!=None], warningMsg, _state)
