@@ -44,8 +44,9 @@ class Ui():
 	def sourceStateCB(self, _state, _msg):
 		self.appWindow.camState({Yi4kIdle:'Idle', Yi4kAir:'Air', Yi4kWarn:'Warn', Yi4kErr:'Error'}[_state], _msg)
 
-		if _state==0 or _state==3:
+		if _state==Yi4kIdle or _state==Yi4kErr:
 			self.appWindow.btnPlaySource(False)
+			self.playSource(False)
 
 
 
