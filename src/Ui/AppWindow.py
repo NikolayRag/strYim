@@ -134,14 +134,6 @@ class AppWindow():
 
 
 
-	'''
-	Toggle camera state
-	'''
-	def camState(self, _state):
-		self.layout.camStates[_state].toggle()
-
-
-
 	def setSource(self, _playCB=None):
 		self.playSourceCB= callable(_playCB) and _playCB
 
@@ -163,3 +155,24 @@ class AppWindow():
 
 	def changedDest(self, _val):
 		self.destCB and self.destCB(_val)
+
+
+#ui control
+
+
+	'''
+	Toggle camera state
+	'''
+	def camState(self, _state, _msg=''):
+# -todo 327 (ui) +0: show message supplied
+		self.layout.camStates[_state].toggle()
+
+
+
+	def btnPlaySource(self, _state):
+		self.layout.play.setChecked(_state)
+
+
+
+	def btnPlayDest(self, _state):
+		self.layout.stream.setChecked(_state)

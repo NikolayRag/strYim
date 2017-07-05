@@ -3,9 +3,9 @@ from MediaStream import *
 from SourceYi4k import *
 
 
-#  todo 218 (app, feature, unsure) +0: allow reconfiguration
+# =todo 218 (app, feature, unsure) +0: allow resolutions reconfiguration
+# =todo 326 (app, check) +0: 218/ inspect header passing when restoring camera/stream
 # =todo 325 (app, feature, gui) +0: show state
-# =todo 326 (app, check) +0: inspect header passing when restoring camera/stream
 '''
 Gui flow.
 Stream can be restarted with different settings.
@@ -31,11 +31,21 @@ class Ui():
 		self.appWindow.setSource(self.playSource)
 		self.appWindow.setDest(self.args.args['dst'], self.uiDestination, self.playDest)
 
+		self.appSource.setStateCB(self.sourceStateCB)
+
 		self.appWindow.exec()
 
 
 		self.appStreamer.kill()
 		self.appSource.stop()
+
+
+
+	def sourceStateCB(self, _state, _msg):
+		self.appWindow.camState({Yi4kIdle:'Idle', Yi4kAir:'Air', Yi4kWarn:'Warn', Yi4kErr:'Error'}[_state], _msg)
+
+		if _state==0 or _state==3:
+			self.appWindow.btnPlaySource(False)
 
 
 
