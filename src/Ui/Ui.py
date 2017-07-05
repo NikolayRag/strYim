@@ -58,7 +58,7 @@ class Ui():
 
 
 
-	def destStateCB(self, _state, _msg):
+	def destStateCB(self, _state, _msg, _detail=None):
 		self.appWindow.sinkState({StreamIdle:'Idle', StreamAir:'Air', StreamWarn:'Warn', StreamErr:'Error'}[_state], _msg)
 
 		if _state==StreamIdle or _state==StreamErr:
