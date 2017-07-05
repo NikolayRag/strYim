@@ -48,7 +48,9 @@ class AppWindow():
 	layout.dest= None
 	layout.stream= None
 	layout.camStates= {"Air":None, "Error":None, "Idle":None, 'Warn':None}
-	layout.camMessage= None
+	layout.camMessages= {"Air":None, "Error":None, "Idle":None, 'Warn':None}
+	layout.sinkStates= {"Air":None, "Error":None, "Idle":None, 'Warn':None}
+	layout.sinkMessages= {"Air":None, "Error":None, "Idle":None, 'Warn':None}
 	layout.play= None
 #	layout.choose= None
 #	layout.addSrc= None
@@ -75,11 +77,16 @@ class AppWindow():
 
 		self.layout.dest= cMain.findChild(QWidget, "editRtmpUrl")
 		self.layout.stream= cMain.findChild(QWidget, "btnStreamGo")
+		for state in self.layout.sinkMessages:
+			self.layout.sinkMessages[state]= cMain.findChild(QWidget, ('labelSink'+state))
+		for state in self.layout.sinkStates:
+			self.layout.sinkStates[state]= cMain.findChild(QWidget, ('radioSink'+state))
 
 
 #		self.layout.choose= cMain.findChild(QWidget, "btnOnCamera")
 		self.layout.play= cMain.findChild(QWidget, "btnCamPlay")
-		self.layout.camMessage=  cMain.findChild(QWidget, "camMessage")
+		for state in self.layout.camMessages:
+			self.layout.camMessages[state]= cMain.findChild(QWidget, ('labelCam'+state))
 		for state in self.layout.camStates:
 			self.layout.camStates[state]= cMain.findChild(QWidget, ('radioCam'+state))
 
@@ -94,6 +101,10 @@ class AppWindow():
 		
 		self.layout.drag.installEventFilter( QWinFilter(cMain) )
 
+
+		for state in self.layout.sinkStates:
+			self.sinkState(state)
+		self.sinkState('Idle')
 
 		for state in self.layout.camStates:
 			self.camState(state)
@@ -168,7 +179,16 @@ class AppWindow():
 	def camState(self, _state, _msg=''):
 		self.layout.camStates[_state].toggle()
 
-		self.layout.camMessage.setText(_msg)
+		if _msg:
+			self.layout.camMessages[_state].setText(_msg)
+
+
+
+	def sinkState(self, _state, _msg=''):
+		self.layout.sinkStates[_state].toggle()
+
+		if _msg:
+			self.layout.sinkMessages[_state].setText(_msg)
 
 
 
