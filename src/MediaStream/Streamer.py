@@ -89,7 +89,7 @@ class Streamer(threading.Thread):
 		sink and sink.close()
 
 		logging.info('Closed')
-		self.stateCB(StreamIdle, 0)
+		self.stateCB and self.stateCB(StreamIdle, 0)
 
 
 	'''
