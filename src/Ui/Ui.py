@@ -32,6 +32,7 @@ class Ui():
 		self.appWindow.setDest(self.args.args['dst'], self.uiDestination, self.playDest)
 
 		self.appSource.setStateCB(self.sourceStateCB)
+		self.appStreamer.setStateCB(self.destStateCB)
 
 		self.appWindow.exec()
 
@@ -46,7 +47,6 @@ class Ui():
 
 		if _state==Yi4kIdle or _state==Yi4kErr:
 			self.appWindow.btnPlaySource(False)
-			self.playSource(False)
 
 
 
@@ -55,6 +55,14 @@ class Ui():
 			self.appSource.start(flat=self.args.args['flat'])
 		else:
 			self.appSource.stop()
+
+
+
+	def destStateCB(self, _state, _msg):
+		self.appWindow.sinkState({StreamIdle:'Idle', StreamAir:'Air', StreamWarn:'Warn', StreamErr:'Error'}[_state], _msg)
+
+		if _state==StreamIdle or _state==StreamErr:
+			self.appWindow.btnPlayDest(False)
 
 
 
