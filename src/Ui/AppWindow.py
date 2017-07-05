@@ -47,10 +47,10 @@ class AppWindow():
 	layout.drag= None
 	layout.dest= None
 	layout.stream= None
-	layout.camStates= {"Air":None, "Ready":None, "Idle":None, "Error":None, "None":None}
+	layout.camStates= {"Air":None, "Error":None, "Idle":None, 'Warn':None}
 	layout.play= None
-	layout.choose= None
-	layout.addSrc= None
+#	layout.choose= None
+#	layout.addSrc= None
 
 	destCB= None
 	playSourceCB= None
@@ -76,13 +76,13 @@ class AppWindow():
 		self.layout.stream= cMain.findChild(QWidget, "btnStreamGo")
 
 
-		self.layout.choose= cMain.findChild(QWidget, "btnOnCamera")
+#		self.layout.choose= cMain.findChild(QWidget, "btnOnCamera")
 		self.layout.play= cMain.findChild(QWidget, "btnCamPlay")
 		for state in self.layout.camStates:
 			self.layout.camStates[state]= cMain.findChild(QWidget, ('radioCam'+state))
 
 
-		self.layout.addSrc= cMain.findChild(QWidget, "btnAddSource")
+#		self.layout.addSrc= cMain.findChild(QWidget, "btnAddSource")
 
 
 
@@ -95,12 +95,12 @@ class AppWindow():
 
 		for state in self.layout.camStates:
 			self.camState(state)
-		self.camState('None')
+		self.camState('Idle')
 
 
 #  todo 241 (gui, feature) +0: add/remove sources
-		self.layout.choose.hide()
-		self.layout.addSrc.hide()
+#		self.layout.choose.hide()
+#		self.layout.addSrc.hide()
 
 
 		self.layout.dest.textChanged.connect(self.changedDest)

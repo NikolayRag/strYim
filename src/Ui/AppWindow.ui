@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>804</width>
-    <height>386</height>
+    <height>330</height>
    </rect>
   </property>
   <property name="styleSheet">
@@ -126,7 +126,7 @@
          <property name="frameShadow">
           <enum>QFrame::Raised</enum>
          </property>
-         <layout class="QGridLayout" name="gridLayout_2" columnstretch="0,0,0,0">
+         <layout class="QGridLayout" name="gridLayout_2" columnstretch="0,0">
           <property name="leftMargin">
            <number>20</number>
           </property>
@@ -143,118 +143,42 @@
            <number>20</number>
           </property>
           <property name="verticalSpacing">
-           <number>30</number>
+           <number>25</number>
           </property>
-          <item row="6" column="2">
-           <widget class="QPushButton" name="btnCamPlay">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>play</string>
-            </property>
-            <property name="checkable">
-             <bool>true</bool>
-            </property>
-           </widget>
+          <item row="0" column="1">
+           <layout class="QHBoxLayout" name="horizontalLayout_3">
+            <item>
+             <widget class="QComboBox" name="comboBox">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_2">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
           </item>
-          <item row="6" column="1">
-           <widget class="QLabel" name="labelCamera">
-            <property name="font">
-             <font>
-              <pointsize>14</pointsize>
-             </font>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">color: rgb(123, 123, 146);</string>
-            </property>
-            <property name="text">
-             <string>Yi4k</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="2">
-           <widget class="QPushButton" name="btnStreamGo">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>air</string>
-            </property>
-            <property name="checkable">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="6" column="0">
-           <widget class="QToolButton" name="btnOnCamera">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="font">
-             <font>
-              <weight>75</weight>
-              <bold>true</bold>
-             </font>
-            </property>
-            <property name="checkable">
-             <bool>true</bool>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-            <property name="autoRaise">
-             <bool>true</bool>
-            </property>
-            <property name="arrowType">
-             <enum>Qt::RightArrow</enum>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <widget class="QLabel" name="labelStream">
-            <property name="font">
-             <font>
-              <pointsize>14</pointsize>
-              <weight>50</weight>
-              <bold>false</bold>
-             </font>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">color: rgb(123, 123, 146);</string>
-            </property>
-            <property name="text">
-             <string>Stream</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="2">
-           <widget class="QLabel" name="label">
-            <property name="font">
-             <font>
-              <pointsize>10</pointsize>
-              <weight>75</weight>
-              <bold>true</bold>
-             </font>
-            </property>
-            <property name="text">
-             <string>    to:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="6" column="3">
+          <item row="5" column="1">
            <layout class="QHBoxLayout" name="horizontalLayout_14">
             <property name="spacing">
              <number>8</number>
             </property>
             <item>
-             <widget class="QRadioButton" name="radioCamNone">
+             <widget class="QRadioButton" name="radioCamIdle">
               <property name="enabled">
                <bool>false</bool>
               </property>
@@ -264,9 +188,9 @@
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="labelCamNone">
+             <widget class="QLabel" name="labelCamIdle">
               <property name="text">
-               <string>none</string>
+               <string>idle</string>
               </property>
              </widget>
             </item>
@@ -292,25 +216,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QRadioButton" name="radioCamIdle">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="styleSheet">
-               <string notr="true">color: rgb(0, 0, 255);
-</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLabel" name="labelCamIdle">
-              <property name="text">
-               <string>idle</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="radioCamReady">
+             <widget class="QRadioButton" name="radioCamWarn">
               <property name="enabled">
                <bool>false</bool>
               </property>
@@ -321,9 +227,9 @@
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="labelCamReady">
+             <widget class="QLabel" name="labelCamWarn">
               <property name="text">
-               <string>ready</string>
+               <string>warn</string>
               </property>
              </widget>
             </item>
@@ -341,7 +247,7 @@
             <item>
              <widget class="QLabel" name="labelCamAir">
               <property name="text">
-               <string>air</string>
+               <string>live</string>
               </property>
              </widget>
             </item>
@@ -358,19 +264,9 @@
               </property>
              </spacer>
             </item>
-            <item>
-             <widget class="QToolButton" name="toolButton">
-              <property name="text">
-               <string>...</string>
-              </property>
-              <property name="autoRaise">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
            </layout>
           </item>
-          <item row="4" column="3">
+          <item row="1" column="1">
            <widget class="QLineEdit" name="editRtmpUrl">
             <property name="font">
              <font>
@@ -381,7 +277,45 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="3">
+          <item row="1" column="0">
+           <widget class="QLabel" name="label">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>to:</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <widget class="QPushButton" name="btnCamPlay">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>14</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>Camera ▶</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
            <layout class="QHBoxLayout" name="horizontalLayout_2">
             <property name="spacing">
              <number>0</number>
@@ -443,59 +377,53 @@
             </item>
            </layout>
           </item>
-          <item row="5" column="0" colspan="4">
-           <widget class="Line" name="line">
-            <property name="styleSheet">
-             <string notr="true">color: rgb(230,230,230);</string>
+          <item row="3" column="0">
+           <widget class="QPushButton" name="btnStreamGo">
+            <property name="font">
+             <font>
+              <pointsize>14</pointsize>
+             </font>
             </property>
-            <property name="frameShadow">
-             <enum>QFrame::Plain</enum>
+            <property name="text">
+             <string>Stream ▶</string>
             </property>
-            <property name="lineWidth">
-             <number>3</number>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
+            <property name="checkable">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
-          <item row="8" column="0">
-           <widget class="QToolButton" name="btnAddSource">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_2">
             <property name="font">
              <font>
+              <pointsize>10</pointsize>
               <weight>75</weight>
               <bold>true</bold>
              </font>
             </property>
             <property name="text">
-             <string>+</string>
+             <string>format:</string>
             </property>
-            <property name="autoRaise">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="7" column="0" colspan="4">
-           <widget class="Line" name="line_2">
-            <property name="styleSheet">
-             <string notr="true">color: rgb(230,230,230);</string>
-            </property>
-            <property name="frameShadow">
-             <enum>QFrame::Plain</enum>
-            </property>
-            <property name="lineWidth">
-             <number>1</number>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
            </widget>
           </item>
          </layout>
         </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
        </item>
       </layout>
      </widget>
@@ -570,70 +498,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>radioCamIdle</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>radioCamIdle</receiver>
-   <slot>setVisible(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>298</x>
-     <y>152</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>298</x>
-     <y>152</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioCamIdle</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>labelCamIdle</receiver>
-   <slot>setVisible(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>298</x>
-     <y>152</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>331</x>
-     <y>159</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioCamReady</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>radioCamReady</receiver>
-   <slot>setVisible(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>357</x>
-     <y>152</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>357</x>
-     <y>152</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioCamReady</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>labelCamReady</receiver>
-   <slot>setVisible(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>357</x>
-     <y>152</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>404</x>
-     <y>159</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>radioCamAir</sender>
    <signal>toggled(bool)</signal>
    <receiver>radioCamAir</receiver>
@@ -666,9 +530,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>radioCamNone</sender>
+   <sender>radioCamIdle</sender>
    <signal>toggled(bool)</signal>
-   <receiver>radioCamNone</receiver>
+   <receiver>radioCamIdle</receiver>
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -682,9 +546,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>radioCamNone</sender>
+   <sender>radioCamIdle</sender>
    <signal>toggled(bool)</signal>
-   <receiver>labelCamNone</receiver>
+   <receiver>labelCamIdle</receiver>
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -693,6 +557,38 @@
     </hint>
     <hint type="destinationlabel">
      <x>203</x>
+     <y>159</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioCamWarn</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>radioCamWarn</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>357</x>
+     <y>152</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>357</x>
+     <y>152</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioCamWarn</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>labelCamWarn</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>357</x>
+     <y>152</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>404</x>
      <y>159</y>
     </hint>
    </hints>
