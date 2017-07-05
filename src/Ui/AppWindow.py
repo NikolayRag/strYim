@@ -48,6 +48,7 @@ class AppWindow():
 	layout.dest= None
 	layout.stream= None
 	layout.camStates= {"Air":None, "Error":None, "Idle":None, 'Warn':None}
+	layout.camMessage= None
 	layout.play= None
 #	layout.choose= None
 #	layout.addSrc= None
@@ -78,6 +79,7 @@ class AppWindow():
 
 #		self.layout.choose= cMain.findChild(QWidget, "btnOnCamera")
 		self.layout.play= cMain.findChild(QWidget, "btnCamPlay")
+		self.layout.camMessage=  cMain.findChild(QWidget, "camMessage")
 		for state in self.layout.camStates:
 			self.layout.camStates[state]= cMain.findChild(QWidget, ('radioCam'+state))
 
@@ -164,8 +166,9 @@ class AppWindow():
 	Toggle camera state
 	'''
 	def camState(self, _state, _msg=''):
-# -todo 327 (ui) +0: show message supplied
 		self.layout.camStates[_state].toggle()
+
+		self.layout.camMessage.setText(_msg)
 
 
 

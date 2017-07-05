@@ -178,6 +178,13 @@
              <number>8</number>
             </property>
             <item>
+             <widget class="QLabel" name="labelCamIdle">
+              <property name="text">
+               <string>idle</string>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="QRadioButton" name="radioCamIdle">
               <property name="enabled">
                <bool>false</bool>
@@ -188,9 +195,9 @@
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="labelCamIdle">
+             <widget class="QLabel" name="labelCamError">
               <property name="text">
-               <string>idle</string>
+               <string>error</string>
               </property>
              </widget>
             </item>
@@ -209,9 +216,9 @@
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="labelCamError">
+             <widget class="QLabel" name="labelCamWarn">
               <property name="text">
-               <string>error</string>
+               <string>warn</string>
               </property>
              </widget>
             </item>
@@ -227,9 +234,9 @@
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="labelCamWarn">
+             <widget class="QLabel" name="labelCamAir">
               <property name="text">
-               <string>warn</string>
+               <string>live</string>
               </property>
              </widget>
             </item>
@@ -245,9 +252,14 @@
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="labelCamAir">
+             <widget class="QLabel" name="camMessage">
+              <property name="font">
+               <font>
+                <italic>true</italic>
+               </font>
+              </property>
               <property name="text">
-               <string>live</string>
+               <string/>
               </property>
              </widget>
             </item>
@@ -440,7 +452,7 @@
    <slot>showMinimized()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>555</x>
+     <x>751</x>
      <y>40</y>
     </hint>
     <hint type="destinationlabel">
@@ -456,7 +468,7 @@
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>594</x>
+     <x>790</x>
      <y>40</y>
     </hint>
     <hint type="destinationlabel">
@@ -472,12 +484,12 @@
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>229</x>
-     <y>152</y>
+     <x>252</x>
+     <y>280</y>
     </hint>
     <hint type="destinationlabel">
-     <x>229</x>
-     <y>152</y>
+     <x>252</x>
+     <y>280</y>
     </hint>
    </hints>
   </connection>
@@ -488,12 +500,12 @@
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>229</x>
-     <y>152</y>
+     <x>252</x>
+     <y>280</y>
     </hint>
     <hint type="destinationlabel">
-     <x>272</x>
-     <y>159</y>
+     <x>295</x>
+     <y>294</y>
     </hint>
    </hints>
   </connection>
@@ -504,12 +516,12 @@
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>430</x>
-     <y>152</y>
+     <x>390</x>
+     <y>280</y>
     </hint>
     <hint type="destinationlabel">
-     <x>430</x>
-     <y>152</y>
+     <x>390</x>
+     <y>280</y>
     </hint>
    </hints>
   </connection>
@@ -520,12 +532,12 @@
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>430</x>
-     <y>152</y>
+     <x>390</x>
+     <y>280</y>
     </hint>
     <hint type="destinationlabel">
-     <x>456</x>
-     <y>159</y>
+     <x>422</x>
+     <y>294</y>
     </hint>
    </hints>
   </connection>
@@ -536,12 +548,12 @@
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>160</x>
-     <y>152</y>
+     <x>193</x>
+     <y>280</y>
     </hint>
     <hint type="destinationlabel">
-     <x>160</x>
-     <y>152</y>
+     <x>193</x>
+     <y>280</y>
     </hint>
    </hints>
   </connection>
@@ -552,12 +564,12 @@
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>160</x>
-     <y>152</y>
+     <x>193</x>
+     <y>280</y>
     </hint>
     <hint type="destinationlabel">
-     <x>203</x>
-     <y>159</y>
+     <x>226</x>
+     <y>294</y>
     </hint>
    </hints>
   </connection>
@@ -568,12 +580,12 @@
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>357</x>
-     <y>152</y>
+     <x>321</x>
+     <y>280</y>
     </hint>
     <hint type="destinationlabel">
-     <x>357</x>
-     <y>152</y>
+     <x>321</x>
+     <y>280</y>
     </hint>
    </hints>
   </connection>
@@ -584,12 +596,12 @@
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>357</x>
-     <y>152</y>
+     <x>321</x>
+     <y>280</y>
     </hint>
     <hint type="destinationlabel">
-     <x>404</x>
-     <y>159</y>
+     <x>364</x>
+     <y>294</y>
     </hint>
    </hints>
   </connection>
