@@ -8,14 +8,13 @@ class Sink():
 	dest= ''
 	muxer= None
 
-	stateCB= None
-
 
 	'''
 	Initialize with destination
 	'''
-	def __init__(self, _dest, _muxer):
-		self.setStateCB()
+	def __init__(self, _dest, _muxer, _stateCB=None):
+		if callable(_stateCB):
+			self.stateCB= _stateCB
 
 		self.dest= _dest
 		if isinstance(_muxer, Mux):
@@ -44,19 +43,6 @@ class Sink():
 
 
 
-	'''
-	Set state changing callback
-	'''
-	def setStateCB(self, _cb=None):
-		if callable(_cb):
-			self.stateCB= _cb
-
-			return
-
-		self.stateCB= self.stateCBDummy
-
-
-
 ### PRIVATE, shouldn't be overriden
 
 
@@ -65,9 +51,9 @@ class Sink():
 
 		_error indicates sink is in invalid state.
 
-		_state supplied would be (-1,1) float, where best is 0.
+		_state supplied would be (0,1) float, where best is .5.
 	'''
-	def stateCBDummy(self, _error, _state):
+	def stateCB(self, _error, _state):
 		None
 
 
@@ -105,12 +91,15 @@ class SinkFile(Sink):
 
 
 
-	def __init__(self, _dest, _muxer=None):
-		Sink.__init__(self, _dest, _muxer)
+	def __init__(self, _dest, _muxer=None, _stateCB=None):
+		Sink.__init__(self, _dest, _muxer, _stateCB)
 
 		self.cFile= open(_dest, 'wb')
 
+		self.stateCB(False, .5)
+
 		self.write(self.muxer.header())
+
 
 
 	
@@ -135,7 +124,16 @@ class SinkFile(Sink):
 
 	def write(self, _data):
 		if _data:
-			self.cFile.write(_data)
+			try:
+				self.cFile.write(_data)
+
+			except:
+				self.stateCB(True, 0)
+
+				self.kill()
+
+				return
+
 
 		return True
 
@@ -161,8 +159,8 @@ class SinkNet(threading.Thread, Sink):
 
 
 
-	def __init__(self, _dest, _muxer=None):
-		Sink.__init__(self, _dest, _muxer)
+	def __init__(self, _dest, _muxer=None, _stateCB=None):
+		Sink.__init__(self, _dest, _muxer, _stateCB)
 
 		ipElements= self.ipMask.match(_dest)
 		ipElements= ipElements and ipElements.group('protocol')
@@ -214,6 +212,7 @@ class SinkNet(threading.Thread, Sink):
 			self.kill()
 
 			logging.error('Socket error')
+			self.stateCB(True, 0)
 
 
 
@@ -253,10 +252,14 @@ class SinkNet(threading.Thread, Sink):
 		sock= None
 		try:
 			sock= socket.create_connection(('127.0.0.1',self.ffport), 5)
+
+			self.stateCB(False, .5)
+
 		except:
 			self.kill()
 
 			logging.error('Init error')
+			self.stateCB(True, 0)
 
 		return sock
 
@@ -282,14 +285,14 @@ class SinkServer(threading.Thread, Sink):
 	limit= None #current
 
 
-	def __init__(self, _dest='', _muxer=None):
+	def __init__(self, _dest='', _muxer=None, _stateCB=None):
 		ipElements= self.ipMask.match(_dest)
 		if ipElements:
 			self.addr= ipElements.group('addr')
 			self.port= int(ipElements.group('port'))
 
 
-		Sink.__init__(self, _dest, _muxer)
+		Sink.__init__(self, _dest, _muxer, _stateCB)
 
 		self.dataQ= queue.Queue()
 		self.limit= self.limitIdle
@@ -312,7 +315,10 @@ class SinkServer(threading.Thread, Sink):
 					while self.dataQ.qsize()>self.limit[1]: #drop
 						self.dataQ.get()
 
-				logging.debug('Buffered in: %d' % self.dataQ.qsize())
+				buffer= self.dataQ.qsize()
+				logging.debug('Buffered in: %d' % buffer)
+				self.stateCB(False, buffer/self.limit[0])
+
 			return True
 
 
@@ -348,6 +354,7 @@ class SinkServer(threading.Thread, Sink):
 
 				continue
 
+
 			logging.info('connected')
 
 
@@ -371,6 +378,8 @@ class SinkServer(threading.Thread, Sink):
 					cSocket.sendall(cData or b'')
 				except Exception as x:
 					logging.info('Socket error: %s' % x)
+					self.stateCB(True, 0)
+
 					break
 
 
