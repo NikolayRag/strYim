@@ -105,8 +105,8 @@ class Args():
 		cParser= argparse.ArgumentParser(description= 'Yi 4k lossless streamer.')
 
 		cParser.add_argument('-flat', default=False, action='store_true', help='Record in normal mode to avoid sync gaps')
-		cParser.add_argument('-res', type=int, nargs='?', choices=[1080,1440], help='resolution')
-		cParser.add_argument('-fps', type=int, nargs='?', choices=[25,30], help='fps')
+		cParser.add_argument('-res', type=int, choices=[1080,1440], help='resolution')
+		cParser.add_argument('-fps', type=int, choices=[30,25], help='fps')
 		cParser.add_argument('dst', type=str, nargs=(None if _forceDst else '?'), help='streaming destination: rtmp://server/path')
 
 		cParser.add_argument('-YiIP', default='192.168.42.1', type=str, help=argparse.SUPPRESS)
