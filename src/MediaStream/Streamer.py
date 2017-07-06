@@ -50,12 +50,12 @@ class Streamer(threading.Thread):
 
 
 
-	def begin(self, _dst, fps=30000./1001):
+	def begin(self, _dst, _header, _fps):
 		if self.sink:
 			logging.warning('Stream already running')
 			return
 
-		self.sink= self.initSink(_dst, fps)
+		self.sink= self.initSink(_dst, _header, _fps)
 
 		logging.info('Streaming to %s' % _dst)
 
@@ -122,7 +122,7 @@ class Streamer(threading.Thread):
 	For non-rtmp desstination use ['.FLV'|'.264'|'.AAC'] extension
 	 to define output format.
 	'''
-	def initSink(self, _dst, _fps):
+	def initSink(self, _dst, _header, _fps):
 		_dst= '/'.join(_dst.split('\\'))
 		protocol= _dst.split(':/')
 		ext= _dst.split('.')
@@ -144,13 +144,7 @@ class Streamer(threading.Thread):
 					muxer= MuxAAC
 
 # =todo 307 (streaming, mux, sink) +0: Get stream prefix from source
-		headerA= [
-			b'\'M@3\x9ad\x03\xc0\x11?,\x8c\x04\x04\x05\x00\x00\x03\x03\xe9\x00\x00\xea`\xe8`\x00\xb7\x18\x00\x02\xdcl\xbb\xcb\x8d\x0c\x00\x16\xe3\x00\x00[\x8d\x97ypxD"R\xc0'
-			, b'\x28\xee\x38\x80'
-		]
-
-
-		return sink(_dst, muxer(headerA), self.sinkStateCB)
+		return sink(_dst, muxer(_header), self.sinkStateCB)
 
 
 

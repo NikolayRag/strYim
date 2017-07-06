@@ -18,8 +18,14 @@ class Ui():
 
 	appWindow= None
 
+	mode= None
+
+
 	def __init__(self, _args):
 		self.args= _args
+
+		self.setMode()
+
 
 		#init
 		self.appSource= Yi4k()
@@ -55,8 +61,11 @@ class Ui():
 
 
 	def playSource(self, _state):
+		if not self.mode:
+			return
+
 		if _state:
-			self.appSource.start(flat=self.args.args['flat'])
+			self.appSource.start(self.mode, flat=self.args.args['flat'])
 		else:
 			self.appSource.stop()
 
@@ -72,8 +81,11 @@ class Ui():
 
 # =todo 333 (ui) +0: check dsp before streaming
 	def playDest(self, _state):
+		if not self.mode:
+			return
+
 		if _state:
-			self.appStreamer.begin(self.args.args['dst'])
+			self.appStreamer.begin(self.args.args['dst'], self.mode['header'], self.mode['fps'])
 		else:
 			self.appStreamer.end()
 
@@ -91,3 +103,14 @@ class Ui():
 		self.args.args['res']= mode2[0]
 		self.args.args['fps']= mode2[1]
 		self.args.save()
+
+		self.setMode()
+
+
+
+	def setMode(self):
+		if (self.args.args['res'], self.args.args['fps']) not in Yi4kPresets:
+			self.mode= None
+			return
+
+		self.mode= Yi4kPresets[(self.args.args['res'], self.args.args['fps'])]

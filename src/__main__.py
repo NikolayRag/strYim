@@ -32,8 +32,9 @@ if __name__ == '__main__':
 		appStreamer= Streamer()
 		appStreamer.link(appSource)
 
-		appStreamer.begin(cArgs.args['dst'])
-		appSource.start(flat=cArgs.args['flat'])
+		preset= Yi4kPresets[(cArgs.args['res'], cArgs.args['fps'])]
+		appStreamer.begin(cArgs.args['dst'], preset['header'], preset['fps'])
+		appSource.start(preset, flat=cArgs.args['flat'])
 
 
 		#handle ctrl-c

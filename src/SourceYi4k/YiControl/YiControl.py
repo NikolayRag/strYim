@@ -10,13 +10,6 @@ Record is started with specified settings, which are restored
  after record is done.
 '''
 class YiControl():
-	presets= {
-		  (1440, 60):"1920x1440 60P 4:3"
-		, (1440, 30):"1920x1440 30P 4:3"
-		, (1080, 60):"1920x1080 60P 16:9"
-		, (1080, 30):"1920x1080 30P 16:9"
-	}
-
 	addr= None
 	stopCB= None
 	cleanFiles= True
@@ -37,17 +30,12 @@ class YiControl():
 
 
 	'''
-	_yiFormat is a (lines,fps)
+	_preset is defined in Yi4kModule
 	'''
-	def start(self, _fps, _fmt, _flat=False):
+	def start(self, _preset, _flat=False):
 		if self.started:
 			logging.warning('Already started')
 			return
-
-		yiFormat= (_fmt, _fps)
-		if yiFormat not in self.presets:
-			logging.error('Unknown mode')
-			return 
 
 
 		self.yi= Yi4kAPI.YiAPI(self.addr)
@@ -70,8 +58,8 @@ class YiControl():
 			]
 		resA.extend([
 			  self.yi.cmd(Yi4kAPI.setVideoQuality, 'normal')
-			, self.yi.cmd(Yi4kAPI.setVideoStandard, 'NTSC')
-			, self.yi.cmd(Yi4kAPI.setVideoResolution, self.presets[yiFormat])
+			, self.yi.cmd(Yi4kAPI.setVideoStandard, _preset['yiStd'])
+			, self.yi.cmd(Yi4kAPI.setVideoResolution, _preset['yiRes'])
 		])
 		logging.info('Set to: %s' % resA)
 
@@ -86,7 +74,7 @@ class YiControl():
 		self.yi.setCB('video_record_complete', self.stopped)
 
 
-		logging.info('Started %s' % set(yiFormat))
+		logging.info('Started %s' % _preset['yiRes'])
 		return True
 
 
