@@ -45,6 +45,7 @@ class AppWindow():
 	layout= Object()
 	layout.main= None
 	layout.drag= None
+	layout.listModes= None
 	layout.dest= None
 	layout.stream= None
 	layout.camStates= {"Air":None, "Error":None, "Idle":None, 'Warn':None}
@@ -55,6 +56,7 @@ class AppWindow():
 #	layout.choose= None
 #	layout.addSrc= None
 
+	modeCB= None
 	destCB= None
 	playSourceCB= None
 	playDestCB= None
@@ -74,6 +76,8 @@ class AppWindow():
 		#capture widgets
 		self.layout.drag= cMain.findChild(QWidget, "outerFrame")
 
+		
+		self.layout.listModes= cMain.findChild(QWidget, "listModes")
 
 		self.layout.dest= cMain.findChild(QWidget, "editRtmpUrl")
 		self.layout.stream= cMain.findChild(QWidget, "btnStreamGo")
@@ -116,7 +120,8 @@ class AppWindow():
 #		self.layout.addSrc.hide()
 
 
-		self.layout.dest.textChanged.connect(self.changedDest)
+		self.layout.listModes.currentIndexChanged.connect(self.onChangedMode)
+		self.layout.dest.textChanged.connect(self.onChangedDest)
 		self.layout.play.toggled.connect(self.onPlaySource)
 		self.layout.stream.toggled.connect(self.onPlayDest)
 
@@ -166,8 +171,23 @@ class AppWindow():
 
 	
 
-	def changedDest(self, _val):
+	def onChangedDest(self, _val):
 		self.destCB and self.destCB(_val)
+
+
+
+	def setModes(self, _modesA, _index, _changedCB=None):
+		self.layout.listModes.addItems(_modesA)
+		self.layout.listModes.setCurrentIndex(_index)
+
+		if callable(_changedCB):
+			self.modeCB= _changedCB
+
+
+
+	def onChangedMode(self, _index):
+		self.modeCB and self.modeCB(_index)
+
 
 
 #ui control
@@ -199,3 +219,4 @@ class AppWindow():
 
 	def btnPlayDest(self, _state):
 		self.layout.stream.setChecked(_state)
+

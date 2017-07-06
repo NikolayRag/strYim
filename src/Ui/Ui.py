@@ -31,6 +31,10 @@ class Ui():
 		self.appWindow.setSource(self.playSource)
 		self.appWindow.setDest(self.args.args['dst'], self.uiDestination, self.playDest)
 
+		mode2= (self.args.args['res'], self.args.args['fps'])
+		modeI= (mode2 in Yi4kPresets) and [a for a in Yi4kPresets].index(mode2)
+		self.appWindow.setModes([Yi4kPresets[p]['yiRes'] for p in Yi4kPresets], modeI or 0, self.uiMode)
+
 		self.appSource.setStateCB(self.sourceStateCB)
 		self.appStreamer.setStateCB(self.destStateCB)
 
@@ -65,7 +69,9 @@ class Ui():
 			self.appWindow.btnPlayDest(False)
 
 
-
+# =todo 332 (ui) +0: lock mode while streaming and playing
+# =todo 331 (ui) +0: lock dest while streaming
+# =todo 333 (ui) +0: check dsp before streaming
 	def playDest(self, _state):
 		if _state:
 			self.appStreamer.begin(self.args.args['dst'])
@@ -76,4 +82,13 @@ class Ui():
 
 	def uiDestination(self, _newVal):
 		self.args.args['dst']= _newVal
+		self.args.save()
+
+
+
+	def uiMode(self, _newVal):
+		mode2= [p for p in Yi4kPresets][_newVal]
+
+		self.args.args['res']= mode2[0]
+		self.args.args['fps']= mode2[1]
 		self.args.save()
