@@ -52,6 +52,6 @@ if __name__ == '__main__':
 		#prevent breaking shutdows routines by ctrl-c
 		while len(threading.enumerate())>1:
 			try:
-				time.sleep(.5)
+				time.sleep(.2)
 			except KeyboardInterrupt:
-				logging.warning('Cooldown in progress')
+				logging.warning('Cooldown in progress, terminate with Ctrl+Break')

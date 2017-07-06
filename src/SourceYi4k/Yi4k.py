@@ -14,6 +14,11 @@ Splitted in two sections:
 
 Generally, reading and decoding is bound to camera record state.
 '''
+Yi4kIdle= 0
+Yi4kAir= 1
+Yi4kWarn= 2
+Yi4kErr= 3
+
 class Yi4k():
 	yiAddr= '192.168.42.1'
 
@@ -24,7 +29,7 @@ class Yi4k():
 	activeCtx= None
 
 	atomCB= None
-	signalCB= None
+	stateCB= None
 
 	idle= True
 
@@ -66,12 +71,16 @@ class Yi4k():
 #  todo 273 (Yi, config) +0: add 1440 format
 	def start(self, fps=30, fmt=1080, flat=False):
 		if not self.yiReader.start():
-			logging.error('Camera cannot be accessed by telnet')
+			msg= 'Camera cannot be accessed by telnet'
+			logging.error(msg)
+			self.stateCB and self.stateCB(Yi4kErr, msg)
 			return
 
 
 		if not self.yiControl.start(fps, fmt, flat):
-			logging.error('Camera cannot start')
+			msg= 'Camera cannot start'
+			logging.error(msg)
+			self.stateCB and self.stateCB(Yi4kErr, msg)
 
 			self.yiReader.stop()
 			return
@@ -80,6 +89,9 @@ class Yi4k():
 		logging.info('Starting %d' % fmt)
 
 		self.idle= False
+
+
+		self.stateCB and self.stateCB(Yi4kAir, '')
 
 
 
@@ -117,11 +129,10 @@ class Yi4k():
 
 
 
-	def readerStateCB(self, _message):
-		logging.warning(_message)
+	def readerStateCB(self, _type, _msg):
+		logging.warning(_msg)
 
-#		self.signalCB and self.signalCB(_state, _data)
-
+		self.stateCB and self.stateCB(Yi4kWarn, _msg)
 
 
 
@@ -141,12 +152,27 @@ class Yi4k():
 		self.idle= True
 
 
+		self.stateCB and self.stateCB(Yi4kIdle, '')
+
+
 
 	def readerErrCB(self, _res):
+# -todo 328 (Yi, control) +0: handle camera lost state withon YiControl
+		msg= ''
+
 		if _res==False:
-			logging.error('Camera lost')
+			msg= 'Camera lost'
 			self.idle= True
 		else:
-			logging.error('Streaming error')
+			msg= 'Streaming error'
 			self.yiControl.stop()
 
+
+		logging.error(msg)
+
+		self.stateCB and self.stateCB(Yi4kErr, msg)
+
+
+
+	def setStateCB(self, _cb):
+		self.stateCB= callable(_cb) and _cb

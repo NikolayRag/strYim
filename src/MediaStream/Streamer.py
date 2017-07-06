@@ -11,10 +11,16 @@ import logging
 
 
 #  todo 284 (feature, streaming) +0: Make audio/video mixer (switcher) as a Source-to-Streamer fabric
+#  todo 330 (feature, review) +0: review Sink statistics
 '''
 Main streaming controller.
 Route Atoms from linked Source to managed destination.
 '''
+StreamIdle= 0
+StreamAir= 1
+StreamWarn= 2
+StreamErr= 3
+
 class Streamer(threading.Thread):
 	stat= None
 
@@ -24,6 +30,8 @@ class Streamer(threading.Thread):
 	atomsQ= None
 
 	live= True
+
+	stateCB= None
 
 
 	'''
@@ -81,7 +89,7 @@ class Streamer(threading.Thread):
 		sink and sink.close()
 
 		logging.info('Closed')
-
+		self.stateCB and self.stateCB(StreamIdle, 0)
 
 
 	'''
@@ -92,6 +100,11 @@ class Streamer(threading.Thread):
 		self.end()
 		
 		self.live= False
+
+
+
+	def setStateCB(self, _cb):
+		self.stateCB= callable(_cb) and _cb
 
 
 
@@ -137,7 +150,7 @@ class Streamer(threading.Thread):
 		]
 
 
-		return sink(_dst, muxer(headerA))
+		return sink(_dst, muxer(headerA), self.sinkStateCB)
 
 
 
@@ -189,3 +202,24 @@ class Streamer(threading.Thread):
 			logging.debug('Atoms over: %s' % _val)
 		else:
 			logging.debug('Atoms under: %s' % _val)
+
+
+
+	def sinkStateCB(self, _error, _state):
+		if not self.stateCB:
+			return
+
+		if _error:
+			self.stateCB(StreamErr, 'Sink error')
+			return
+
+
+		warningMsg= None
+
+		if _state<.2:
+			warningMsg= 'underflow'
+
+		if _state>.8:
+			warningMsg= 'overflow'
+
+		self.stateCB([StreamAir, StreamWarn][warningMsg!=None], warningMsg, _state)

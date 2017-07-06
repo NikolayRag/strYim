@@ -9,7 +9,7 @@ class Object():
 
 
 
-# -todo 239 (gui, feature) +0: make customizable destination list 
+# -todo 239 (gui, feature) -1: make customizable destination list 
 
 '''
 Dragging window support
@@ -45,13 +45,18 @@ class AppWindow():
 	layout= Object()
 	layout.main= None
 	layout.drag= None
+	layout.listModes= None
 	layout.dest= None
 	layout.stream= None
-	layout.camStates= {"Air":None, "Ready":None, "Idle":None, "Error":None, "None":None}
+	layout.camStates= {"Air":None, "Error":None, "Idle":None, 'Warn':None}
+	layout.camMessages= {"Air":None, "Error":None, "Idle":None, 'Warn':None}
+	layout.sinkStates= {"Air":None, "Error":None, "Idle":None, 'Warn':None}
+	layout.sinkMessages= {"Air":None, "Error":None, "Idle":None, 'Warn':None}
 	layout.play= None
-	layout.choose= None
-	layout.addSrc= None
+#	layout.choose= None
+#	layout.addSrc= None
 
+	modeCB= None
 	destCB= None
 	playSourceCB= None
 	playDestCB= None
@@ -71,18 +76,26 @@ class AppWindow():
 		#capture widgets
 		self.layout.drag= cMain.findChild(QWidget, "outerFrame")
 
+		
+		self.layout.listModes= cMain.findChild(QWidget, "listModes")
 
 		self.layout.dest= cMain.findChild(QWidget, "editRtmpUrl")
 		self.layout.stream= cMain.findChild(QWidget, "btnStreamGo")
+		for state in self.layout.sinkMessages:
+			self.layout.sinkMessages[state]= cMain.findChild(QWidget, ('labelSink'+state))
+		for state in self.layout.sinkStates:
+			self.layout.sinkStates[state]= cMain.findChild(QWidget, ('radioSink'+state))
 
 
-		self.layout.choose= cMain.findChild(QWidget, "btnOnCamera")
+#		self.layout.choose= cMain.findChild(QWidget, "btnOnCamera")
 		self.layout.play= cMain.findChild(QWidget, "btnCamPlay")
+		for state in self.layout.camMessages:
+			self.layout.camMessages[state]= cMain.findChild(QWidget, ('labelCam'+state))
 		for state in self.layout.camStates:
 			self.layout.camStates[state]= cMain.findChild(QWidget, ('radioCam'+state))
 
 
-		self.layout.addSrc= cMain.findChild(QWidget, "btnAddSource")
+#		self.layout.addSrc= cMain.findChild(QWidget, "btnAddSource")
 
 
 
@@ -93,17 +106,22 @@ class AppWindow():
 		self.layout.drag.installEventFilter( QWinFilter(cMain) )
 
 
+		for state in self.layout.sinkStates:
+			self.sinkState(state)
+		self.sinkState('Idle')
+
 		for state in self.layout.camStates:
 			self.camState(state)
-		self.camState('None')
+		self.camState('Idle')
 
 
 #  todo 241 (gui, feature) +0: add/remove sources
-		self.layout.choose.hide()
-		self.layout.addSrc.hide()
+#		self.layout.choose.hide()
+#		self.layout.addSrc.hide()
 
 
-		self.layout.dest.textChanged.connect(self.changedDest)
+		self.layout.listModes.currentIndexChanged.connect(self.onChangedMode)
+		self.layout.dest.textChanged.connect(self.onChangedDest)
 		self.layout.play.toggled.connect(self.onPlaySource)
 		self.layout.stream.toggled.connect(self.onPlayDest)
 
@@ -125,20 +143,17 @@ class AppWindow():
 
 
 	def onPlaySource(self, _state):
+		self.layout.listModes.setDisabled(self.layout.stream.isChecked() or self.layout.play.isChecked())
+
 		self.playSourceCB and self.playSourceCB(_state)
 
 
 		
 	def onPlayDest(self, _state):
+		self.layout.dest.setDisabled(self.layout.stream.isChecked())
+		self.layout.listModes.setDisabled(self.layout.stream.isChecked() or self.layout.play.isChecked())
+
 		self.playDestCB and self.playDestCB(_state)
-
-
-
-	'''
-	Toggle camera state
-	'''
-	def camState(self, _state):
-		self.layout.camStates[_state].toggle()
 
 
 
@@ -161,5 +176,52 @@ class AppWindow():
 
 	
 
-	def changedDest(self, _val):
+	def onChangedDest(self, _val):
 		self.destCB and self.destCB(_val)
+
+
+
+	def setModes(self, _modesA, _index, _changedCB=None):
+		self.layout.listModes.addItems(_modesA)
+		self.layout.listModes.setCurrentIndex(_index)
+
+		if callable(_changedCB):
+			self.modeCB= _changedCB
+
+
+
+	def onChangedMode(self, _index):
+		self.modeCB and self.modeCB(_index)
+
+
+
+#ui control
+
+
+	'''
+	Toggle camera state
+	'''
+	def camState(self, _state, _msg=''):
+		self.layout.camStates[_state].toggle()
+
+		if _msg:
+			self.layout.camMessages[_state].setText(_msg)
+
+
+
+	def sinkState(self, _state, _msg=''):
+		self.layout.sinkStates[_state].toggle()
+
+		if _msg:
+			self.layout.sinkMessages[_state].setText(_msg)
+
+
+
+	def btnPlaySource(self, _state):
+		self.layout.play.setChecked(_state)
+
+
+
+	def btnPlayDest(self, _state):
+		self.layout.stream.setChecked(_state)
+

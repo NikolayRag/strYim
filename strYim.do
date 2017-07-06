@@ -199,8 +199,8 @@
 +fix, aac 202: +1 "..\..\Application Data\Sublime Text 3\Packages\stryim\AACDetect.py" kii 16/12/22 21:25:13
 	make possible to start AAC queue NOT from max_sfb=0
 
- app, feature 218: +0 "src\Ui\Ui.py" kii 17/05/22 02:29:57
-	allow reconfiguration
+=app, feature, unsure 218: +0 "src\Ui\Ui.py" ki 17/07/04 05:24:12
+	allow resolutions reconfiguration
 
 !app, clean, feature 219: +0 "" kii 17/01/03 01:05:20
 	redundant
@@ -235,7 +235,7 @@
 +app, clean 238: +1 "src\__main__.py" kii 17/05/20 15:30:20
 	simplify cmdline flow
 
--gui, feature 239: +0 "src\appGui\gui.py" kii 17/01/09 02:51:14
+-gui, feature 239: -1 "src\Ui\AppWindow.py" ki 17/06/30 22:15:07
 	make customizable destination list 
 
 + 240: +0 "" kii 17/05/20 15:32:51
@@ -370,7 +370,7 @@
 +log, clean 302: +0 "src\__main__.py" kii 17/05/22 00:09:55
 	add runtime significant logging
 
--ui, settings 304: +0 "src\Ui\AppWindow.py" kii 17/05/23 00:02:16
+-ui, settings 304: +0 "src\Ui\AppWindow.py" ki 17/07/02 02:45:05
 	make updatable settings model
 
 -clean, sink 305: +0 "src\MediaStream\Sink.py" kii 17/05/28 18:14:12
@@ -406,8 +406,8 @@
 +Yi, recover 320: +0 "src\SourceYi4k\YiReader\YiSide\YiAgent.py" ki 17/06/29 00:42:22
 	catch flat mode file chain
 
-=Yi, agent 321: +2 "src\SourceYi4k\YiReader\YiReader.py" kii 17/06/29 05:47:20
-	make Reader reading ranged HTTP
+=Yi, agent 321: +2 "src\SourceYi4k\YiReader\YiReader.py" ki 17/06/30 02:05:47
+	make Reader reading HTTP, as it's become available
 
 +Yi, clean, fix 322: +2 "src\SourceYi4k\YiReader\YiSide\YiCleanup.py" ki 17/06/29 05:41:21
 	subsequent flat files dont delete
@@ -417,4 +417,31 @@
 
 -args 324: +0 "src\args.py" ki 17/06/29 05:46:15
 	add bandwidth test arg
+
+=app, feature, gui 325: +0 "src\Ui\Ui.py" ki 17/06/30 22:24:02
+	show state
+
+=app, check 326: +0 "src\Ui\Ui.py" ki 17/07/04 05:24:43
+	218/ inspect header passing when restoring camera/stream
+
++ui 327: +0 "src\Ui\AppWindow.py" ki 17/07/05 08:48:01
+	show message supplied
+
+-Yi, control 328: +0 "src\SourceYi4k\Yi4k.py" ki 17/07/05 08:39:09
+	handle camera lost state withon YiControl
+
+=fix, Yi, issue 329: +0 "src\SourceYi4k\Yi4k.py" ki 17/07/05 09:10:44
+	Mp4Recover started with old data after error 
+
+ feature, review 330: +0 "src\MediaStream\Streamer.py" ki 17/07/05 21:34:35
+	review Sink statistics
+
++ui 331: +0 "src\Ui\Ui.py" ki 17/07/06 05:17:24
+	lock dest while streaming
+
++ui 332: +0 "src\Ui\Ui.py" ki 17/07/06 05:17:23
+	lock mode while streaming and playing
+
+=ui 333: +0 "src\Ui\Ui.py" ki 17/07/06 05:17:27
+	check dsp before streaming
 

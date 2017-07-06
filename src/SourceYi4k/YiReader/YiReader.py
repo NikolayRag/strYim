@@ -40,11 +40,15 @@ class YiReader():
 		self.yiAddr= addr
 		self.yiPort= port
 
-		def agentErrorCB(_type, _meta):
-			if callable(_stateCB) and _type==YiData.OVERFLOW:
-				_stateCB('Low camera bandwidth, data is skipped')
+		def stateCB(_type, _meta):
+			msg= ''
+			if _type==YiData.OVERFLOW:
+				msg= 'Low camera bandwidth, data is skipped'
 
-		self.yiData= YiData(_dataCB, _ctxCB, agentErrorCB)
+			callable(_stateCB) and _stateCB(_type, _msg)
+
+
+		self.yiData= YiData(_dataCB, _ctxCB, stateCB)
 
 		self.errorCB= callable(_errorCB) and _errorCB
 
