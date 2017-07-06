@@ -132,8 +132,9 @@ class Streamer(threading.Thread):
 		muxer= MuxFLV
 		sink= SinkNet
 
-		if protocol[0] not in ['rtmp', 'udp', 'tcp']:
-			if protocol[0] in ['srv']:
+
+		if protocol[0] not in ['rtmp', 'udp']:
+			if protocol[0] in ['tcp']:
 				sink= SinkServer
 			else:
 				sink= SinkFile
@@ -143,7 +144,7 @@ class Streamer(threading.Thread):
 				if len(ext)>1 and ext[-1]=='aac':
 					muxer= MuxAAC
 
-# =todo 307 (streaming, mux, sink) +0: Get stream prefix from source
+
 		return sink(_dst, muxer(_header), self.sinkStateCB)
 
 
