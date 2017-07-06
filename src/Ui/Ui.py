@@ -69,8 +69,7 @@ class Ui():
 			self.appWindow.btnPlayDest(False)
 
 
-# =todo 332 (ui) +0: lock mode while streaming and playing
-# =todo 331 (ui) +0: lock dest while streaming
+
 # =todo 333 (ui) +0: check dsp before streaming
 	def playDest(self, _state):
 		if _state:

@@ -143,11 +143,16 @@ class AppWindow():
 
 
 	def onPlaySource(self, _state):
+		self.layout.listModes.setDisabled(self.layout.stream.isChecked() or self.layout.play.isChecked())
+
 		self.playSourceCB and self.playSourceCB(_state)
 
 
 		
 	def onPlayDest(self, _state):
+		self.layout.dest.setDisabled(self.layout.stream.isChecked())
+		self.layout.listModes.setDisabled(self.layout.stream.isChecked() or self.layout.play.isChecked())
+
 		self.playDestCB and self.playDestCB(_state)
 
 
