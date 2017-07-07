@@ -47,6 +47,7 @@ class YiControl():
 
 		self.settings= self.yi.cmd(Yi4kAPI.getSettings)
 
+# =todo 334 (control, fix) +0: fix hangouts on settings change
 		if _flat:
 			resA= [
 				  self.yi.cmd(Yi4kAPI.setRecordMode, 'record')

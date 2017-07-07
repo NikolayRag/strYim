@@ -379,7 +379,7 @@
 -clean, YiAgent 306: +0 "src\SourceYi4k\YiReader\YiSide\YiCleanup.py" kii 17/05/28 10:00:31
 	stop camera and restore settings in YiCleanup
 
-=streaming, mux, sink 307: +0 "src\MediaStream\Streamer.py" kii 17/05/30 04:25:25
++streaming, mux, sink 307: +0 "src\MediaStream\Streamer.py" ki 17/07/06 06:55:06
 	Get stream prefix from source
 
 +streaming, sink 308: +0 "src\MediaStream\Sink.py" kii 17/05/30 05:35:18
@@ -442,6 +442,12 @@
 +ui 332: +0 "src\Ui\Ui.py" ki 17/07/06 05:17:23
 	lock mode while streaming and playing
 
-=ui 333: +0 "src\Ui\Ui.py" ki 17/07/06 05:17:27
+=ui 333: +0 "src\Ui\Ui.py" ki 17/07/06 05:32:51
 	check dsp before streaming
+
+=control, fix 334: +0 "src\SourceYi4k\YiControl\YiControl.py" ki 17/07/06 06:53:49
+	fix hangouts on settings change
+
++streaming, mux, sink 335: +0 "src\MediaStream\Streamer.py" ki 17/07/06 06:56:24
+	change srv:// to tcp://
 
