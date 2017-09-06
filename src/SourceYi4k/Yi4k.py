@@ -73,14 +73,14 @@ class Yi4k():
 		if not self.yiReader.start():
 			msg= 'Camera cannot be accessed by telnet'
 			logging.error(msg)
-			self.stateCB and self.stateCB(Yi4kErr, msg)
+			self.setState(Yi4kErr, msg)
 			return
 
 
 		if not self.yiControl.start(_preset, flat):
 			msg= 'Camera cannot start'
 			logging.error(msg)
-			self.stateCB and self.stateCB(Yi4kErr, msg)
+			self.setState(Yi4kErr, msg)
 
 			self.yiReader.stop()
 			return
@@ -88,10 +88,8 @@ class Yi4k():
 
 		logging.info('Starting %s' % _preset['yiRes'])
 
-		self.flagState= Yi4kAir
 
-
-		self.stateCB and self.stateCB(Yi4kAir, '')
+		self.setState(Yi4kAir, '')
 
 
 
@@ -132,7 +130,7 @@ class Yi4k():
 	def readerStateCB(self, _type, _msg):
 		logging.warning(_msg)
 
-		self.stateCB and self.stateCB(Yi4kWarn, _msg)
+		self.setState(Yi4kWarn, _msg)
 
 
 
@@ -149,10 +147,7 @@ class Yi4k():
 
 		self.yiReader.stop()
 
-		self.flagState= Yi4kIdle
-
-
-		self.stateCB and self.stateCB(Yi4kIdle, '')
+		self.setState(Yi4kIdle, '')
 
 
 
@@ -162,7 +157,6 @@ class Yi4k():
 
 		if _res==False:
 			msg= 'Camera lost'
-			self.flagState= Yi4kIdle
 		else:
 			msg= 'Streaming error'
 			self.yiControl.stop()
@@ -170,9 +164,16 @@ class Yi4k():
 
 		logging.error(msg)
 
-		self.stateCB and self.stateCB(Yi4kErr, msg)
+		self.setState(Yi4kErr, msg)
 
 
 
 	def setStateCB(self, _cb):
 		self.stateCB= callable(_cb) and _cb
+
+
+
+	def setState(self, _state, _msg)
+		self.flagState= _state
+
+		self.stateCB and self.stateCB(_state, _msg)
