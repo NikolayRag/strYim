@@ -31,7 +31,7 @@ class Yi4k():
 	atomCB= None
 	stateCB= None
 
-	idle= True
+	flagState= Yi4kIdle
 
 
 	'''
@@ -88,7 +88,7 @@ class Yi4k():
 
 		logging.info('Starting %s' % _preset['yiRes'])
 
-		self.idle= False
+		self.flagState= Yi4kAir
 
 
 		self.stateCB and self.stateCB(Yi4kAir, '')
@@ -108,7 +108,7 @@ class Yi4k():
 
 
 	def isIdle(self):
-		return self.idle
+		return self.flagState
 
 
 
@@ -149,7 +149,7 @@ class Yi4k():
 
 		self.yiReader.stop()
 
-		self.idle= True
+		self.flagState= Yi4kIdle
 
 
 		self.stateCB and self.stateCB(Yi4kIdle, '')
@@ -162,7 +162,7 @@ class Yi4k():
 
 		if _res==False:
 			msg= 'Camera lost'
-			self.idle= True
+			self.flagState= Yi4kIdle
 		else:
 			msg= 'Streaming error'
 			self.yiControl.stop()
