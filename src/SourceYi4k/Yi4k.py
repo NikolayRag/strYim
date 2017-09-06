@@ -67,20 +67,14 @@ class Yi4k():
 	
 	WARNING: Stryim doesn't check if camera data matches muxer settings.
 	'''
-#  todo 272 (Yi, config) +0: add 60 fps
-#  todo 273 (Yi, config) +0: add 1440 format
 	def start(self, _preset, flat=False):
 		if not self.yiReader.start():
-			msg= 'Camera cannot be accessed by telnet'
-			logging.error(msg)
-			self.setState(Yi4kErr, msg)
+			self.setState(Yi4kErr, 'Camera cannot be accessed by telnet')
 			return
 
 
 		if not self.yiControl.start(_preset, flat):
-			msg= 'Camera cannot start'
-			logging.error(msg)
-			self.setState(Yi4kErr, msg)
+			self.setState(Yi4kErr, 'Camera cannot start')
 
 			self.yiReader.stop()
 			return
@@ -128,8 +122,6 @@ class Yi4k():
 
 
 	def readerStateCB(self, _type, _msg):
-		logging.warning(_msg)
-
 		self.setState(Yi4kWarn, _msg)
 
 
@@ -162,8 +154,6 @@ class Yi4k():
 			self.yiControl.stop()
 
 
-		logging.error(msg)
-
 		self.setState(Yi4kErr, msg)
 
 
@@ -173,7 +163,15 @@ class Yi4k():
 
 
 
-	def setState(self, _state, _msg)
+	def setState(self, _state, _msg=''):
 		self.flagState= _state
+
+		if _state==Yi4kErr:
+			logging.error(_msg)
+
+		if _state==Yi4kWarn:
+			logging.warning(_msg)
+
+
 
 		self.stateCB and self.stateCB(_state, _msg)
