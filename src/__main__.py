@@ -42,7 +42,7 @@ if __name__ == '__main__':
 			try:
 				time.sleep(.1)
 			except KeyboardInterrupt:
-				logging.info('Terminated')
+				logging.info('Terminated, waiting for camera to stop')
 				break
 
 		#finish
