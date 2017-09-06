@@ -108,7 +108,7 @@ class Yi4k():
 
 
 	def isIdle(self):
-		return self.flagState
+		return (self.flagState==Yi4kIdle)
 
 
 
