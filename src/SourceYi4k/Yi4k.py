@@ -85,6 +85,7 @@ class Yi4k():
 
 		self.setState(Yi4kAir, '')
 
+		return True
 
 
 
@@ -94,7 +95,7 @@ class Yi4k():
 	yiReader also stopped, as well as if camera stops manually.
 	'''
 	def stop(self):
-		self.yiControl.stop()
+		return self.yiControl.stop()
 
 
 
