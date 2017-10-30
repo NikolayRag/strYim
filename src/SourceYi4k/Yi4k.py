@@ -15,9 +15,10 @@ Splitted in two sections:
 Generally, reading and decoding is bound to camera record state.
 '''
 Yi4kIdle= 0
-Yi4kAir= 1
-Yi4kWarn= 2
-Yi4kErr= 3
+Yi4kSteady= 1
+Yi4kAir= 2
+Yi4kWarn= 3
+Yi4kErr= 4
 
 class Yi4k():
 	yiAddr= '192.168.42.1'
@@ -68,6 +69,12 @@ class Yi4k():
 	WARNING: Stryim doesn't check if camera data matches muxer settings.
 	'''
 	def start(self, _preset, flat=False):
+		self.setState(Yi4kSteady, '')
+
+		threading.Timer(0, lambda: self.startActual(_preset, flat)).start()
+
+
+	def startActual(self, _preset, flat):
 		if not self.yiReader.start():
 			self.setState(Yi4kErr, 'Camera cannot be accessed by telnet')
 			return
@@ -85,8 +92,6 @@ class Yi4k():
 
 		self.setState(Yi4kAir, '')
 
-		return True
-
 
 
 
@@ -101,7 +106,11 @@ class Yi4k():
 
 
 	def isIdle(self):
-		return (self.flagState==Yi4kIdle)
+		if self.flagState==Yi4kIdle:
+			return True
+
+		if self.flagState==Yi4kErr:
+			return True
 
 
 
