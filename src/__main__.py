@@ -46,8 +46,16 @@ if __name__ == '__main__':
 				break
 
 		#finish
-		threading.Timer(0,appSource.stop).start()
 		threading.Timer(0,appStreamer.kill).start()
+
+		#wait for actual camera stopping
+		while not appSource.isIdle():
+			threading.Timer(0,appSource.stop).start()
+			
+			try:
+				time.sleep(1)
+			except KeyboardInterrupt:
+				logging.warning('Cooldown in progress, terminate with Ctrl+Break')
 
 
 		#prevent breaking shutdows routines by ctrl-c
