@@ -45,7 +45,7 @@ class YiReader():
 			if _type==YiData.OVERFLOW:
 				msg= 'Low camera bandwidth, data is skipped'
 
-			callable(_stateCB) and _stateCB(_type, _msg)
+			callable(_stateCB) and _stateCB(_type, msg)
 
 
 		self.yiData= YiData(_dataCB, _ctxCB, stateCB)
